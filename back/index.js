@@ -3,20 +3,28 @@ import express from "express";
 import cors from "cors";
 import router from "./src/routes/index.js";
 import dotenv from "dotenv";
+import mangadexService from './src/services/mangadex.service.js'
 
-dotenv.config(); // Charger les variables d'environnement depuis le fichier .env
+dotenv.config(); 
 
-const app = express(); // Créer une application Express
+const app = express(); 
 
 app.use(cors({ origin: "*" ,
    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-})); // Autoriser les requêtes CORS de toutes origines
+})); 
 app.use(express.json());
 
+const startServer = async () => {
+  try {
+    console.log ("Initialisation de l'api Mangadex...");
+    await mangadexService.initMangaDex();
+    console.log("Api Mangadex prête");
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation ou de la connexion à l'api Mangadex:", error);
+  }
 
-
-const PORT = process.env.PORT || 3000; // Définir le port du serveur
+const PORT = process.env.PORT || 3000; 
 
 app.use("/", router);
 
@@ -28,3 +36,7 @@ app.listen(PORT, () => {
 
   console.log(`Le serveur est lancé sur http://localhost:${PORT}`);
 });
+
+};
+
+startServer();
