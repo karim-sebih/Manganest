@@ -10,32 +10,35 @@ const Ratings = sequelize.define(
       autoIncrement: true,
     },
 
-    username: {
-      type: DataTypes.STRING(100),
+    user_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
-    email: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      unique: true,
-      validate: { isEmail: true },
-    },
-    password: {
-      type: DataTypes.STRING(255),
+
+    mangadex_id: {
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
-    role: {
-      type: DataTypes.ENUM("ADMIN", "VIEWER"),
+
+    rating: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: "VIEWER",
+      validate: {
+        min: 1,
+        max: 10,
+      },
     },
   },
   {
     tableName: "ratings",
-    timestamps: true,
-    createdAt: "created_at",
-    updatedAt: "updated_at",
+    timestamps: false,
     freezeTableName: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["user_id", "mangadex_id"],
+      },
+    ],
   }
 );
 

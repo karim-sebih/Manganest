@@ -16,9 +16,9 @@ function createUser(req, res) {
     return res.status(400).json({ error: "Données manquantes" });
   }
 
-  const { first_name, last_name, email, password, role } = req.body;
+  const { username, email, password, role } = req.body;
 
-if (!first_name || !last_name || !email || !password ) {
+if (!username || !email || !password ) {
   return res.status(400).json({ error: "Tous les champs sont requis" });
 }
 
@@ -29,7 +29,7 @@ User.findOne({ where: { email } }).then(async (existingEmail) => {
   }
 
   const hash = await hashPassword(password);
-  User.create({ first_name, last_name, email, password: hash, role: role || "VIEWER" })
+  User.create({ username, email, password: hash, role: role || "VIEWER" })
       .then((newUser) => {
         const { password, ...safeUser } = newUser.dataValues;
         res.status(201).json({ message: "Utilisateur créé", newUser: safeUser });
@@ -49,7 +49,7 @@ async function deleteUser(req, res) {
 // Modification
 async function updateUser(req, res) {
   const { id } = req.params;
-  const { first_name, last_name, email, password, role } = req.body;
+  const { username, email, password, role } = req.body;
 
   try {
     const user = await User.findOne({ where: { id } });
@@ -58,8 +58,7 @@ async function updateUser(req, res) {
       return res.status(404).json({ error: "Utilisateur non trouvé" });
     }
     
-    user.first_name = first_name || user.first_name;
-    user.last_name = last_name || user.last_name;
+    user.username = username || user.username;
     user.email = email || user.email;
     user.role = role || user.role;
     
@@ -95,7 +94,7 @@ function findUserByEmail(email) {
 // Get available roles
 function getRoles(req, res) {
   res.json({
-    roles: ["ADMIN", "JURY", "PRODUCER"]
+    roles: ["ADMIN","VIEWER"]
   });
 }
 

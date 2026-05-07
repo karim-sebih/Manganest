@@ -4,8 +4,11 @@ import cors from "cors";
 import router from "./src/routes/index.js";
 import dotenv from "dotenv";
 import mangadexService from './src/services/mangadex.service.js'
+import setupassociations from "./src/models/associations.js";
 
 dotenv.config(); 
+
+setupassociations();
 
 const app = express(); 
 

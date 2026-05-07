@@ -27,7 +27,7 @@ async function login(req, res) {
       message: "Login successful",
       id: user.id,
       email: user.email,
-      first_name: user.first_name,
+      username: user.username,
       role: user.role,
       token,
     });
@@ -62,7 +62,7 @@ function checkToken(req, res) {
         return res.status(200).json({
           email: user.email,
           id: user.id,
-          first_name: user.first_name,
+          username: user.username,
           role: user.role,
         });
       })

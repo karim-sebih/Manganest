@@ -10,32 +10,38 @@ const Progress = sequelize.define(
       autoIncrement: true,
     },
 
-    username: {
-      type: DataTypes.STRING(100),
+    user_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
-    email: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      unique: true,
-      validate: { isEmail: true },
-    },
-    password: {
-      type: DataTypes.STRING(255),
+
+    mangadex_id: {
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
-    role: {
-      type: DataTypes.ENUM("ADMIN", "VIEWER"),
+
+    mangadex_chapter_id: {
+      type: DataTypes.STRING(50),
       allowNull: false,
-      defaultValue: "VIEWER",
+    },
+
+    page: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
     },
   },
   {
     tableName: "progress",
     timestamps: true,
-    createdAt: "created_at",
+    createdAt: false,
     updatedAt: "updated_at",
     freezeTableName: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["user_id", "mangadex_id"],
+      },
+    ],
   }
 );
 
