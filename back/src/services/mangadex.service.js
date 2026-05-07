@@ -5,9 +5,9 @@ dotenv.config()
 
 const initMangaDex = async () => {
     try {
-        console.log('✅ MangaDex API initialisée avec succès');
+        console.log(" MangaDex API initialisée avec succès");
     } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation MangaDex:', error);
+        console.error(" Erreur lors de l'initialisation MangaDex:", error);
     }
 };
 
