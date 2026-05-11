@@ -6,7 +6,7 @@ import Progress from "./Progress.js";
 import Likes from "./Likes.js";
 import History from "./History.js";
 
-export default function setupassociations(){
+export function setupassociations(){
 
 User.hasMany(Library, { foreignKey: "user_id" });
 Library.belongsTo(User, { foreignKey: "user_id" });

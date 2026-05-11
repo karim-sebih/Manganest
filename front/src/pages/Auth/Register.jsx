@@ -21,20 +21,16 @@ export default function Register() {
     const navigate = useNavigate();
 
     const {
-        register,
+        register: formRegister,
         handleSubmit,
     } = useForm({
         resolver: zodResolver(registerSchema),
     });
 
     const registerMutation = useMutation({
-        mutationFn: async (data) =>{
-            return await register({
-                username: data.username,
-                email: data.email,
-                password: data.password,
-            });
-        },
+        mutationFn: register,
+    
+    
         onSuccess: ()=> {
             navigate("/auth/login");
         },
@@ -59,10 +55,10 @@ export default function Register() {
         return(
         <>
 <form onSubmit={handleSubmit(onSubmit)} className="w-full" >
-            <input placeholder="Username" {...register("username")} className="border p-2 mb-2 w-full" type="text" autoComplete="given-username"/>
-            <input placeholder="Email" {...register("email")} className="border p-2 mb-2 w-full" type="email" autoComplete="email"/>
-            <input placeholder="Password" {...register("password")} className="border p-2 mb-2 w-full" type="password" autoComplete="new-password"/>
-            <input placeholder="Confirm Password" {...register("confirmPassword")} className="border p-2 mb-2 w-full" type="password" autoComplete="new-password"/>
+            <input placeholder="Username" {...formRegister("username")} className="border p-2 mb-2 w-full" type="text" autoComplete="given-username"/>
+            <input placeholder="Email" {...formRegister("email")} className="border p-2 mb-2 w-full" type="email" autoComplete="email"/>
+            <input placeholder="Password" {...formRegister("password")} className="border p-2 mb-2 w-full" type="password" autoComplete="new-password"/>
+            <input placeholder="Confirm Password" {...formRegister("confirmPassword")} className="border p-2 mb-2 w-full" type="password" autoComplete="new-password"/>
             <button onClick={handleSubmit(onSubmit)} className="bg-blue-500 text-white p-2 w-full">Register</button>
 </form>
         </>

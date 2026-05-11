@@ -3,43 +3,50 @@ import express from "express";
 import cors from "cors";
 import router from "./src/routes/index.js";
 import dotenv from "dotenv";
-import mangadexService from './src/services/mangadex.service.js'
-import setupassociations from "./src/models/associations.js";
+import { setupassociations } from "./src/models/associations.js";
 
-dotenv.config(); 
+dotenv.config(); // Charger les variables d'environnement depuis le fichier .env
 
+// Setup model associations
 setupassociations();
 
-const app = express(); 
+const app = express(); // Créer une application Express
 
-app.use(cors({ origin: "*" ,
-   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-})); 
-app.use(express.json());
 
-const startServer = async () => {
-  try {
-    console.log ("Initialisation de l'api Mangadex...");
-    await mangadexService.initMangaDex();
-    console.log("Api Mangadex prête");
-  } catch (error) {
-    console.error("Erreur lors de l'initialisation ou de la connexion à l'api Mangadex:", error);
-  }
 
-const PORT = process.env.PORT || 3000; 
 
+// 2. CORS (très tôt)
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || origin.endsWith('.vercel.app') || origin === 'http://localhost:5173') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
+  credentials: true,
+}));
+
+// 3. Parsing JSON → ABSOLUMENT AVANT LES ROUTES
+app.use(express.json());          // ← pour req.body JSON
+app.use(express.urlencoded({ extended: true }));  // ← si tu utilises forms aussi
+
+// 4. Static files
+app.use('/uploads', express.static('uploads'));
+
+const PORT = process.env.PORT || 3000; // Définir le port du serveur
+
+
+// 5. Tes routes
 app.use("/", router);
 
 // Démarrer le serveur
 app.listen(PORT, () => {
   console.log("-----------------------------");
-  console.log("--        LANCEMENT        --");
+  console.log("--        L'ARBITRE        --");
   console.log("-----------------------------");
 
   console.log(`Le serveur est lancé sur http://localhost:${PORT}`);
 });
-
-};
-
-startServer();

@@ -8,4 +8,4 @@ async function login(user){
     return await instance.post("/auth/login", user);
 }
 
-export {register, login};
+export  {register, login};
