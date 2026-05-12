@@ -5,23 +5,29 @@ import jwt from "jsonwebtoken";
 
 async function login(req, res) {
   const { email, password } = req.body;
+  console.log("🔍 Login attempt for:", email); 
 
   try {
     const user = await User.findOne({ where: { email } });
+    console.log("User found:", !!user); // ← Ajoute ça
     
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const isMatch = await comparePassword(password, user.password);
-    
+    console.log("Password match:", isMatch); 
     if (!isMatch) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const token = jwt.sign({id: user.id, email: user.email }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN || "24h",
-    });
+    console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "24h" }
+    );
 
     return res.status(200).json({
       message: "Login successful",
@@ -32,7 +38,8 @@ async function login(req, res) {
       token,
     });
   } catch (error) {
-    return res.status(500).json({ error: "Server error" });
+    console.error("Login error:", error);
+    return res.status(500).json({ error: "Server error", details: error.message });
   }
 }
 
