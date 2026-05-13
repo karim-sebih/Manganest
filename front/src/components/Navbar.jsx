@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router"; // ← Correction importante
+import { Link, useNavigate } from "react-router"; 
 import { Search, Menu, Sun, Bell, User } from "lucide-react";
 import { searchManga } from "../api/manga";
 
