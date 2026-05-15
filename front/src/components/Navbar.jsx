@@ -88,7 +88,7 @@ export default function Navbar() {
                     ✕
                   </button>
                 )}
-                <div className="bg-[#1E293B] ml-1 px-3 py-1 text-xs rounded-sm">Filter</div>
+               <Link to = 'Filter'><div className="bg-[#1E293B] ml-1 px-3 py-1 text-xs rounded-sm">Filter</div></Link> 
               </div>
             </div>
 
