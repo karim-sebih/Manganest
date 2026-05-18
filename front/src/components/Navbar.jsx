@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router"; 
+import { Link, useNavigate } from "react-router";
 import { Search, Menu, Sun, Bell, User } from "lucide-react";
 import { searchManga } from "../api/manga";
+import ManganestLogo from "../assets/Manganest-removebg-preview.png";
 
 export default function Navbar() {
   const [query, setQuery] = useState("");
@@ -57,15 +58,11 @@ export default function Navbar() {
 
   return (
     <nav className="bg-[#1E293B] text-white sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-12">
+      <div className="max-w-7xl mx-15 px-13">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/">
-            <img
-              src="../assets/Manganest-removebg-preview.png"
-              alt="Manganest"
-              className="h-10"
-            />
+            <img src={ManganestLogo} alt="Manganest" className="h-13" />
           </Link>
 
           {/* Search Bar */}
@@ -73,7 +70,7 @@ export default function Navbar() {
             <div className="relative">
               <div className="flex items-center h-10 bg-[#334155] rounded-lg px-4 text-white border border-transparent focus-within:border-blue-500 transition-all">
                 <Search size={20} className="text-gray-400" />
-                 <input
+                <input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
@@ -88,7 +85,11 @@ export default function Navbar() {
                     ✕
                   </button>
                 )}
-               <Link to = 'Filter'><div className="bg-[#1E293B] ml-1 px-3 py-1 text-xs rounded-sm">Filter</div></Link> 
+                <Link to="Filter">
+                  <div className="bg-[#1E293B] ml-1 px-3 py-1 text-xs rounded-sm">
+                    Filter
+                  </div>
+                </Link>
               </div>
             </div>
 
@@ -153,7 +154,11 @@ export default function Navbar() {
 
           {/* Les Icons a gauche */}
           <div className="flex gap-4 text-gray-300">
-            <Menu className="cursor-pointer hover:text-white" size={22} />
+            <Menu
+              className="cursor-pointer hover:text-white"
+              size={22}
+              id="MenuDropdown"
+            />
             <Sun className="cursor-pointer hover:text-white" size={22} />
             <Bell className="cursor-pointer hover:text-white" size={22} />
             <User className="cursor-pointer hover:text-white" size={22} />
