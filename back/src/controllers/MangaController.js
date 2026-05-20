@@ -9,20 +9,23 @@ async function searchManga(req, res) {
         error: "La recherche doit contenir au moins 2 caractères",
       });
     }
+
     const results = await mangadexService.searchManga(
       q,
       parseInt(limit),
       parseInt(offset),
     );
+
     res.json({
       success: true,
       count: results.length,
       mangas: results.map((manga) => ({
         id: manga.id,
         title: manga.localTitle || manga.title?.en,
-        description: manga.localDescription
-          ? manga.localDescription.substring(0, 150) + "..."
-          : null,
+        description:
+          typeof manga.localDescription === "string"
+            ? manga.localDescription.substring(0, 150) + "..."
+            : null,
         cover: manga.mainCover?.url || null,
         tags: manga.tags?.map((tag) => tag.localName) || [],
         year: manga.year,
@@ -60,13 +63,12 @@ async function getMangaById(req, res) {
         year: manga.year,
         tags: manga.tags?.map((tag) => tag.localName) || [],
 
-        // Authors & Artists corrigés
         authors:
           manga.authors?.map((a) => a.name || a.localName || "Unknown") || [],
+
         artists:
           manga.artists?.map((a) => a.name || a.localName || "Unknown") || [],
 
-        // Cover
         cover:
           manga.mainCover?.url ||
           (manga.mainCover && manga.mainCover.fileName
@@ -83,4 +85,49 @@ async function getMangaById(req, res) {
   }
 }
 
-export { searchManga, getMangaById };
+// ← getMangaById est bien fermé ici
+
+async function getAllManga(req, res) {
+  try {
+    const { limit = 20, offset = 0, orderby = 'latest' } = req.query;
+    const mangaList = await mangadexService.getAllManga(
+      parseInt(limit, 10),
+      parseInt(offset, 10)
+    );
+    res.json({
+      success: true,
+      mangas: mangaList.map((manga) => ({
+        id: manga.id,
+        title: manga.localTitle || manga.title?.en,
+        description: manga.localDescription
+          ? manga.localDescription.substring(0, 150) + "..."
+          : null,
+        cover: manga.mainCover?.url || null,
+        tags: manga.tags?.map((tag) => tag.localName) || [],
+        year: manga.year,
+        status: manga.status,
+      })),
+    });
+  } catch (error) {
+    console.error("Erreur getAllManga:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
+
+async function getLatestChapters(req, res) {
+  try {
+    const limit = parseInt(req.query.limit) || 12;
+
+    const data = await mangadexService.getLatestChapters(limit);
+
+    res.json({
+      success: true,
+      chapters: data
+    });
+  } catch (error) {
+    console.error("Erreur getLatestChapters:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
+
+export { searchManga, getMangaById, getAllManga, getLatestChapters };
