@@ -130,4 +130,31 @@ async function getLatestChapters(req, res) {
   }
 }
 
-export { searchManga, getMangaById, getAllManga, getLatestChapters };
+async function getMangaCover(req, res) {
+  try {
+    const { id } = req.params;
+    const manga = await mangadexService.getMangaById(id);
+
+    if (!manga) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Manga non trouvé" });
+    }
+    res.json({
+      success: true,
+      cover: manga.mainCover?.url ||
+        (manga.mainCover && manga.mainCover.fileName
+          ? `https://uploads.mangadex.org/covers/${manga.id}/${manga.mainCover.fileName}`
+          : null)
+    });
+  }
+  catch (error) {
+    console.error("Erreur getMangaCover:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
+
+
+
+
+export { searchManga, getMangaById, getAllManga, getLatestChapters, getMangaCover };

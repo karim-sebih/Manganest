@@ -30,5 +30,12 @@ async function getMangaById(id) {
   const response = await instance.get(`/api/manga/${id}`);   // ← AJOUTE /api ici aussi
   return response.data;
 }
-export { searchManga, getMangaById, getAllManga, getLatestChapters };
+
+async function getMangaCover(id) {
+  const response = await instance.get(`/api/manga/${id}/cover`);
+  return response.data;
+}
+
+
+export { searchManga, getMangaById, getAllManga, getLatestChapters, getMangaCover };
 

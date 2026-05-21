@@ -41,7 +41,8 @@ const mangadexService = {
                 offset,
                 hasAvailableChapters: true,
                 availableTranslatedLanguage: ['fr', 'en'],
-                order: { latestUploadedChapter: "desc" }
+                order: { latestUploadedChapter: "desc" },
+                includes: ['cover_art']
             });
         } catch (error) {
             console.error("getAllManga Error:", error.message);
@@ -52,54 +53,86 @@ const mangadexService = {
     // Derniers chapitres (via mangas récemment mis à jour)
     getLatestChapters: async (limit = 12) => {
         try {
-            // 1. Récupérer des mangas/manhwa récemment mis à jour
-            const mangas = await Manga.search({
-                limit: limit * 2,
-                hasAvailableChapters: true,
-                availableTranslatedLanguage: ['fr', 'en'],
-                order: { latestUploadedChapter: "desc" }
-            });
 
-            // 2. Pour chaque manga, on récupère son dernier chapitre
-            const promises = mangas.slice(0, limit).map(async (manga) => {
-                try {
-                    const feed = await manga.getFeed({
-                        limit: 1,
-                        availableTranslatedLanguage: ['fr', 'en'],
-                        order: { chapter: "desc" }
-                    });
+            const res = await fetch(
+                `https://api.mangadex.org/manga?limit=${limit}&includes[]=cover_art&order[latestUploadedChapter]=desc`
+            );
 
-                    const latestChapter = feed[0];
+            const data = await res.json();
+
+            const results = await Promise.all(
+                data.data.map(async (manga) => {
+
+                    // récupérer le dernier chapitre
+                    const feedRes = await fetch(
+                        `https://api.mangadex.org/manga/${manga.id}/feed?limit=1&order[chapter]=desc`
+                    );
+
+                    const feedData = await feedRes.json();
+
+                    const latestChapter = feedData.data?.[0];
+
+                    // récupérer la cover
+                    const coverRel = manga.relationships.find(
+                        (rel) => rel.type === "cover_art"
+                    );
+
+                    const cover = coverRel?.attributes?.fileName
+                        ? `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes.fileName}`
+                        : null;
 
                     return {
                         id: manga.id,
-                        mangaTitle: manga.localTitle || manga.title?.en || "Titre inconnu",
-                        cover: manga.mainCover?.url ||
-                            (manga.mainCover?.fileName
-                                ? `https://uploads.mangadex.org/covers/${manga.id}/${manga.mainCover.fileName}`
-                                : null),
-                        lastChapter: latestChapter?.chapter || manga.lastChapter || "?",
-                        chapterTitle: latestChapter?.title,
-                        publishAt: latestChapter?.publishAt || manga.updatedAt,
-                        translatedLanguage: latestChapter?.translatedLanguage,
-                    };
-                } catch (e) {
-                    return {
-                        id: manga.id,
-                        mangaTitle: manga.localTitle || manga.title?.en || "Titre inconnu",
-                        cover: manga.mainCover?.url || null,
-                        lastChapter: manga.lastChapter || "?",
-                        publishAt: manga.updatedAt,
-                    };
-                }
-            });
 
-            return await Promise.all(promises);
+                        mangaTitle:
+                            manga.attributes?.title?.en ||
+                            Object.values(manga.attributes?.title || {})[0] ||
+                            "Titre inconnu",
+
+                        lastChapter:
+                            latestChapter?.attributes?.chapter || "N/A",
+
+                        publishAt:
+                            latestChapter?.attributes?.publishAt || null,
+
+                        cover
+                    };
+                })
+            );
+
+            return results;
+
         } catch (error) {
             console.error("getLatestChapters Error:", error.message);
             throw error;
         }
     },
+
+
+    getMangaCover: async (id) => {
+        try {
+
+            const res = await fetch(
+                `https://api.mangadex.org/manga/${id}?includes[]=cover_art`
+            );
+
+            const data = await res.json();
+
+            const coverRel = data.data.relationships.find(
+                rel => rel.type === "cover_art"
+            );
+
+            if (!coverRel?.attributes?.fileName) {
+                return null;
+            }
+
+            return `https://uploads.mangadex.org/covers/${id}/${coverRel.attributes.fileName}`;
+
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
 };
 
 export default mangadexService;

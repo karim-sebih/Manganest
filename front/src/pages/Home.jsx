@@ -36,10 +36,12 @@ export default function Home() {
     navigate(`/manga/${id}`);
   };
 
+
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0F172A] flex items-center justify-center">
-        <p className="text-xl text-gray-400">Chargement...</p>
+        <p className="text-xl text-gray-400">Chargement des derniers chapitres...</p>
       </div>
     );
   }
@@ -56,8 +58,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#0F172A] text-white pb-12">
       <div className="max-w-7xl mx-auto px-6 pt-8">
 
-        {/* 🔥 CHAPITRES RÉCENTS */}
-        <h2 className="text-3xl font-bold mt-16 mb-8 flex items-center gap-3">
+        <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
           📖 Derniers Chapitres
         </h2>
 
@@ -68,15 +69,25 @@ export default function Home() {
               onClick={() => handleMangaClick(chapter.id)}
               className="bg-[#1E293B] rounded-2xl p-6 hover:bg-[#25334b] transition-all cursor-pointer flex gap-5 group"
             >
-              <img
-                src={chapter.cover}
-                alt={chapter.mangaTitle}
-                className="w-24 h-32 object-cover rounded-xl flex-shrink-0"
-                onError={(e) => (e.target.src = "https://via.placeholder.com/300x420?text=No+Cover")}
-              />
+              <div className="flex-shrink-0">
+                <img
+                  src={
+                    chapter.cover ||
+                      "Rien à afficher" 
+                  }
 
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-blue-400">
+                  alt={chapter.mangaTitle}
+                  className="w-24 h-36 object-cover rounded-xl flex-shrink-0"
+                  onError={(e) => {
+                    e.target.src = "https://picsum.photos/300/420?random=1"; // fallback fiable
+                    
+                  }}
+
+                />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-blue-400 transition-colors">
                   {chapter.mangaTitle}
                 </h3>
 
@@ -100,4 +111,5 @@ export default function Home() {
       </div>
     </div>
   );
-} 
+
+}
