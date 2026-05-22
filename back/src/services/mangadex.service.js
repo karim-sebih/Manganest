@@ -1,61 +1,71 @@
-import { Manga, loginPersonal } from 'mangadex-full-api';
 import dotenv from "dotenv";
 
 dotenv.config();
 
+const BASE_URL = "https://api.mangadex.org";
+
 const mangadexService = {
-    // Recherche générale
+
+    // Recherche manga
     searchManga: async (title = "", limit = 20, offset = 0) => {
         try {
-            return await Manga.search({
-                title,
-                limit,
-                offset,
-                hasAvailableChapters: true,
-                availableTranslatedLanguage: ['fr', 'en']
-            });
+
+            const res = await fetch(
+                `${BASE_URL}/manga?title=${encodeURIComponent(title)}&limit=${limit}&offset=${offset}&includes[]=cover_art&availableTranslatedLanguage[]=fr&availableTranslatedLanguage[]=en`
+            );
+
+            const data = await res.json();
+
+            return data.data || [];
+
         } catch (error) {
             console.error("searchManga Error:", error.message);
             throw error;
         }
     },
 
-    // Récupérer un manga par ID
+    // Manga par ID
     getMangaById: async (id) => {
         try {
-            const manga = await Manga.get(id, {
-                includes: ['author', 'artist', 'cover_art']
-            });
-            return manga;
+
+            const res = await fetch(
+                `${BASE_URL}/manga/${id}?includes[]=author&includes[]=artist&includes[]=cover_art`
+            );
+
+            const data = await res.json();
+
+            return data.data;
+
         } catch (error) {
             console.error("getMangaById Error:", error.message);
             throw error;
         }
     },
 
-    // Pour la page d'accueil - Tous les mangas (récents)
+    // Tous les mangas récents
     getAllManga: async (limit = 20, offset = 0) => {
         try {
-            return await Manga.search({
-                limit,
-                offset,
-                hasAvailableChapters: true,
-                availableTranslatedLanguage: ['fr', 'en'],
-                order: { latestUploadedChapter: "desc" },
-                includes: ['cover_art']
-            });
+
+            const res = await fetch(
+                `${BASE_URL}/manga?limit=${limit}&offset=${offset}&includes[]=cover_art&availableTranslatedLanguage[]=fr&availableTranslatedLanguage[]=en&order[latestUploadedChapter]=desc`
+            );
+
+            const data = await res.json();
+
+            return data.data || [];
+
         } catch (error) {
             console.error("getAllManga Error:", error.message);
             throw error;
         }
     },
 
-    // Derniers chapitres (via mangas récemment mis à jour)
-    getLatestChapters: async (limit = 12) => {
+    // Derniers chapitres
+    getLatestChapters: async (limit = 12, offset = 0) => {
         try {
 
             const res = await fetch(
-                `https://api.mangadex.org/manga?limit=${limit}&includes[]=cover_art&order[latestUploadedChapter]=desc`
+                `${BASE_URL}/manga?limit=${limit}&offset=${offset}&includes[]=cover_art&order[latestUploadedChapter]=desc`
             );
 
             const data = await res.json();
@@ -63,16 +73,16 @@ const mangadexService = {
             const results = await Promise.all(
                 data.data.map(async (manga) => {
 
-                    // récupérer le dernier chapitre
+                    // Feed du manga
                     const feedRes = await fetch(
-                        `https://api.mangadex.org/manga/${manga.id}/feed?limit=1&order[chapter]=desc`
+                        `${BASE_URL}/manga/${manga.id}/feed?limit=1&order[publishAt]=desc`
                     );
 
                     const feedData = await feedRes.json();
 
                     const latestChapter = feedData.data?.[0];
 
-                    // récupérer la cover
+                    // Cover
                     const coverRel = manga.relationships.find(
                         (rel) => rel.type === "cover_art"
                     );
@@ -108,18 +118,18 @@ const mangadexService = {
         }
     },
 
-
+    // Cover d’un manga
     getMangaCover: async (id) => {
         try {
 
             const res = await fetch(
-                `https://api.mangadex.org/manga/${id}?includes[]=cover_art`
+                `${BASE_URL}/manga/${id}?includes[]=cover_art`
             );
 
             const data = await res.json();
 
             const coverRel = data.data.relationships.find(
-                rel => rel.type === "cover_art"
+                (rel) => rel.type === "cover_art"
             );
 
             if (!coverRel?.attributes?.fileName) {
@@ -129,7 +139,7 @@ const mangadexService = {
             return `https://uploads.mangadex.org/covers/${id}/${coverRel.attributes.fileName}`;
 
         } catch (error) {
-            console.error(error);
+            console.error("getMangaCover Error:", error.message);
             return null;
         }
     }

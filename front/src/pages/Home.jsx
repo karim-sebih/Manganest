@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { getAllManga, getLatestChapters } from "../api/manga";
 import { useNavigate } from "react-router";
+import Pagination from "../components/Pagination";
 
 export default function Home() {
   const [mangas, setMangas] = useState([]);
   const [latestChapters, setLatestChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+
+  const LIMIT = 20;
 
   const navigate = useNavigate();
 
@@ -15,9 +19,11 @@ export default function Home() {
       try {
         setLoading(true);
         const [mangaData, chapterData] = await Promise.all([
-          getAllManga(20),
-          getLatestChapters(12),
-        ]);
+          getAllManga(LIMIT, (page - 1) * LIMIT),
+          getLatestChapters(
+            LIMIT,
+            (page - 1) * LIMIT
+          )]);
 
         setMangas(mangaData.mangas || []);
         setLatestChapters(chapterData.chapters || []);
@@ -30,7 +36,7 @@ export default function Home() {
     }
 
     fetchData();
-  }, []);
+  }, [page]);
 
   const handleMangaClick = (id) => {
     navigate(`/manga/${id}`);
@@ -59,10 +65,10 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-6 pt-8">
 
         <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
-          📖 Derniers Chapitres
+          Derniers Chapitres
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {latestChapters.map((chapter) => (
             <div
               key={chapter.id}
@@ -73,14 +79,14 @@ export default function Home() {
                 <img
                   src={
                     chapter.cover ||
-                      "Rien à afficher" 
+                    "Rien à afficher"
                   }
 
                   alt={chapter.mangaTitle}
                   className="w-24 h-36 object-cover rounded-xl flex-shrink-0"
                   onError={(e) => {
                     e.target.src = "https://picsum.photos/300/420?random=1"; // fallback fiable
-                    
+
                   }}
 
                 />
@@ -109,6 +115,11 @@ export default function Home() {
           ))}
         </div>
       </div>
+      <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextPage={mangas.length >= LIMIT}
+      />
     </div>
   );
 

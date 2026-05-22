@@ -2,7 +2,7 @@ import instance from "./config.js";
 
 async function searchManga(query, limit = 10, offset = 0) {
   try {
-    const response = await instance.get("/api/manga/search", {   // ← AJOUTE /api ici
+    const response = await instance.get("/api/manga/search", {
       params: { q: query, limit, offset },
     });
 
@@ -14,8 +14,11 @@ async function searchManga(query, limit = 10, offset = 0) {
 }
 
 
-async function getAllManga() {
-  const response = await instance.get(`/api/manga/all-mangas`);
+async function getAllManga(limit = 20, offset = 0) {
+  const response = await instance.get(`/api/manga/all-mangas`, {
+    params: { limit, offset }
+  });
+
   return response.data;
 }
 
