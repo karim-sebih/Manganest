@@ -18,7 +18,7 @@ export default function MangaDetails() {
 
                 const data = await getMangaById(
                     id,
-                    ["fr", /*"en"*/]
+                    ["en", /*"fr"*/]
                 );
 
                 setManga(data.manga);
