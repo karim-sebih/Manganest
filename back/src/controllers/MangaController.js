@@ -92,7 +92,18 @@ async function getMangaById(req, res) {
 
     const { id } = req.params;
 
-    const manga = await mangadexService.getMangaById(id);
+    const languages = req.query.lang
+      ? req.query.lang.split(",")
+      : ["fr"];
+
+    const manga =
+      await mangadexService.getMangaById(id);
+
+    const chaptersData =
+      await mangadexService.getMangaChapters(
+        id,
+        languages
+      );
 
     if (!manga) {
       return res.status(404).json({
@@ -103,32 +114,64 @@ async function getMangaById(req, res) {
 
     const authors = manga.relationships
       ?.filter((rel) => rel.type === "author")
-      ?.map((author) => author.attributes?.name || "Unknown") || [];
+      ?.map(
+        (author) =>
+          author.attributes?.name || "Unknown"
+      ) || [];
 
     const artists = manga.relationships
       ?.filter((rel) => rel.type === "artist")
-      ?.map((artist) => artist.attributes?.name || "Unknown") || [];
+      ?.map(
+        (artist) =>
+          artist.attributes?.name || "Unknown"
+      ) || [];
+
+    const chapters = chaptersData.map(
+      (chapter) => ({
+        id: chapter.id,
+
+        title:
+          chapter.attributes?.title || "",
+
+        chapter:
+          chapter.attributes?.chapter || "?",
+
+        volume:
+          chapter.attributes?.volume,
+
+        publishAt:
+          chapter.attributes?.publishAt,
+
+        language:
+          chapter.attributes
+            ?.translatedLanguage,
+      })
+    );
 
     res.json({
       success: true,
 
       manga: {
-
         id: manga.id,
 
         title: getTitle(manga),
 
-        altTitles: manga.attributes?.altTitles || [],
+        altTitles:
+          manga.attributes?.altTitles || [],
 
-        description: getDescription(manga),
+        description:
+          getDescription(manga),
 
-        status: manga.attributes?.status,
+        status:
+          manga.attributes?.status,
 
-        year: manga.attributes?.year,
+        year:
+          manga.attributes?.year,
 
         tags:
           manga.attributes?.tags?.map(
-            (tag) => tag.attributes?.name?.en
+            (tag) =>
+              tag.attributes?.name?.en
           ) || [],
 
         authors,
@@ -137,15 +180,22 @@ async function getMangaById(req, res) {
 
         cover: buildCoverUrl(manga),
 
-        lastChapter: manga.attributes?.lastChapter,
+        lastChapter:
+          manga.attributes?.lastChapter,
 
-        lastVolume: manga.attributes?.lastVolume,
+        lastVolume:
+          manga.attributes?.lastVolume,
       },
-    });
 
+      chapters,
+    });
+    console.log(chaptersData);
   } catch (error) {
 
-    console.error("Erreur getMangaById:", error.message);
+    console.error(
+      "Erreur getMangaById:",
+      error.message
+    );
 
     res.status(500).json({
       success: false,

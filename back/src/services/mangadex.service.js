@@ -42,6 +42,41 @@ const mangadexService = {
         }
     },
 
+    /* Récupérer les chapitres d’un manga (sois en fr sois en eng pour l'instant*/
+    getMangaChapters: async (
+        id,
+        languages = ["fr"]
+    ) => {
+
+        try {
+
+            const languageQuery = languages
+                .map(
+                    (lang) =>
+                        `translatedLanguage[]=${lang}`
+                )
+                .join("&");
+
+            const res = await fetch(
+                `${BASE_URL}/chapter?manga=${id}&${languageQuery}&order[chapter]=desc&limit=100`
+            );
+
+            const data = await res.json();
+
+            return data.data;
+
+        } catch (error) {
+
+            console.error(
+                "getMangaChapters Error:",
+                error.message
+            );
+
+            throw error;
+        }
+    },
+
+
     // Tous les mangas récents
     getAllManga: async (limit = 20, offset = 0) => {
         try {

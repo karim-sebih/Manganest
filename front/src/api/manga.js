@@ -29,11 +29,19 @@ async function getLatestChapters(limit = 20, offset = 0) {
   return response.data;
 }
 
-async function getMangaById(id) {
-  const response = await instance.get(`/api/manga/${id}`);   // ← AJOUTE /api ici aussi
+async function getMangaById(
+  id,
+  languages = ["fr"]
+) {
+
+  const langQuery = languages.join(",");
+
+  const response = await instance.get(
+    `/api/manga/${id}?lang=${langQuery}`
+  );
+
   return response.data;
 }
-
 async function getMangaCover(id) {
   const response = await instance.get(`/api/manga/${id}/cover`);
   return response.data;
