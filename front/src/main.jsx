@@ -7,7 +7,7 @@ import Home from './pages/Home.jsx';
 import { BrowserRouter , Route , Routes} from "react-router";
 import PublicLayout from './layouts/PublicLayout.jsx';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Details from './pages/Details.jsx'
+import MangaDetails from './pages/MangaDetails.jsx'
 import Filter from './pages/Filter.jsx'
 import Booksmark from './pages/Booksmark.jsx';
 import Settings from './pages/Settings.jsx';
@@ -31,7 +31,7 @@ createRoot(document.getElementById('root')).render(
           <Route index element= {<Home/>}/>
           <Route path="/auth/register" element={<Register/>}/>
           <Route path="/auth/login" element={<Login/>}/>
-          <Route path="/title/:mangaid" element={<Details/>}/>
+          <Route path="/manga/:mangaid" element={<MangaDetails/>}/>
           <Route path="/filter" element = {<Filter/>}/>
           <Route path="/title/:mangaid/:chapterid" element={<Chapter/>}/>
           <Route path="/profile/:id" element={<Profile />} />
