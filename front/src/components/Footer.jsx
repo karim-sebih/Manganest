@@ -1,9 +1,9 @@
 import React from "react";
 
 export default function Footer() {
-    return(
+    return (
         <footer className="bg-gray-800 text-white py-4 text-center">
-            <p>&copy; 2024 Manganest. Tous droits réservés.</p>
+            <p>&copy; 2026 Manganest. Tous droits réservés à Mangadex.</p>
         </footer>
     );
 }
