@@ -13,6 +13,7 @@ import Booksmark from './pages/Booksmark.jsx';
 import Settings from './pages/Settings.jsx';
 import Profile from './pages/Profile.jsx';
 import Chapter from './pages/Chapter.jsx';
+import ChapterLayout from './layouts/ChapterLayout.jsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,8 +38,12 @@ createRoot(document.getElementById('root')).render(
             <Route path="/profile/:id" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/booksmark/:id" element={<Booksmark />} />
-
           </Route>
+
+          <Route path='/chapter/:id' element={<ChapterLayout />} >
+            <Route index element={<Chapter />} />
+          </Route>
+
 
         </Routes>
       </QueryClientProvider>

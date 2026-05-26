@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { getMangaById } from "../api/manga";
 
 export default function MangaDetails() {
     const { id } = useParams();
 
+    const navigate = useNavigate()
     const [manga, setManga] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -34,6 +35,11 @@ export default function MangaDetails() {
         fetchManga();
     }, [id]);
 
+    const handleChapterClick = (id) => {
+        navigate(`/chapter/${id}`);
+    }
+
+
     if (loading) {
         return (
             <div className="min-h-screen bg-[#0F172A] flex items-center justify-center text-white">
@@ -49,7 +55,7 @@ export default function MangaDetails() {
             </div>
         );
     }
-    console.log(manga)
+
     return (
         <div className="min-h-screen bg-[#0F172A] text-white">
             <div className="max-w-6xl mx-auto px-6 py-10">
@@ -120,6 +126,7 @@ export default function MangaDetails() {
                         {chapters.map((chapter) => (
                             <div
                                 key={chapter.id}
+                                onClick={() => handleChapterClick(chapter.id)}
                                 className="bg-[#1E293B] p-5 rounded-xl"
                             >
                                 <p className="text-lg font-semibold">

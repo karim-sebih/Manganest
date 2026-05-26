@@ -1,10 +1,14 @@
+import { useParams } from "react-router";
 
+export default function Chapter() {
 
+    const { id } = useParams();
 
-export default  function Chapter(){
-    return(
-        <>
-        Chapter
-        </>
-    )
+    console.log(id);
+
+    return (
+        <div>
+            Chapitre : {id}
+        </div>
+    );
 }
