@@ -5,7 +5,7 @@ import { getMangaById } from "../api/manga";
 export default function MangaDetails() {
     const { id } = useParams();
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [manga, setManga] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -23,7 +23,7 @@ export default function MangaDetails() {
                 );
 
                 setManga(data.manga);
-                setChapters(data.chapters)
+                setChapters(data.chapters);
             } catch (err) {
                 console.error(err);
                 setError("Impossible de charger le manga");

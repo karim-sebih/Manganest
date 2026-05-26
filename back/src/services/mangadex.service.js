@@ -76,7 +76,27 @@ const mangadexService = {
         }
     },
 
+    getChapterPages: async (id) => {
+        try {
 
+            const res = await fetch(
+                `${BASE_URL}/at-home/server/${id}`
+            );
+
+            const data = await res.json();
+
+            return data;
+
+        } catch (error) {
+
+            console.error(
+                "getChapterPages Error:",
+                error.message
+            );
+
+            throw error;
+        }
+    },
     // Tous les mangas récents
     getAllManga: async (limit = 20, offset = 0) => {
         try {

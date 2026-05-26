@@ -306,10 +306,58 @@ async function getMangaCover(req, res) {
   }
 }
 
+async function getChapterPages(req, res) {
+
+  try {
+
+    const { id } = req.params;
+
+    const chapterData =
+      await mangadexService.getChapterPages(id);
+
+    if (!chapterData) {
+
+      return res.status(404).json({
+        success: false,
+        error: "Pages non trouvées",
+      });
+    }
+
+    const baseUrl = chapterData.baseUrl;
+
+    const hash =
+      chapterData.chapter.hash;
+
+    const pages =
+      chapterData.chapter.data.map(
+        (page) =>
+          `${baseUrl}/data/${hash}/${page}`
+      );
+
+    res.json({
+      success: true,
+      pages,
+    });
+
+  } catch (error) {
+
+    console.error(
+      "Erreur getChapterPages:",
+      error.message
+    );
+
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
 export {
   searchManga,
   getMangaById,
   getAllManga,
   getLatestChapters,
   getMangaCover,
+  getChapterPages
 };
