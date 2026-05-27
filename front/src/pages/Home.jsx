@@ -2,13 +2,16 @@ import React, { useEffect, useState } from "react";
 import { getAllManga, getLatestChapters } from "../api/manga";
 import { useNavigate } from "react-router";
 import Pagination from "../components/Pagination";
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
+  const { t } = useTranslation();
   const [mangas, setMangas] = useState([]);
   const [latestChapters, setLatestChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
+
 
   const LIMIT = 20;
 
@@ -47,7 +50,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0F172A] flex items-center justify-center">
-        <p className="text-xl text-gray-400">Chargement des derniers chapitres...</p>
+        <p className="text-xl text-gray-400">{t('common.loading')}</p>
       </div>
     );
   }
@@ -65,7 +68,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-6 pt-8">
 
         <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
-          Derniers Chapitres
+          {t('home.title')}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -98,7 +101,7 @@ export default function Home() {
                 </h3>
 
                 <p className="text-blue-400 text-xl font-medium mt-3">
-                  Chapitre {chapter.lastChapter}
+                  {t('home.chapterPrefix')} {chapter.lastChapter}
                 </p>
 
                 {chapter.publishAt && (

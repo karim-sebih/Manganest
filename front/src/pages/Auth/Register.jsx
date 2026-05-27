@@ -1,23 +1,27 @@
 import * as z from "zod";
 import { register } from "../../api/auth.js";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {useForm} from "react-hook-form";
-import {useMutation} from "@tanstack/react-query";
-import {useNavigate} from "react-router";
-import {Link} from "react-router";
-
-const registerSchema = z.object({
-    username: z.string().min(1, "Le nom d'utilisateur est requis"),
-    email: z.string().email("Email invalide"),
-    password: z.string().min(8, "Le mot de passe doit contenir au moins 8 caractères"),
-    confirmPassword: z.string(),
-})
-    .refine((data) => data.password === data.confirmPassword, {
-        message: "Les mots de passe ne correspondent pas",
-        path : ["confirmPassword"],
-    });
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
+import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 
 export default function Register() {
+    const { t } = useTranslation();
+
+    // Schema Zod 
+    const registerSchema = z.object({
+        username: z.string().min(1, t('auth.register.validation.usernameRequired')),
+        email: z.string().email(t('auth.register.validation.emailInvalid')),
+        password: z.string().min(8, t('auth.register.validation.passwordMin')),
+        confirmPassword: z.string(),
+    })
+        .refine((data) => data.password === data.confirmPassword, {
+            message: t('auth.register.validation.passwordsNotMatch'),
+            path: ["confirmPassword"],
+        });
+
     const navigate = useNavigate();
 
     const {
@@ -29,40 +33,68 @@ export default function Register() {
 
     const registerMutation = useMutation({
         mutationFn: register,
-    
-    
-        onSuccess: ()=> {
+        onSuccess: () => {
             navigate("/auth/login");
         },
-        onError: (err)=>{
-            alert(err.response?.data?.error || "Une erreur est survenue");
+        onError: (err) => {
+            alert(err.response?.data?.error || t('common.error'));
         },
-
     });
 
-    const onSubmit = (data) =>{
+    const onSubmit = (data) => {
         registerMutation.mutate(data);
     };
 
     if (localStorage.getItem("token")) {
-        return(
+        return (
             <>
-            <h1 className="text-2xl font-bold mb-4">Vous êtes déjà connecté en tant que {localStorage.getItem("username")}</h1>
-            <Link to ="/">Go to homepage</Link>
+                <h1 className="text-2xl font-bold mb-4">
+                    {t('auth.register.alreadyLoggedIn', {
+                        username: localStorage.getItem("username")
+                    })}
+                </h1>
+                <Link to="/">{t('auth.register.goToHomepage')}</Link>
             </>
         );
     }
-        return(
-        <>
-<form onSubmit={handleSubmit(onSubmit)} className="w-full" >
-            <input placeholder="Username" {...formRegister("username")} className="border p-2 mb-2 w-full" type="text" autoComplete="given-username"/>
-            <input placeholder="Email" {...formRegister("email")} className="border p-2 mb-2 w-full" type="email" autoComplete="email"/>
-            <input placeholder="Password" {...formRegister("password")} className="border p-2 mb-2 w-full" type="password" autoComplete="new-password"/>
-            <input placeholder="Confirm Password" {...formRegister("confirmPassword")} className="border p-2 mb-2 w-full" type="password" autoComplete="new-password"/>
-            <button onClick={handleSubmit(onSubmit)} className="bg-blue-500 text-white p-2 w-full">Register</button>
-</form>
-        </>
 
-
-        );   
-    }
+    return (
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md mx-auto">
+            <input
+                placeholder={t('auth.register.username')}
+                {...formRegister("username")}
+                className="border p-2 mb-2 w-full"
+                type="text"
+                autoComplete="given-username"
+            />
+            <input
+                placeholder={t('auth.register.email')}
+                {...formRegister("email")}
+                className="border p-2 mb-2 w-full"
+                type="email"
+                autoComplete="email"
+            />
+            <input
+                placeholder={t('auth.register.password')}
+                {...formRegister("password")}
+                className="border p-2 mb-2 w-full"
+                type="password"
+                autoComplete="new-password"
+            />
+            <input
+                placeholder={t('auth.register.confirmPassword')}
+                {...formRegister("confirmPassword")}
+                className="border p-2 mb-2 w-full"
+                type="password"
+                autoComplete="new-password"
+            />
+            <button
+                type="submit"
+                className="bg-blue-500 text-white p-2 w-full"
+                disabled={registerMutation.isPending}
+            >
+                {registerMutation.isPending ? t('auth.login.loggingIn') : t('auth.register.registerButton')}
+            </button>
+        </form>
+    );
+}

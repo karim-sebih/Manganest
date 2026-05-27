@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { getMangaById } from "../api/manga";
+import { useTranslation } from "react-i18next";
 
 export default function MangaDetails() {
     const { id } = useParams();
+    const { t } = useTranslation();
+
 
     const navigate = useNavigate();
     const [manga, setManga] = useState(null);
@@ -43,7 +46,7 @@ export default function MangaDetails() {
     if (loading) {
         return (
             <div className="min-h-screen bg-[#0F172A] flex items-center justify-center text-white">
-                Chargement...
+                {t('mangaDetails.loading')}
             </div>
         );
     }
@@ -51,7 +54,7 @@ export default function MangaDetails() {
     if (error) {
         return (
             <div className="min-h-screen bg-[#0F172A] flex items-center justify-center text-red-500">
-                {error}
+                {t('mangaDetails.error')}
             </div>
         );
     }
@@ -94,20 +97,20 @@ export default function MangaDetails() {
                         <div className="mt-8 space-y-2 text-gray-400">
                             <p>
                                 <span className="text-white font-semibold">
-                                    Auteur :
+                                    {t('mangaDetails.author')}
                                 </span>{" "}
                                 {manga.authors?.join(", ")}
                             </p>
 
                             <p>
                                 <span className="text-white font-semibold">
-                                    Artiste :
+                                    {t('mangaDetails.artist')}
                                 </span>{" "}
                                 {manga.artists?.join(", ")}
                             </p>
                             <p>
                                 <span className="text-white font-semibold">
-                                    Statut :
+                                    {t('mangaDetails.status')}
                                 </span>{" "}
                                 {manga.status}
                             </p>
@@ -118,7 +121,7 @@ export default function MangaDetails() {
                 {/* Chapitres */}
                 <div className="mt-14">
                     <h2 className="text-3xl font-bold mb-6">
-                        Chapitres
+                        {t('mangaDetails.chaptersSection')}
                     </h2>
 
                     <div className="space-y-3">
@@ -130,7 +133,7 @@ export default function MangaDetails() {
                                 className="bg-[#1E293B] p-5 rounded-xl"
                             >
                                 <p className="text-lg font-semibold">
-                                    Chapitre {chapter.chapter}
+                                    {t('mangaDetails.chapterPrefix')} {chapter.chapter}
                                 </p>
 
                                 <p className="text-gray-400">

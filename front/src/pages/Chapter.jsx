@@ -1,10 +1,12 @@
 import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { getChapterPages } from "../api/manga";
+import { useTranslation } from "react-i18next";
 
 export default function Chapter() {
-
+    const { t } = useTranslation();
     const { id } = useParams();
+    
 
     const navigate = useNavigate();
 
@@ -39,7 +41,7 @@ export default function Chapter() {
     if (loading) {
         return (
             <div className="min-h-screen bg-[#0F172A] flex items-center justify-center">
-                <p className="text-xl text-gray-400">Chargement des pages</p>
+                <p className="text-xl text-gray-400">{t('chapter.loading')}</p>
             </div>
         );
     }
@@ -47,7 +49,7 @@ export default function Chapter() {
     if (error) {
         return (
             <div className="min-h-screen bg-[#0F172A] flex items-center justify-center text-red-500">
-                {error}
+                {t('chapter.error')}
             </div>
         );
     }

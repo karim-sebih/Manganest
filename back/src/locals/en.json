@@ -1,0 +1,65 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "imageFallback": "https://picsum.photos/300/420?random=1",
+    "noData": "No data available"
+  },
+  "home": {
+    "loadingText": "Loading latest chapters...",
+    "title": "Latest Chapters",
+    "chapterPrefix": "Chapter",
+    "noCover": "Nothing to display"
+  },
+  "mangaDetails": {
+    "loading": "Loading manga...",
+    "error": "Unable to load manga",
+    "title": "Manga Details",
+    "chaptersSection": "Chapters",
+    "chapterPrefix": "Chapter",
+    "author": "Author:",
+    "artist": "Artist:",
+    "status": "Status:"
+  },
+  "chapter": {
+    "loading": "Loading pages",
+    "error": "Unable to load the page",
+    "pageAlt": "Page {{number}}"
+  },
+  "auth": {
+    "register": {
+      "title": "Register",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "registerButton": "Register",
+      "alreadyLoggedIn": "You are already logged in as {{username}}",
+      "goToHomepage": "Go to homepage",
+      "validation": {
+        "usernameRequired": "Username is required",
+        "emailInvalid": "Invalid email",
+        "passwordMin": "Password must be at least 8 characters",
+        "passwordsNotMatch": "Passwords do not match"
+      }
+    },
+    "login": {
+      "title": "Login",
+      "email": "Email",
+      "password": "Password",
+      "loginButton": "Login",
+      "loggingIn": "Logging in...",
+      "alreadyLoggedIn": "You are already logged in as {{username}}",
+      "logout": "Logout",
+      "goToHomepage": "Go to homepage",
+      "validation": {
+        "emailInvalid": "Invalid email",
+        "passwordRequired": "Password is required"
+      },
+      "errors": {
+        "network": "Unable to reach the server.",
+        "generic": "Error during login"
+      }
+    }
+  }
+}
