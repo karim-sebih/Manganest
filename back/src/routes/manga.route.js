@@ -5,7 +5,8 @@ import {
     getMangaById,
     getAllManga,
     getLatestChapters,
-    getMangaCover
+    getMangaCover,
+    getChapterPages
 } from '../controllers/MangaController.js';
 
 const Mangarouter = express.Router();
@@ -17,6 +18,8 @@ Mangarouter.get('/all-mangas', getAllManga);
 Mangarouter.get('/chapter', getLatestChapters);
 
 Mangarouter.get('/:id/cover', getMangaCover);
+
+Mangarouter.get('/chapter/:id/pages', getChapterPages);
 
 /* Route dynamique  */
 Mangarouter.get('/:id', getMangaById);

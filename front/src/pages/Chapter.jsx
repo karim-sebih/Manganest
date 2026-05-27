@@ -7,7 +7,8 @@ export default function Chapter() {
     const { id } = useParams();
 
     const navigate = useNavigate();
-    const [page, setPage] = useState([]);
+
+    const [pages, setPages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
@@ -18,7 +19,7 @@ export default function Chapter() {
 
                 const data = await getChapterPages(id);
 
-                setPage(data.pages);
+                setPages(data.pages);
             } catch (err) {
                 console.error(err);
                 setError("Impossible de charger la page")
@@ -54,7 +55,19 @@ export default function Chapter() {
     console.log(id);
 
     return (
-        <div>
+
+        <div className="min-h-screen bg-black flex flex-col items-center">
+
+            {pages.map((page, index) => (
+
+                <img
+                    key={index}
+                    src={page}
+                    alt={`Page ${index + 1}`}
+                    className="w-full max-w-5xl"
+                    loading="lazy"
+                />
+            ))}
 
         </div>
     );
