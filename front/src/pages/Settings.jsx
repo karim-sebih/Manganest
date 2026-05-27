@@ -5,6 +5,9 @@ export default function Settings() {
     const { t, i18n } = useTranslation();
 
     const [currentLang, setCurrentLang] = useState(i18n.language || 'fr');
+    const [chapterLanguage, setChapterLanguage] = useState(
+        localStorage.getItem("chapterLanguage") || "fr"
+    );
 
     useEffect(() => {
         const savedLang = localStorage.getItem('i18nextLng') || 'fr';
@@ -17,6 +20,10 @@ export default function Settings() {
         setCurrentLang(newLang);
         localStorage.setItem('i18nextLng', newLang);
     };
+
+    useEffect(() => {
+
+    })
 
     return (
         <div className="min-h-screen bg-[#0B1220] text-white flex">
@@ -74,8 +81,8 @@ export default function Settings() {
                                 onChange={(e) => handleLanguageChange(e.target.value)}
                                 className="bg-[#1E293B] border border-gray-600 rounded-xl px-4 py-3 min-w-[220px]"
                             >
-                                <option value="en">English</option>
                                 <option value="fr">Français</option>
+                                <option value="en">English</option>
                             </select>
                         </div>
                     </section>
@@ -92,9 +99,19 @@ export default function Settings() {
                                 </p>
                             </div>
 
-                            <select className="bg-[#1E293B] border border-gray-600 rounded-xl px-4 py-3 min-w-[220px]">
-                                <option>French</option>
-                                <option>English</option>
+                            <select
+                                value={chapterLanguage}
+                                onChange={(e) => {
+                                    const lang = e.target.value;
+
+                                    setChapterLanguage(lang);
+
+                                    localStorage.setItem("chapterLanguage", lang);
+                                }}
+                                className="bg-[#1E293B] border border-gray-600 rounded-xl px-4 py-3 min-w-[220px]"
+                            >
+                                <option value="fr">Français</option>
+                                <option value="en">English</option>
                             </select>
                         </div>
                     </section>

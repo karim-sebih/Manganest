@@ -22,12 +22,21 @@ async function getAllManga(limit = 20, offset = 0) {
   return response.data;
 }
 
-async function getLatestChapters(limit = 20, offset = 0) {
-  const response = await instance.get(`/api/manga/chapter`, {
-    params: { limit, offset }
-  });
+async function getLatestChapters(limit, offset, language) {
+  const response = await instance.get(
+    "/api/manga/latest-chapters",
+    {
+      params: {
+        limit,
+        offset,
+        language
+      }
+    }
+  );
+
   return response.data;
 }
+
 
 async function getMangaById(
   id,

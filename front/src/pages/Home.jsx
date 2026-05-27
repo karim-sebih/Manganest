@@ -15,6 +15,9 @@ export default function Home() {
 
   const LIMIT = 20;
 
+  const chapterLanguage =
+    localStorage.getItem("chapterLanguage") || "fr";
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,7 +28,8 @@ export default function Home() {
           getAllManga(LIMIT, (page - 1) * LIMIT),
           getLatestChapters(
             LIMIT,
-            (page - 1) * LIMIT
+            (page - 1) * LIMIT,
+            chapterLanguage
           )]);
 
         setMangas(mangaData.mangas || []);

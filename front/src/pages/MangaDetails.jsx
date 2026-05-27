@@ -20,11 +20,14 @@ export default function MangaDetails() {
             try {
                 setLoading(true);
 
+                const chapterLanguage =
+                    localStorage.getItem("chapterLanguage") || "fr";
+
+
                 const data = await getMangaById(
                     id,
-                    ["en", /*"fr"*/]
+                    [chapterLanguage]
                 );
-
                 setManga(data.manga);
                 setChapters(data.chapters);
             } catch (err) {

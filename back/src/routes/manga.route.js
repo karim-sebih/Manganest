@@ -15,7 +15,7 @@ Mangarouter.get('/search', searchManga);
 
 Mangarouter.get('/all-mangas', getAllManga);
 
-Mangarouter.get('/chapter', getLatestChapters);
+Mangarouter.get('/latest-chapters', getLatestChapters);
 
 Mangarouter.get('/:id/cover', getMangaCover);
 

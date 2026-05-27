@@ -116,7 +116,7 @@ const mangadexService = {
     },
 
     // Derniers chapitres
-    getLatestChapters: async (limit = 12, offset = 0) => {
+    getLatestChapters: async (limit = 12, offset = 0, language = "fr") => {
         try {
 
             const res = await fetch(
@@ -127,16 +127,13 @@ const mangadexService = {
 
             const results = await Promise.all(
                 data.data.map(async (manga) => {
-
                     // Feed du manga
                     const feedRes = await fetch(
-                        `${BASE_URL}/manga/${manga.id}/feed?limit=1&order[publishAt]=desc`
-                    );
+                        `${BASE_URL}/manga/${manga.id}/feed?limit=10&translatedLanguage[]=${language}&order[publishAt]=desc`);
 
                     const feedData = await feedRes.json();
 
-                    const latestChapter = feedData.data?.[0];
-
+                    const latestChapter = feedData.data?.find((chapter) => chapter.attributes?.chapter && chapter.attributes?.translatedLanguage === language);
                     // Cover
                     const coverRel = manga.relationships.find(
                         (rel) => rel.type === "cover_art"
@@ -155,7 +152,7 @@ const mangadexService = {
                             "Titre inconnu",
 
                         lastChapter:
-                            latestChapter?.attributes?.chapter || "N/A",
+                            latestChapter?.attributes?.chapter || null,
 
                         publishAt:
                             latestChapter?.attributes?.publishAt || null,
@@ -165,7 +162,9 @@ const mangadexService = {
                 })
             );
 
-            return results;
+            return results.filter(
+                (manga) => manga.lastChapter !== null
+            );
 
         } catch (error) {
             console.error("getLatestChapters Error:", error.message);

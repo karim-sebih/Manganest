@@ -13,17 +13,18 @@ function buildCoverUrl(manga) {
   return null;
 }
 
-function getTitle(manga) {
+function getTitle(manga, lang = "en") {
   return (
+    manga.attributes?.title?.[lang] ||
     manga.attributes?.title?.en ||
     Object.values(manga.attributes?.title || {})[0] ||
     "Titre inconnu"
   );
 }
 
-function getDescription(manga) {
+function getDescription(manga, lang = "fr") {
   return (
-    manga.attributes?.description?.fr ||
+    manga.attributes?.description?.[lang] ||
     manga.attributes?.description?.en ||
     Object.values(manga.attributes?.description || {})[0] ||
     null
@@ -34,6 +35,7 @@ async function searchManga(req, res) {
   try {
 
     const { q, limit = 10, offset = 0 } = req.query;
+    const lang = req.query.lang || "fr";
 
     if (!q || q.trim().length < 2) {
       return res.status(400).json({
@@ -56,11 +58,11 @@ async function searchManga(req, res) {
 
         id: manga.id,
 
-        title: getTitle(manga),
+        title: getTitle(manga, lang),
 
         description:
-          typeof getDescription(manga) === "string"
-            ? getDescription(manga).substring(0, 150) + "..."
+          typeof getDescription(manga, lang) === "string"
+            ? getDescription(manga, lang).substring(0, 150) + "..."
             : null,
 
         cover: buildCoverUrl(manga),
@@ -92,9 +94,7 @@ async function getMangaById(req, res) {
 
     const { id } = req.params;
 
-    const languages = req.query.lang
-      ? req.query.lang.split(",")
-      : ["fr"];
+    const lang = req.query.lang || "fr";
 
     const manga =
       await mangadexService.getMangaById(id);
@@ -102,7 +102,7 @@ async function getMangaById(req, res) {
     const chaptersData =
       await mangadexService.getMangaChapters(
         id,
-        languages
+        [lang]
       );
 
     if (!manga) {
@@ -130,8 +130,7 @@ async function getMangaById(req, res) {
       (chapter) => ({
         id: chapter.id,
 
-        title:
-          chapter.attributes?.title || "",
+        title: getTitle(manga, lang),
 
         chapter:
           chapter.attributes?.chapter || "?",
@@ -154,13 +153,13 @@ async function getMangaById(req, res) {
       manga: {
         id: manga.id,
 
-        title: getTitle(manga),
+        title: getTitle(manga, lang),
 
         altTitles:
           manga.attributes?.altTitles || [],
 
         description:
-          getDescription(manga),
+          getDescription(manga, lang) || "Aucune description disponible",
 
         status:
           manga.attributes?.status,
@@ -208,7 +207,7 @@ async function getAllManga(req, res) {
   try {
 
     const { limit = 20, offset = 0 } = req.query;
-
+    const lang = req.query.lang || "fr";
     const mangaList = await mangadexService.getAllManga(
       parseInt(limit, 10),
       parseInt(offset, 10)
@@ -221,11 +220,11 @@ async function getAllManga(req, res) {
 
         id: manga.id,
 
-        title: getTitle(manga),
+        title: getTitle(manga, lang),
 
         description:
-          typeof getDescription(manga) === "string"
-            ? getDescription(manga).substring(0, 150) + "..."
+          typeof getDescription(manga, lang) === "string"
+            ? getDescription(manga, lang).substring(0, 150) + "..."
             : null,
 
         cover: buildCoverUrl(manga),
@@ -258,8 +257,14 @@ async function getLatestChapters(req, res) {
     const limit = parseInt(req.query.limit, 10) || 12;
     const offset = parseInt(req.query.offset, 10) || 0;
 
-    const data = await mangadexService.getLatestChapters(limit, offset);
+    const language = req.query.language || "fr";
 
+    const data =
+      await mangadexService.getLatestChapters(
+        limit,
+        offset,
+        language
+      );
     res.json({
       success: true,
       chapters: data,
