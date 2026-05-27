@@ -23,9 +23,6 @@ i18n
             },
         },
 
-        react: {
-            useSuspense: false,     // Très important avec React 19
-        },
     });
 
 export default i18n;
