@@ -1,7 +1,6 @@
-import { useParams } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as z from "zod";
-import { getProfileById, updateProfile } from "../api/profile";
+import { getProfile, updateProfile } from "../api/profile.js";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,18 +13,16 @@ const profileSchema = z.object({
 
 export default function Profile() {
 
-    const { id } = useParams();
     const queryClient = useQueryClient();
     const [isEditing, setIsEditing] = useState(false);
 
     const { data: apiResponse, isLoading, error } = useQuery({
-        queryKey: ['profile', id],
-        queryFn: () => getProfileById(id),
-        enabled: !!id,
+        queryKey: ['profile'],
+        queryFn: getProfile,
         staleTime: 5 * 60 * 1000,
     });
 
-    const user = apiResponse?.data;
+    const user = apiResponse?.data?.data;
 
     const {
         register,
@@ -44,10 +41,10 @@ export default function Profile() {
     }, [user, reset]);
 
     const updateMutation = useMutation({
-        mutationFn: (updatedData) => updateProfile(id, updatedData),
+        mutationFn: (updatedData) => updateProfile(updatedData),
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: ['profile', id]
+                queryKey: ['profile']
             });
             setIsEditing(false);
             console.log('le profile est mis a jour')

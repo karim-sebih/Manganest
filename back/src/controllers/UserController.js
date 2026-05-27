@@ -35,7 +35,7 @@ function createUser(req, res) {
 }
 
 async function deleteUser(req, res) {
-  const { id } = req.params;
+  const id = req.user.id;
   await Evaluation.destroy({ where: { user_id: id } });
   User.destroy({ where: { id } }).then(() => {
     res.status(204).json({ message: "Utilisateur supprimé" });
@@ -43,7 +43,7 @@ async function deleteUser(req, res) {
 }
 
 async function updateUser(req, res) {
-  const { id } = req.params;
+  const id = req.user.id;
   const { username, email, password, role } = req.body;
 
   try {
@@ -54,7 +54,6 @@ async function updateUser(req, res) {
     }
 
     user.username = username || user.username;
-    user.email = email || user.email;
     user.email = email || user.email;
     user.role = role || user.role;
 
@@ -71,7 +70,7 @@ async function updateUser(req, res) {
 }
 
 function getUserById(req, res) {
-  const { id } = req.params;
+  const id = req.user.id;
   User.findOne({ where: { id } }).then((user) => {
     if (user) {
       res.json(user);
@@ -91,6 +90,60 @@ function getRoles(req, res) {
   });
 }
 
+async function getProfile(req, res) {
+
+  try {
+
+    const userId = req.user.id;
+
+    const user =
+      await User.findByPk(userId);
+
+    if (!user) {
+
+      return res.status(404).json({
+        success: false,
+        error: "Utilisateur non trouvé",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: user,
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
+async function getSettings(req, res) {
+
+  try {
+
+    const userId = req.user.id;
+
+    const user =
+      await User.findByPk(userId);
+
+    res.json({
+      success: true,
+      user,
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
 
 export default {
   getUsers,
@@ -100,4 +153,6 @@ export default {
   getUserById,
   findUserByEmail,
   getRoles,
+  getProfile,
+  getSettings
 };

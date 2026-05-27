@@ -39,7 +39,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/profile/:id" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/booksmark/:id" element={<Booksmark />} />
-            <Route path="/profile/:id" element={<Profile />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/access-denied" elementnt={<AccessDeniedPage />} />
           </Route>
 
