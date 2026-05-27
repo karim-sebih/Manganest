@@ -61,5 +61,37 @@
         "generic": "Erreur lors de la connexion"
       }
     }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "sidebar": {
+      "viewAll": "Tout voir",
+      "language": "Langue",
+      "reading": "Lecture",
+      "contentFilters": "Filtres de contenu",
+      "account": "Compte"
+    },
+    "interfaceLanguage": {
+      "title": "Langue de l'interface",
+      "description": "Choisissez la langue utilisée pour l'interface."
+    },
+    "chapterLanguage": {
+      "title": "Langue des chapitres",
+      "description": "La langue par défaut du filtre pour la liste des chapitres. Changer le filtre dans la liste des chapitres ne modifiera pas cette valeur."
+    },
+    "contentFilter": {
+      "title": "Filtre de contenu",
+      "description": "Choisissez quel type de contenu apparaît.",
+      "safe": "Safe",
+      "suggestive": "Suggestif",
+      "nsfw": "NSFW",
+      "mature": "Mature"
+    },
+    "dangerZone": {
+      "title": "Zone de danger",
+      "description": "Gérez les actions de votre compte.",
+      "deleteAccount": "Supprimer le compte",
+      "logout": "Se déconnecter"
+    }
   }
 }
