@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { getAllManga, getLatestChapters } from "../api/manga";
+import { getAllManga, getLatestChapters } from "../../api/manga";
 import { useNavigate } from "react-router";
-import Pagination from "../components/Pagination";
+import Pagination from "../../components/Pagination";
 
 export default function Home() {
   const [mangas, setMangas] = useState([]);

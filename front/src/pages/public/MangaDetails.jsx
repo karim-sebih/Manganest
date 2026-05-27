@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { getMangaById } from "../api/manga";
+import { getMangaById } from "../../api/manga";
 
 export default function MangaDetails() {
     const { id } = useParams();
