@@ -18,6 +18,11 @@ export default function Home() {
   const chapterLanguage =
     localStorage.getItem("chapterLanguage") || "fr";
 
+  const contentFilters = JSON.parse(
+    localStorage.getItem("contentFilters")
+  ) || ["safe", "suggestive"];
+
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,12 +30,17 @@ export default function Home() {
       try {
         setLoading(true);
         const [mangaData, chapterData] = await Promise.all([
-          getAllManga(LIMIT, (page - 1) * LIMIT),
+          getAllManga(
+            LIMIT,
+            (page - 1) * LIMIT,
+            contentFilters
+          ),
           getLatestChapters(
             LIMIT,
             (page - 1) * LIMIT,
-            chapterLanguage
-          )]);
+            chapterLanguage,
+            contentFilters
+          ),]);
 
         setMangas(mangaData.mangas || []);
         setLatestChapters(chapterData.chapters || []);

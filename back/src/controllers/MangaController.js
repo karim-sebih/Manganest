@@ -206,11 +206,15 @@ async function getMangaById(req, res) {
 async function getAllManga(req, res) {
   try {
 
+    const contentFilters = req.query.filters
+      ? req.query.filters.split(",")
+      : ["safe", "suggestive"];
     const { limit = 20, offset = 0 } = req.query;
     const lang = req.query.lang || "fr";
     const mangaList = await mangadexService.getAllManga(
       parseInt(limit, 10),
-      parseInt(offset, 10)
+      parseInt(offset, 10),
+      contentFilters
     );
 
     res.json({
@@ -254,6 +258,9 @@ async function getAllManga(req, res) {
 async function getLatestChapters(req, res) {
   try {
 
+    const contentFilters = req.query.filters
+      ? req.query.filters.split(",")
+      : ["safe", "suggestive"];
     const limit = parseInt(req.query.limit, 10) || 12;
     const offset = parseInt(req.query.offset, 10) || 0;
 
@@ -263,7 +270,8 @@ async function getLatestChapters(req, res) {
       await mangadexService.getLatestChapters(
         limit,
         offset,
-        language
+        language,
+        contentFilters
       );
     res.json({
       success: true,

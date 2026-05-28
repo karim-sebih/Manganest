@@ -8,6 +8,7 @@ export default function Settings() {
     const [chapterLanguage, setChapterLanguage] = useState(
         localStorage.getItem("chapterLanguage") || "fr"
     );
+    const [contentFilters, setContentFilters] = useState(JSON.parse(localStorage.getItem("contentFilters")) || ["safe", "suggestive"]);
 
     useEffect(() => {
         const savedLang = localStorage.getItem('i18nextLng') || 'fr';
@@ -21,9 +22,31 @@ export default function Settings() {
         localStorage.setItem('i18nextLng', newLang);
     };
 
-    useEffect(() => {
+    const toggleContentFilter = (filter) => {
 
-    })
+        let updatedFilters;
+
+        if (contentFilters.includes(filter)) {
+
+            updatedFilters = contentFilters.filter(
+                (f) => f !== filter
+            );
+
+        } else {
+
+            updatedFilters = [
+                ...contentFilters,
+                filter
+            ];
+        }
+
+        setContentFilters(updatedFilters);
+
+        localStorage.setItem(
+            "contentFilters",
+            JSON.stringify(updatedFilters)
+        );
+    };
 
     return (
         <div className="min-h-screen bg-[#0B1220] text-white flex">
@@ -130,19 +153,43 @@ export default function Settings() {
 
                             <div className="space-y-3">
                                 <label className="flex items-center gap-3">
-                                    <input type="checkbox" />
+                                    <input
+                                        type="checkbox"
+                                        checked={contentFilters.includes("safe")}
+                                        onChange={() =>
+                                            toggleFilter("safe")
+                                        }
+                                    />
                                     {t('settings.contentFilter.safe')}
                                 </label>
                                 <label className="flex items-center gap-3">
-                                    <input type="checkbox" />
+                                    <input
+                                        type="checkbox"
+                                        checked={contentFilters.includes("suggestive")}
+                                        onChange={() =>
+                                            toggleContentFilter("suggestive")
+                                        }
+                                    />
                                     {t('settings.contentFilter.suggestive')}
                                 </label>
                                 <label className="flex items-center gap-3">
-                                    <input type="checkbox" />
+                                    <input
+                                        type="checkbox"
+                                        checked={contentFilters.includes("pornographic")}
+                                        onChange={() =>
+                                            toggleContentFilter("pornographic")
+                                        }
+                                    />
                                     {t('settings.contentFilter.nsfw')}
                                 </label>
                                 <label className="flex items-center gap-3">
-                                    <input type="checkbox" />
+                                    <input
+                                        type="checkbox"
+                                        checked={contentFilters.includes("erotica")}
+                                        onChange={() =>
+                                            toggleContentFilter("erotica")
+                                        }
+                                    />
                                     {t('settings.contentFilter.mature')}
                                 </label>
                             </div>

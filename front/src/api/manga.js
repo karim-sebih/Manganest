@@ -14,22 +14,39 @@ async function searchManga(query, limit = 10, offset = 0) {
 }
 
 
-async function getAllManga(limit = 20, offset = 0) {
-  const response = await instance.get(`/api/manga/all-mangas`, {
-    params: { limit, offset }
-  });
+async function getAllManga(
+  limit,
+  offset,
+  contentFilters
+) {
+
+  const filters =
+    contentFilters.join(",");
+
+  const response = await instance.get(
+    `/api/manga/all-mangas?limit=${limit}&offset=${offset}&contentRating=${filters}`
+  );
 
   return response.data;
 }
 
-async function getLatestChapters(limit, offset, language) {
+async function getLatestChapters(
+  limit,
+  offset,
+  language,
+  contentFilters = []
+) {
+
+  const filters = contentFilters.join(",");
+
   const response = await instance.get(
     "/api/manga/latest-chapters",
     {
       params: {
         limit,
         offset,
-        language
+        language,
+        filters
       }
     }
   );

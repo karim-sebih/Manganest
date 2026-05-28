@@ -1,5 +1,5 @@
 export default function handleLogout() {
-  localStorage.removeItem("first_name");
+  localStorage.removeItem("username");
   localStorage.removeItem("email");
   localStorage.removeItem("role");
   localStorage.removeItem("token");
