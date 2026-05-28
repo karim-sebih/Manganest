@@ -102,7 +102,9 @@ const mangadexService = {
     getAllManga: async (
         limit = 20,
         offset = 0,
-        contentFilters = ["safe", "suggestive"]
+        contentFilters = ["safe", "suggestive"],
+        includedTags = [],
+        excludedTags = []
 
     ) => {
         try {
@@ -113,8 +115,20 @@ const mangadexService = {
 
             console.log(contentQuery);
 
+
+            const includedQuery = includedTags.length
+                ? includedTags.map(tag => `includedTags[]=${tag}`).join("&")
+                : "";
+
+            const excludedQuery = excludedTags.length
+                ? excludedTags.map(tag => `excludedTags[]=${tag}`).join("&")
+                : "";
+
+            console.log(includedQuery);
+            console.log(excludedQuery);
+
             const res = await fetch(
-                `${BASE_URL}/manga?limit=${limit}&offset=${offset}&${contentQuery}&includes[]=cover_art&availableTranslatedLanguage[]=fr&availableTranslatedLanguage[]=en&order[latestUploadedChapter]=desc`
+                `${BASE_URL}/manga?limit=${limit}&offset=${offset}&${contentQuery}&${includedQuery}&${excludedQuery}&includes[]=cover_art&availableTranslatedLanguage[]=fr&availableTranslatedLanguage[]=en&order[latestUploadedChapter]=desc`
             );
 
             if (!res.ok) {
@@ -136,7 +150,9 @@ const mangadexService = {
         limit = 12,
         offset = 0,
         language = "fr",
-        contentFilters = ["safe", "suggestive"]
+        contentFilters = ["safe", "suggestive"],
+        includedTags = [],
+        excludedTags = []
     ) => {
         try {
 
@@ -147,8 +163,16 @@ const mangadexService = {
                 )
                 .join("&");
 
+            const includedQuery = includedTags.length
+                ? includedTags.map(tag => `includedTags[]=${tag}`).join("&")
+                : "";
+
+            const excludedQuery = excludedTags.length
+                ? excludedTags.map(tag => `excludedTags[]=${tag}`).join("&")
+                : "";
+
             const res = await fetch(
-                `${BASE_URL}/manga?limit=${limit}&offset=${offset}&${contentQuery}&includes[]=cover_art&order[latestUploadedChapter]=desc`
+                `${BASE_URL}/manga?limit=${limit}&offset=${offset}&${contentQuery}&${includedQuery}&${excludedQuery}&includes[]=cover_art&order[latestUploadedChapter]=desc`
             );
 
             const data = await res.json();

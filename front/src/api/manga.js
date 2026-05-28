@@ -17,14 +17,27 @@ async function searchManga(query, limit = 10, offset = 0) {
 async function getAllManga(
   limit,
   offset,
-  contentFilters
+  contentFilters,
+  includedTags = [],
+  excludedTags = []
 ) {
 
-  const filters =
-    contentFilters.join(",");
+  const filters = contentFilters.join(",");
+
+  const included = includedTags.join(",");
+  const excluded = excludedTags.join(",");
 
   const response = await instance.get(
-    `/api/manga/all-mangas?limit=${limit}&offset=${offset}&contentRating=${filters}`
+    `/api/manga/all-mangas`,
+    {
+      params: {
+        limit,
+        offset,
+        filters,
+        included,
+        excluded
+      }
+    }
   );
 
   return response.data;
@@ -34,10 +47,15 @@ async function getLatestChapters(
   limit,
   offset,
   language,
-  contentFilters = []
+  contentFilters = [],
+  includedTags = [],
+  excludedTags = []
 ) {
 
   const filters = contentFilters.join(",");
+
+  const included = includedTags.join(",");
+  const excluded = excludedTags.join(",");
 
   const response = await instance.get(
     "/api/manga/latest-chapters",
@@ -46,7 +64,9 @@ async function getLatestChapters(
         limit,
         offset,
         language,
-        filters
+        filters,
+        included,
+        excluded
       }
     }
   );
@@ -78,5 +98,17 @@ async function getChapterPages(id) {
   return response.data;
 }
 
-export { searchManga, getMangaById, getAllManga, getLatestChapters, getMangaCover, getChapterPages };
+async function getMangaTags() {
+  try {
+    const response = await fetch("https://api.mangadex.org/manga/tag");
+    const data = await response.json();
+
+    return data.data || [];
+  } catch (error) {
+    console.error("getMangaTags Error:", error);
+    return [];
+  }
+}
+
+export { searchManga, getMangaById, getAllManga, getLatestChapters, getMangaCover, getChapterPages, getMangaTags };
 

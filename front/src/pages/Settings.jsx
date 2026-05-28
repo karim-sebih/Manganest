@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import TagSelector from "../components/TagSelector";
 
 export default function Settings() {
     const { t, i18n } = useTranslation();
@@ -9,6 +10,9 @@ export default function Settings() {
         localStorage.getItem("chapterLanguage") || "fr"
     );
     const [contentFilters, setContentFilters] = useState(JSON.parse(localStorage.getItem("contentFilters")) || ["safe", "suggestive"]);
+
+
+    const [tags, setTags] = useState(JSON.parse(localStorage.getItem("tags")) || { included: [], excluded: [] });
 
     useEffect(() => {
         const savedLang = localStorage.getItem('i18nextLng') || 'fr';
@@ -46,7 +50,14 @@ export default function Settings() {
             "contentFilters",
             JSON.stringify(updatedFilters)
         );
+
     };
+    useEffect(() => {
+        localStorage.setItem("tags", JSON.stringify(tags));
+    }, [tags]);
+
+
+
 
     return (
         <div className="min-h-screen bg-[#0B1220] text-white flex">
@@ -196,6 +207,30 @@ export default function Settings() {
                         </div>
                     </section>
 
+                    {/* TAGS */}
+                    <section className="border-b border-gray-700 py-8">
+                        <div className="flex items-start justify-between gap-10">
+
+                            <div>
+                                <h3 className="text-2xl font-semibold mb-2">
+                                    Tags Manga
+                                </h3>
+                                <p className="text-gray-400 max-w-xl">
+                                    Choisis les tags inclus ou exclus dans tes recommandations.
+                                </p>
+                            </div>
+
+                            <div className="w-full">
+                                <TagSelector tags={tags} setTags={setTags} />
+                            </div>
+                            <button
+                                onClick={() => window.location.reload()}
+                                className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl mt-8"
+                            >
+                                Appliquer les filtres
+                            </button>
+                        </div>
+                    </section>
                     {/* DANGER ZONE */}
                     <section className="py-8">
                         <div className="flex items-start justify-between gap-10">

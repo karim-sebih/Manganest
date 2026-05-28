@@ -22,6 +22,12 @@ export default function Home() {
     localStorage.getItem("contentFilters")
   ) || ["safe", "suggestive"];
 
+  const tags =
+    JSON.parse(localStorage.getItem("tags")) || {
+      included: [],
+      excluded: []
+    };
+
 
   const navigate = useNavigate();
 
@@ -33,13 +39,17 @@ export default function Home() {
           getAllManga(
             LIMIT,
             (page - 1) * LIMIT,
-            contentFilters
+            contentFilters,
+            tags.included,
+            tags.excluded
           ),
           getLatestChapters(
             LIMIT,
             (page - 1) * LIMIT,
             chapterLanguage,
-            contentFilters
+            contentFilters,
+            tags.included,
+            tags.excluded
           ),]);
 
         setMangas(mangaData.mangas || []);
