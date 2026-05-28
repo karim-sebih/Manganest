@@ -157,7 +157,7 @@ export default function Settings() {
                                         type="checkbox"
                                         checked={contentFilters.includes("safe")}
                                         onChange={() =>
-                                            toggleFilter("safe")
+                                            toggleContentFilter("safe")
                                         }
                                     />
                                     {t('settings.contentFilter.safe')}
