@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import TagSelector from "../components/TagSelector";
+import TagsModal from "../components/TagSelector";
 
 export default function Settings() {
     const { t, i18n } = useTranslation();
@@ -57,7 +57,7 @@ export default function Settings() {
     }, [tags]);
 
 
-
+    const [isTagsOpen, setIsTagsOpen] = useState(false);
 
     return (
         <div className="min-h-screen bg-[#0B1220] text-white flex">
@@ -220,14 +220,11 @@ export default function Settings() {
                                 </p>
                             </div>
 
-                            <div className="w-full">
-                                <TagSelector tags={tags} setTags={setTags} />
-                            </div>
                             <button
-                                onClick={() => window.location.reload()}
-                                className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl mt-8"
+                                onClick={() => setIsTagsOpen(true)}
+                                className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl"
                             >
-                                Appliquer les filtres
+                                Manage Tags
                             </button>
                         </div>
                     </section>
@@ -256,6 +253,10 @@ export default function Settings() {
                     </section>
                 </div>
             </main>
+            <TagsModal
+                isOpen={isTagsOpen}
+                onClose={() => setIsTagsOpen(false)}
+            />
         </div>
     );
 }

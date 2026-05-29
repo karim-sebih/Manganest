@@ -1,85 +1,126 @@
 import { useEffect, useState } from "react";
-import { getMangaTags } from "../api/manga";
 
-export default function TagSelector({ tags, setTags }) {
+export default function TagsModal({ isOpen, onClose }) {
+    const [tags, setTags] = useState({
+        included: [],
+        excluded: []
+    });
+
     const [availableTags, setAvailableTags] = useState([]);
 
     useEffect(() => {
-        async function load() {
-            const data = await getMangaTags();
-            setAvailableTags(data);
+        if (!isOpen) return;
+
+        setTags(
+            JSON.parse(localStorage.getItem("tags")) || {
+                included: [],
+                excluded: []
+            }
+        );
+
+        async function fetchTags() {
+            const res = await fetch("https://api.mangadex.org/manga/tag");
+            const data = await res.json();
+            setAvailableTags(data.data || []);
         }
 
-        load();
-    }, []);
+        fetchTags();
+    }, [isOpen]);
 
     const toggleTag = (type, tagId) => {
-        setTags(prev => {
-            const list = prev[type] || [];
+        setTags((prev) => {
+            const opposite = type === "included" ? "excluded" : "included";
 
             return {
                 ...prev,
-                [type]: list.includes(tagId)
-                    ? list.filter(t => t !== tagId)
-                    : [...list, tagId]
+
+                [type]: prev[type].includes(tagId)
+                    ? prev[type].filter(t => t !== tagId)
+                    : [...prev[type], tagId],
+
+                [opposite]: prev[opposite].filter(t => t !== tagId)
             };
         });
     };
+    const save = () => {
+        localStorage.setItem("tags", JSON.stringify(tags));
+        window.location.reload();
+    };
+
+    if (!isOpen) return null;
 
     return (
-        <div className="space-y-6">
-            {/* INCLUDED */}
-            <div>
-                <h3 className="text-xl font-semibold mb-2">Tags inclus</h3>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+            <div className="bg-[#1E293B] w-[700px] max-h-[80vh] overflow-y-auto rounded-2xl p-6">
 
-                <div className="flex flex-wrap gap-2">
-                    {availableTags.map(tag => {
-                        const id = tag.id;
-                        const name = tag.attributes?.name?.en;
+                <h2 className="text-2xl font-bold mb-6">
+                    Manage Tags
+                </h2>
 
-                        const active = tags.included.includes(id);
+                <div className="grid grid-cols-2 gap-6">
 
-                        return (
-                            <button
-                                key={id}
-                                onClick={() => toggleTag("included", id)}
-                                className={`px-3 py-1 rounded-full border transition ${active
-                                        ? "bg-green-500 text-black"
-                                        : "border-gray-500"
-                                    }`}
-                            >
-                                {name}
-                            </button>
-                        );
-                    })}
+                    {/* INCLUDED */}
+                    <div>
+                        <h3 className="text-green-400 mb-3 font-semibold">
+                            Included
+                        </h3>
+
+                        <div className="space-y-2">
+                            {availableTags.map((tag) => (
+                                <button
+                                    key={tag.id}
+                                    onClick={() => toggleTag("included", tag.id)}
+                                    className={`w-full p-2 rounded-lg text-sm transition ${tags.included.includes(tag.id)
+                                        ? "bg-green-600"
+                                        : "bg-[#0F172A]"
+                                        }`}
+                                >
+                                    {tag.attributes?.name?.en}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* EXCLUDED */}
+                    <div>
+                        <h3 className="text-red-400 mb-3 font-semibold">
+                            Excluded
+                        </h3>
+
+                        <div className="space-y-2">
+                            {availableTags.map((tag) => (
+                                <button
+                                    key={tag.id}
+                                    onClick={() => toggleTag("excluded", tag.id)}
+                                    className={`w-full p-2 rounded-lg text-sm transition ${tags.excluded.includes(tag.id)
+                                        ? "bg-red-600"
+                                        : "bg-[#0F172A]"
+                                        }`}
+                                >
+                                    {tag.attributes?.name?.en}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                 </div>
-            </div>
 
-            {/* EXCLUDED */}
-            <div>
-                <h3 className="text-xl font-semibold mb-2">Tags exclus</h3>
+                <div className="flex justify-between mt-6">
+                    <button
+                        onClick={onClose}
+                        className="bg-gray-600 px-4 py-2 rounded-xl"
+                    >
+                        Close
+                    </button>
 
-                <div className="flex flex-wrap gap-2">
-                    {availableTags.map(tag => {
-                        const id = tag.id;
-                        const name = tag.attributes?.name?.en;
-
-                        const active = tags.excluded.includes(id);
-
-                        return (
-                            <button
-                                key={id}
-                                onClick={() => toggleTag("excluded", id)}
-                                className={`px-3 py-1 rounded-full border transition ${active
-                                        ? "bg-red-500 text-black"
-                                        : "border-gray-500"
-                                    }`}
-                            >
-                                {name}
-                            </button>
-                        );
-                    })}
+                    <button
+                        onClick={save}
+                        className="bg-blue-600 px-4 py-2 rounded-xl"
+                    >
+                        Save
+                    </button>
                 </div>
+
             </div>
         </div>
     );
