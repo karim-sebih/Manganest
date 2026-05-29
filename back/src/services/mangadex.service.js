@@ -149,7 +149,7 @@ const mangadexService = {
     getLatestChapters: async (
         limit = 12,
         offset = 0,
-        language = "fr",
+        language ,
         contentFilters = ["safe", "suggestive"],
         includedTags = [],
         excludedTags = []
