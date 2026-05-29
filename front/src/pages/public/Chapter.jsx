@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 export default function Chapter() {
     const { t } = useTranslation();
     const { id } = useParams();
-    
+
 
     const navigate = useNavigate();
 
