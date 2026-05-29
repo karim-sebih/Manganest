@@ -44,7 +44,9 @@ export default function TagsModal({ isOpen, onClose }) {
     };
     const save = () => {
         localStorage.setItem("tags", JSON.stringify(tags));
-        window.location.reload();
+        onClose();
+
+        window.dispatchEvent(new Event("tagsUpdated"));
     };
 
     if (!isOpen) return null;

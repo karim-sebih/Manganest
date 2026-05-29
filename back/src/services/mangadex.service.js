@@ -149,48 +149,136 @@ const mangadexService = {
     getLatestChapters: async (
         limit = 12,
         offset = 0,
-        language = "fr"
+        language = "fr",
+        contentFilters = ["safe", "suggestive"],
+        includedTags = [],
+        excludedTags = []
     ) => {
+        const timeoutMs = 10000;
 
-        const res = await fetch(
-            `${BASE_URL}/chapter?limit=50&offset=${offset}&translatedLanguage[]=${language}&order[readableAt]=desc&includes[]=manga`
+        const fetchWithTimeout = async (url) => {
+            const ctrl = new AbortController();
+            const t = setTimeout(() => ctrl.abort(), timeoutMs);
+
+            try {
+                const res = await fetch(url, { signal: ctrl.signal });
+                return res;
+            } finally {
+                clearTimeout(t);
+            }
+        };
+
+        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+        // 1) query manga
+        const params = new URLSearchParams();
+        params.append("limit", "50");
+        params.append("offset", "0");
+        params.append("includes[]", "cover_art");
+        params.append("order[latestUploadedChapter]", "desc");
+
+        contentFilters.forEach((f) => params.append("contentRating[]", f));
+        includedTags.forEach((tag) => params.append("includedTags[]", tag));
+        excludedTags.forEach((tag) => params.append("excludedTags[]", tag));
+
+        // langues
+        params.append("availableTranslatedLanguage[]", "fr");
+        params.append("availableTranslatedLanguage[]", "en");
+
+        const mangaRes = await fetch(`${BASE_URL}/manga?${params}`);
+        if (!mangaRes.ok) throw new Error(`MangaDex manga error: ${mangaRes.status}`);
+        const mangaData = await mangaRes.json();
+
+        const mangas = mangaData.data || [];
+        if (!mangas.length) return [];
+
+        const mangaIds = mangas.map((m) => m.id);
+
+        // 2) limiter concurrence
+        const perMangaLimit = 5;
+
+        const concurrency = 6;
+        const allResults = [];
+        console.log(
+            "mangas trouvés:",
+            mangas.length,
+            "sample contentRating:",
+            mangas[0]?.attributes?.contentRating
         );
 
-        const data = await res.json();
+        for (let i = 0; i < mangaIds.length; i += concurrency) {
+            const slice = mangaIds.slice(i, i + concurrency);
 
-        const seen = new Set();
+            const batch = await Promise.all(
+                slice.map(async (id) => {
+                    const url =
+                        `${BASE_URL}/chapter?manga=${id}` +
+                        `&translatedLanguage[]=${encodeURIComponent(language)}` +
+                        `&order[readableAt]=desc` +
+                        `&limit=${perMangaLimit}`;
 
-        const filtered = data.data
-            .filter((chapter) => {
-                const mangaId = chapter.relationships.find(r => r.type === "manga")?.id;
-                if (!mangaId || seen.has(mangaId)) return false;
-                seen.add(mangaId);
-                return true;
-            })
-            .slice(0, limit);
+                    // retry 1 fois si échec temporaire
+                    for (let attempt = 0; attempt < 2; attempt++) {
+                        try {
+                            const res = await fetchWithTimeout(url);
+                            if (!res.ok) {
+                                // si 429/5xx => retry
+                                if (res.status === 429 || res.status >= 500) {
+                                    await sleep(400 * (attempt + 1));
+                                    continue;
+                                }
+                                return [];
+                            }
+                            const json = await res.json();
+                            return json.data || [];
+                        } catch (e) {
+                            if (attempt === 1) return [];
+                            await sleep(400 * (attempt + 1));
+                        }
+                    }
+                    return [];
+                })
+            );
 
-        return await Promise.all(
-            filtered.map(async (chapter) => {
+            allResults.push(...batch);
+        }
 
-                const mangaRel = chapter.relationships.find(r => r.type === "manga");
+        let chapters = allResults.flatMap((r) => r || []);
 
-                const title =
-                    mangaRel?.attributes?.title
-                        ? Object.values(mangaRel.attributes.title)[0]
-                        : "Titre inconnu";
-
-                const cover = await mangadexService.getMangaCover(mangaRel.id);
-
-                return {
-                    id: mangaRel?.id,
-                    mangaTitle: title,
-                    lastChapter: chapter.attributes.chapter || "??",
-                    publishAt: chapter.attributes.readableAt,
-                    cover
-                };
-            })
+        // 3) tri global (dates)
+        chapters.sort(
+            (a, b) =>
+                new Date(b.attributes.readableAt) - new Date(a.attributes.readableAt)
         );
+
+        // 4) slice
+        chapters = chapters.slice(0, limit);
+
+        // 5) mapping
+        return chapters.map((chapter) => {
+            const mangaRel = chapter.relationships.find((r) => r.type === "manga");
+            const manga = mangas.find((m) => m.id === mangaRel?.id);
+
+            const title = manga?.attributes?.title
+                ? Object.values(manga.attributes.title)[0]
+                : "Titre inconnu";
+
+            const coverRel = manga?.relationships?.find((r) => r.type === "cover_art");
+            const cover = coverRel?.attributes?.fileName
+                ? `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes.fileName}`
+                : null;
+
+            return {
+                id: manga?.id,
+                mangaTitle: title,
+                lastChapter: chapter.attributes.chapter || "??",
+                publishAt: chapter.attributes.readableAt,
+                cover,
+            };
+        });
     },
+
+
 
 
     // Cover d’un manga
