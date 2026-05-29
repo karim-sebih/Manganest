@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { getAllManga, getLatestChapters } from "../../api/manga.js";
+import { getAllManga, getLatestChapters } from "../api/manga.js";
 import { useNavigate } from "react-router";
-import Pagination from "../../components/Pagination.jsx";
+import Pagination from "./components/Pagination.jsx";
 import { useTranslation } from "react-i18next";
 
 export default function Home() {

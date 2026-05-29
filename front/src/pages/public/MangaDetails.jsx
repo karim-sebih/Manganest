@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { getMangaById } from "../api/manga";
+import { getMangaById } from "../../api/manga.js";
 import { useTranslation } from "react-i18next";
 
 export default function MangaDetails() {

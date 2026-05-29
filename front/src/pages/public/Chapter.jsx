@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
-import { getChapterPages } from "../api/manga";
+import { getChapterPages } from "../../api/manga.js";
 import { useTranslation } from "react-i18next";
 
 export default function Chapter() {
