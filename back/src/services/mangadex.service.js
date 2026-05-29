@@ -224,9 +224,14 @@ const mangadexService = {
                 })
             );
 
-            return results.filter(
-                (manga) => manga.lastChapter !== null
-            );
+            return results
+                .filter(
+                    (manga) => manga.lastChapter !== null
+                )
+                .sort(
+                    (a, b) =>
+                        new Date(b.publishAt) - new Date(a.publishAt)
+                );
 
         } catch (error) {
 
