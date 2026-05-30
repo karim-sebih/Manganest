@@ -149,7 +149,7 @@ const mangadexService = {
     getLatestChapters: async (
         limit = 12,
         offset = 0,
-        language ,
+        language,
         contentFilters = ["safe", "suggestive"],
         includedTags = [],
         excludedTags = []
@@ -173,7 +173,7 @@ const mangadexService = {
         // 1) query manga
         const params = new URLSearchParams();
         params.append("limit", "50");
-        params.append("offset", "0");
+        params.append("offset", offset);
         params.append("includes[]", "cover_art");
         params.append("order[latestUploadedChapter]", "desc");
 
