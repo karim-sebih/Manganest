@@ -85,9 +85,9 @@ export default function Navbar() {
                     ✕
                   </button>
                 )}
-                <Link to="Filter">
+                <Link to="search">
                   <div className="bg-[#1E293B] ml-1 px-3 py-1 text-xs rounded-sm">
-                    Filter
+                    search
                   </div>
                 </Link>
               </div>

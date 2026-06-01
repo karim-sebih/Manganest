@@ -3,31 +3,35 @@ import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { searchManga, getLatestChapters } from "../../api/manga.js";
 import Pagination from "../../components/Pagination.jsx";
-import TagsModal from "../../components/TagSelector.jsx"; // Remplace TagFilterDropdown
+import TagsModal from "../../components/TagSelector.jsx";
 
 export default function SearchPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [totalResults, setTotalResults] = useState(0);
+
     const [latestChapters, setLatestChapters] = useState([]);
-    const [tags, setTags] = useState({ included: [], excluded: [] });
-    const [isTagsModalOpen, setIsTagsModalOpen] = useState(false); // État pour le modal
-    const LIMIT = 20;
 
-    // Charger les tags depuis le localStorage
+    const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
+
+
+    const [tags, setTags] = useState(
+        JSON.parse(localStorage.getItem("tags")) || { included: [], excluded: [] }
+    );
+
+
     useEffect(() => {
-        const savedTags = JSON.parse(localStorage.getItem("tags")) || {};
-        setTags(savedTags);
-    }, []);
+        localStorage.setItem("tags", JSON.stringify(tags));
+    }, [tags]);
 
-    // Écouter les changements de tags
+
     useEffect(() => {
         const handleTagsUpdated = () => {
-            // Recharger les résultats avec les nouveaux tags
             if (query.trim().length >= 2) {
                 setPage(1);
             }
@@ -37,12 +41,11 @@ export default function SearchPage() {
         return () => window.removeEventListener("tagsUpdated", handleTagsUpdated);
     }, [query]);
 
-    // Charger les derniers chapitres par défaut quand la page est chargée
     useEffect(() => {
         async function fetchLatestChapters() {
             try {
                 const chapterData = await getLatestChapters(
-                    LIMIT,
+                    20,
                     0,
                     localStorage.getItem("chapterLanguage") || "fr",
                     JSON.parse(localStorage.getItem("contentFilters")) || ["safe", "suggestive"],
@@ -60,7 +63,7 @@ export default function SearchPage() {
         }
     }, [query, tags]);
 
-    // Recherche avec délai pour éviter les requêtes inutiles
+
     useEffect(() => {
         if (query.trim().length < 2) {
             return;
@@ -71,8 +74,8 @@ export default function SearchPage() {
             try {
                 const data = await searchManga(
                     query,
-                    LIMIT,
-                    (page - 1) * LIMIT,
+                    20,
+                    (page - 1) * 20,
                     tags.included,
                     tags.excluded
                 );
@@ -243,17 +246,17 @@ export default function SearchPage() {
                             ))}
                         </div>
 
-                        {(isSearching && totalResults > LIMIT) || (!isSearching && latestChapters.length >= LIMIT) ? (
+                        {(isSearching && totalResults > 20) || (!isSearching && latestChapters.length >= 20) ? (
                             <Pagination
                                 page={page}
                                 setPage={setPage}
-                                hasNextPage={displayResults.length >= LIMIT}
+                                hasNextPage={displayResults.length >= 20}
                                 hasPrevPage={page > 1}
                             />
                         ) : null}
                     </>
                 ) : (
-                    <div classNameName="text-center py-12 text-gray-400">
+                    <div className="text-center py-12 text-gray-400">
                         {isSearching ? (
                             <p>{t('search.noResults', { query })}</p>
                         ) : (
