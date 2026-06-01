@@ -11,6 +11,13 @@
     "chapterPrefix": "Chapitre",
     "noCover": "Rien à afficher"
   },
+  "search": {
+    "placeholder": "Rechercher un manga...",
+    "search": "Rechercher",
+    "results": "{{count}} résultats trouvés pour \"{{query}}\"",
+    "noResults": "Aucun résultat trouvé pour \"{{query}}\"",
+    "latestUpdates": "Dernières mises à jour"
+  },
   "mangaDetails": {
     "loading": "Chargement du manga...",
     "error": "Impossible de charger le manga",
