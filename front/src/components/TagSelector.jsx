@@ -47,6 +47,7 @@ export default function TagsModal({ isOpen, onClose }) {
         onClose();
 
         window.dispatchEvent(new Event("tagsUpdated"));
+        window.reload();
     };
 
     if (!isOpen) return null;

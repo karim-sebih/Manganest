@@ -7,36 +7,27 @@ const BASE_URL = "https://api.mangadex.org";
 const mangadexService = {
 
     // Recherche manga
-    searchManga: async (title = "", limit = 20, offset = 0, includedTags = [], excludedTags = []) => {
+    searchManga: async (title = "", limit = 150, offset = 0, includedTags = [], excludedTags = []) => {
         try {
-            // Construction des paramètres de requête
             const params = new URLSearchParams();
-            params.append("title", encodeURIComponent(title));
+            params.append("title", title); // Supprimez encodeURIComponent ici
             params.append("limit", limit);
             params.append("offset", offset);
             params.append("includes[]", "cover_art");
             params.append("availableTranslatedLanguage[]", "fr");
             params.append("availableTranslatedLanguage[]", "en");
 
-            // Ajout des tags inclus
             includedTags.forEach(tag => params.append("includedTags[]", tag));
-
-            // Ajout des tags exclus
             excludedTags.forEach(tag => params.append("excludedTags[]", tag));
 
-            const res = await fetch(
-                `${BASE_URL}/manga?${params}`
-            );
-
+            const res = await fetch(`${BASE_URL}/manga?${params}`);
             const data = await res.json();
             return data.data || [];
-
         } catch (error) {
             console.error("searchManga Error:", error.message);
             throw error;
         }
     },
-
     // Manga par ID
     getMangaById: async (id) => {
         try {
@@ -226,7 +217,9 @@ const mangadexService = {
                 slice.map(async (id) => {
                     const url =
                         `${BASE_URL}/chapter?manga=${id}` +
-                        `&translatedLanguage[]=${encodeURIComponent(language)}` +
+                        `&translatedLanguage[]=${language}`
+
+                        +
                         `&order[readableAt]=desc` +
                         `&limit=${perMangaLimit}`;
 
