@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import { getChapterPages } from "../../api/manga.js";
 import { useTranslation } from "react-i18next";
@@ -8,7 +8,14 @@ export default function Chapter() {
     const { id } = useParams();
 
 
+    const location = useLocation();
     const navigate = useNavigate();
+
+    const { mangaId, chapters, currentIndex } = location.state || {};
+    const prevChapter = chapters?.[currentIndex + 1];
+    const nextChapter = chapters?.[currentIndex - 1];
+
+
 
     const [pages, setPages] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -34,9 +41,11 @@ export default function Chapter() {
 
     }, [id])
 
-    // const handleMangaClick = (id) => {
-    //     navigate(`/manga/${id}`);
-    // }; (C POUR LA NARBAR)
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [id]);
+
+
 
     if (loading) {
         return (
@@ -70,7 +79,42 @@ export default function Chapter() {
                     loading="lazy"
                 />
             ))}
+            <div className="w-full max-w-5xl flex justify-between items-center py-10">
 
+                <button
+                    disabled={!prevChapter}
+                    onClick={() =>
+                        navigate(`/chapter/${prevChapter.id}`, {
+                            state: {
+                                mangaId,
+                                chapters,
+                                currentIndex: currentIndex + 1
+                            }
+                        })
+                    }
+                    className="bg-gray-800 px-6 py-3 rounded-lg disabled:opacity-30"
+                >
+                    ⬅️ Précédent
+                </button>
+
+                <button
+                    disabled={!nextChapter}
+                    onClick={() =>
+                        navigate(`/chapter/${nextChapter.id}`, {
+                            state: {
+                                mangaId,
+                                chapters,
+                                currentIndex: currentIndex - 1
+                            }
+                        })
+                    }
+                    className="bg-gray-800 px-6 py-3 rounded-lg disabled:opacity-30"
+                >
+                    Suivant ➡️
+                </button>
+
+            </div>
         </div>
+
     );
 }

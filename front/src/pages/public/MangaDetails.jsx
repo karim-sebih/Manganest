@@ -41,9 +41,16 @@ export default function MangaDetails() {
         fetchManga();
     }, [id]);
 
-    const handleChapterClick = (id) => {
-        navigate(`/chapter/${id}`);
-    }
+    const handleChapterClick = (chapterId, index) => {
+        navigate(`/chapter/${chapterId}`, {
+            state: {
+                mangaId: id,
+                chapters: chapters,
+                currentIndex: index
+            }
+        });
+    };
+
 
 
     if (loading) {
@@ -129,11 +136,11 @@ export default function MangaDetails() {
 
                     <div className="space-y-3">
 
-                        {chapters.map((chapter) => (
+                        {chapters.map((chapter, index) => (
                             <div
                                 key={chapter.id}
-                                onClick={() => handleChapterClick(chapter.id)}
-                                className="bg-[#1E293B] p-5 rounded-xl"
+                                onClick={() => handleChapterClick(chapter.id, index)}
+                                className="bg-[#1E293B] p-5 rounded-xl cursor-pointer hover:bg-[#334155]"
                             >
                                 <p className="text-lg font-semibold">
                                     {t('mangaDetails.chapterPrefix')} {chapter.chapter}
