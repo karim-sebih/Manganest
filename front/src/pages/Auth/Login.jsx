@@ -32,7 +32,7 @@ export default function Login() {
             localStorage.setItem("token", response.data?.token);
             localStorage.setItem("userId", response.data?.id);
 
-
+            navigate("/");
 
         },
         onError: (error) => {
@@ -46,7 +46,7 @@ export default function Login() {
         },
     });
 
-    const isLoggedIn = !!localStorage.getItem("email");
+    const isLoggedIn = !!localStorage.getItem("token");
 
     if (isLoggedIn) {
         return (

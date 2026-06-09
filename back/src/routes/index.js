@@ -4,6 +4,7 @@ import MangaRouter from "./manga.route.js";
 import traductionRouter from "./traduction.route.js";
 import userRouter from "./user.route.js";
 import profileRouter from "./profile.route.js";
+import commentRouter from "./comment.route.js";
 
 const router = express.Router();
 
@@ -12,6 +13,7 @@ router.use('/api/manga', MangaRouter);
 router.use("/translations", traductionRouter);
 router.use('/user', userRouter)
 router.use('/profile', profileRouter);
+router.use('/comments', commentRouter);
 
 
 export default router;

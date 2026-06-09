@@ -26,7 +26,7 @@ function createUser(req, res) {
     }
 
     const hash = await hashPassword(password);
-    User.create({ username, email, password: hash, role: role || "PRODUCER" })
+    User.create({ username, email, password: hash, role: role || "VIEWER" })
       .then((newUser) => {
         const { password, ...safeUser } = newUser.dataValues;
         res.status(201).json({ message: "Utilisateur créé", newUser: safeUser });

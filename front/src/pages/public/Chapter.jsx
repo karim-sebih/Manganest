@@ -1,12 +1,17 @@
 import { useParams, useNavigate, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import { getChapterPages } from "../../api/manga.js";
+import {
+    getCommentsByChapter,
+    createComment,
+    deleteComment,
+    updateComment
+} from "../../api/comments.js";
 import { useTranslation } from "react-i18next";
 
 export default function Chapter() {
     const { t } = useTranslation();
     const { id } = useParams();
-
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -15,37 +20,79 @@ export default function Chapter() {
     const prevChapter = chapters?.[currentIndex + 1];
     const nextChapter = chapters?.[currentIndex - 1];
 
-
-
     const [pages, setPages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [comments, setComments] = useState([]);
+    const [content, setContent] = useState("");
+    const [editingId, setEditingId] = useState(null);
+    const [editContent, setEditContent] = useState("");
 
+    // 📖 pages
     useEffect(() => {
         async function fetchPage() {
             try {
-                setLoading(true)
-
+                setLoading(true);
                 const data = await getChapterPages(id);
-
                 setPages(data.pages);
             } catch (err) {
                 console.error(err);
-                setError("Impossible de charger la page")
+                setError("Impossible de charger la page");
             } finally {
                 setLoading(false);
             }
         }
 
         fetchPage();
+    }, [id]);
 
-    }, [id])
+    // 💬 commentaires
+    const fetchComments = async () => {
+        try {
+            const data = await getCommentsByChapter(id);
+            setComments(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
+    useEffect(() => {
+        fetchComments();
+    }, [id]);
+
+    // scroll top
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [id]);
 
+    // ➕ create
+    const handleCreate = async () => {
+        if (!content.trim()) return;
 
+        await createComment({
+            content,
+            mangadex_id: mangaId,
+            mangadex_chapter_id: id,
+        });
+
+        setContent("");
+        fetchComments(); // ✅ refresh propre
+    };
+
+    // ❌ delete
+    const handleDelete = async (commentId) => {
+        await deleteComment(commentId);
+        fetchComments();
+    };
+
+    // ✏️ update
+    const handleUpdate = async (commentId) => {
+        await updateComment(commentId, editContent);
+
+        setEditingId(null);
+        setEditContent("");
+        fetchComments();
+    };
 
     if (loading) {
         return (
@@ -63,14 +110,10 @@ export default function Chapter() {
         );
     }
 
-    console.log(id);
-
     return (
-
         <div className="min-h-screen bg-black flex flex-col items-center">
 
             {pages.map((page, index) => (
-
                 <img
                     key={index}
                     src={page}
@@ -79,8 +122,8 @@ export default function Chapter() {
                     loading="lazy"
                 />
             ))}
-            <div className="w-full max-w-5xl flex justify-between items-center py-10">
 
+            <div className="w-full max-w-5xl flex justify-between items-center py-10">
                 <button
                     disabled={!prevChapter}
                     onClick={() =>
@@ -112,9 +155,75 @@ export default function Chapter() {
                 >
                     Suivant ➡️
                 </button>
+            </div>
 
+            <div className="w-full max-w-5xl text-white mb-20">
+                <h2 className="text-2xl mb-4">Commentaires</h2>
+
+                {/* CREATE */}
+                <div className="flex gap-2 mb-6">
+                    <input
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        placeholder="Écrire un commentaire..."
+                        className="flex-1 px-4 py-2 rounded bg-gray-800"
+                    />
+                    <button
+                        onClick={handleCreate}
+                        className="bg-blue-600 px-4 py-2 rounded"
+                    >
+                        Envoyer
+                    </button>
+                </div>
+
+                {/* LIST */}
+                <div className="flex flex-col gap-4">
+                    {comments.map((comment) => (
+                        <div key={comment.id} className="bg-gray-900 p-4 rounded">
+                            <p className="text-sm text-gray-400 mb-1">
+                                {comment.user?.username || "User"}
+                            </p>
+
+                            {editingId === comment.id ? (
+                                <div className="flex gap-2">
+                                    <input
+                                        value={editContent}
+                                        onChange={(e) => setEditContent(e.target.value)}
+                                        className="flex-1 px-2 py-1 bg-gray-800 rounded"
+                                    />
+                                    <button
+                                        onClick={() => handleUpdate(comment.id)}
+                                        className="bg-green-600 px-2 rounded"
+                                    >
+                                        ✅
+                                    </button>
+                                </div>
+                            ) : (
+                                <p>{comment.content}</p>
+                            )}
+
+                            <div className="flex gap-3 mt-2 text-sm">
+                                <button
+                                    onClick={() => {
+                                        setEditingId(comment.id);
+                                        setEditContent(comment.content);
+                                    }}
+                                    className="text-yellow-400"
+                                >
+                                    Modifier
+                                </button>
+
+                                <button
+                                    onClick={() => handleDelete(comment.id)}
+                                    className="text-red-400"
+                                >
+                                    Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
-
     );
 }

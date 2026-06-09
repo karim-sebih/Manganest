@@ -13,7 +13,7 @@ module.exports = {
     username VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ENUM('viewer', 'admin') DEFAULT 'viewer',
+    role ENUM('VIEWER', 'ADMIN') DEFAULT 'VIEWER',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
       `);
@@ -111,7 +111,7 @@ CREATE TABLE progress (
       await q(`DROP TABLE likes;`);
       await q(`DROP TABLE progress;`);
       await q(`DROP TABLE ratings;`);
-     
+
     });
   },
 };
