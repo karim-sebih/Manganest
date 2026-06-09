@@ -2,19 +2,32 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { getMangaById } from "../../api/manga.js";
 import { useTranslation } from "react-i18next";
+import {
+    getCommentsByManga,
+    createComment,
+    deleteComment,
+    updateComment
+} from "../../api/comments.js";
 
 export default function MangaDetails() {
     const { id } = useParams();
     const { t } = useTranslation();
-
-
     const navigate = useNavigate();
+
+    // ✅ STATES
     const [manga, setManga] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [chapters, setChapters] = useState([]);
 
+    const [comments, setComments] = useState([]);
+    const [content, setContent] = useState("");
+    const [editingId, setEditingId] = useState(null);
+    const [editContent, setEditContent] = useState("");
 
+    const username = localStorage.getItem("username");
+
+    // ✅ FETCH MANGA
     useEffect(() => {
         async function fetchManga() {
             try {
@@ -23,11 +36,8 @@ export default function MangaDetails() {
                 const chapterLanguage =
                     localStorage.getItem("chapterLanguage") || "fr";
 
+                const data = await getMangaById(id, [chapterLanguage]);
 
-                const data = await getMangaById(
-                    id,
-                    [chapterLanguage]
-                );
                 setManga(data.manga);
                 setChapters(data.chapters);
             } catch (err) {
@@ -41,18 +51,58 @@ export default function MangaDetails() {
         fetchManga();
     }, [id]);
 
+    // ✅ FETCH COMMENTS
+    const fetchComments = async () => {
+        try {
+            const data = await getCommentsByManga(id);
+            setComments(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    useEffect(() => {
+        fetchComments();
+    }, [id]);
+
+    // ✅ ACTIONS
+    const handleCreate = async () => {
+        if (!content.trim()) return;
+
+        await createComment({
+            content,
+            mangadex_id: id,
+            mangadex_chapter_id: null,
+        });
+
+        setContent("");
+        fetchComments();
+    };
+
+    const handleDelete = async (commentId) => {
+        await deleteComment(commentId);
+        fetchComments();
+    };
+
+    const handleUpdate = async (commentId) => {
+        await updateComment(commentId, editContent);
+
+        setEditingId(null);
+        setEditContent("");
+        fetchComments();
+    };
+
     const handleChapterClick = (chapterId, index) => {
         navigate(`/chapter/${chapterId}`, {
             state: {
                 mangaId: id,
-                chapters: chapters,
+                chapters,
                 currentIndex: index
             }
         });
     };
 
-
-
+    // ✅ CONDITIONS (APRÈS LES HOOKS)
     if (loading) {
         return (
             <div className="min-h-screen bg-[#0F172A] flex items-center justify-center text-white">
@@ -69,22 +119,19 @@ export default function MangaDetails() {
         );
     }
 
+    // ✅ RENDER
     return (
         <div className="min-h-screen bg-[#0F172A] text-white">
             <div className="max-w-6xl mx-auto px-6 py-10">
 
                 <div className="flex flex-col md:flex-row gap-10">
-
-                    {/* Cover */}
                     <img
                         src={manga.cover}
                         alt={manga.title}
                         className="w-64 h-[380px] object-cover rounded-2xl shadow-lg"
                     />
 
-                    {/* Infos */}
                     <div className="flex-1">
-
                         <h1 className="text-4xl font-bold mb-4">
                             {manga.title}
                         </h1>
@@ -118,6 +165,7 @@ export default function MangaDetails() {
                                 </span>{" "}
                                 {manga.artists?.join(", ")}
                             </p>
+
                             <p>
                                 <span className="text-white font-semibold">
                                     {t('mangaDetails.status')}
@@ -128,14 +176,13 @@ export default function MangaDetails() {
                     </div>
                 </div>
 
-                {/* Chapitres */}
+                {/* 📚 CHAPTERS */}
                 <div className="mt-14">
                     <h2 className="text-3xl font-bold mb-6">
                         {t('mangaDetails.chaptersSection')}
                     </h2>
 
                     <div className="space-y-3">
-
                         {chapters.map((chapter, index) => (
                             <div
                                 key={chapter.id}
@@ -151,7 +198,84 @@ export default function MangaDetails() {
                                 </p>
                             </div>
                         ))}
+                    </div>
+                </div>
 
+                {/* 💬 COMMENTS */}
+                <div className="mt-16 max-w-5xl">
+                    <h2 className="text-2xl mb-4">Commentaires</h2>
+
+                    {username ? (
+                        <div className="flex gap-2 mb-6">
+                            <input
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                                placeholder="Écrire un commentaire..."
+                                className="flex-1 px-4 py-2 rounded bg-gray-800"
+                            />
+                            <button
+                                onClick={handleCreate}
+                                className="bg-blue-600 px-4 py-2 rounded"
+                            >
+                                Envoyer
+                            </button>
+                        </div>
+                    ) : (
+                        <p className="text-gray-400 mb-4">
+                            Connecte-toi pour écrire un commentaire
+                        </p>
+                    )}
+
+                    <div className="flex flex-col gap-4">
+                        {comments.map((comment) => (
+                            <div key={comment.id} className="bg-gray-900 p-4 rounded">
+
+                                <p className="text-sm text-gray-400 mb-1">
+                                    {comment.User?.username || "Utilisateur inconnu"}
+                                </p>
+
+                                {editingId === comment.id ? (
+                                    <div className="flex gap-2">
+                                        <input
+                                            autoFocus
+                                            value={editContent}
+                                            onChange={(e) => setEditContent(e.target.value)}
+                                            className="flex-1 px-2 py-1 bg-gray-800 rounded"
+                                        />
+                                        <button
+                                            onClick={() => handleUpdate(comment.id)}
+                                            className="bg-green-600 px-2 rounded"
+                                        >
+                                            ✅
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <p>{comment.content}</p>
+                                )}
+
+                                {comment.User?.username === username && (
+                                    <div className="flex gap-3 mt-2 text-sm">
+                                        <button
+                                            onClick={() => {
+                                                setEditingId(comment.id);
+                                                setEditContent(comment.content);
+                                            }}
+                                            className="text-yellow-400"
+                                        >
+                                            Modifier
+                                        </button>
+
+                                        <button
+                                            onClick={() => handleDelete(comment.id)}
+                                            className="text-red-400"
+                                        >
+                                            Supprimer
+                                        </button>
+                                    </div>
+                                )}
+
+                            </div>
+                        ))}
                     </div>
                 </div>
 

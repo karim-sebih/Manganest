@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 export default function Chapter() {
     const { t } = useTranslation();
     const { id } = useParams();
-
+    const username = localStorage.getItem("username");
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -28,7 +28,6 @@ export default function Chapter() {
     const [editingId, setEditingId] = useState(null);
     const [editContent, setEditContent] = useState("");
 
-    // 📖 pages
     useEffect(() => {
         async function fetchPage() {
             try {
@@ -46,7 +45,6 @@ export default function Chapter() {
         fetchPage();
     }, [id]);
 
-    // 💬 commentaires
     const fetchComments = async () => {
         try {
             const data = await getCommentsByChapter(id);
@@ -65,7 +63,6 @@ export default function Chapter() {
         window.scrollTo(0, 0);
     }, [id]);
 
-    // ➕ create
     const handleCreate = async () => {
         if (!content.trim()) return;
 
@@ -79,13 +76,11 @@ export default function Chapter() {
         fetchComments(); // ✅ refresh propre
     };
 
-    // ❌ delete
     const handleDelete = async (commentId) => {
         await deleteComment(commentId);
         fetchComments();
     };
 
-    // ✏️ update
     const handleUpdate = async (commentId) => {
         await updateComment(commentId, editContent);
 
@@ -161,27 +156,36 @@ export default function Chapter() {
                 <h2 className="text-2xl mb-4">Commentaires</h2>
 
                 {/* CREATE */}
-                <div className="flex gap-2 mb-6">
-                    <input
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        placeholder="Écrire un commentaire..."
-                        className="flex-1 px-4 py-2 rounded bg-gray-800"
-                    />
-                    <button
-                        onClick={handleCreate}
-                        className="bg-blue-600 px-4 py-2 rounded"
-                    >
-                        Envoyer
-                    </button>
-                </div>
+                {!username && (
+                    <p className="text-gray-400 mb-4">
+                        Connecte-toi pour écrire un commentaire
+                    </p>
+                )}
+
+                {username && (
+                    <div className="flex gap-2 mb-6">
+                        <input
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            placeholder="Écrire un commentaire..."
+                            className="flex-1 px-4 py-2 rounded bg-gray-800"
+                        />
+                        <button
+                            onClick={handleCreate}
+                            className="bg-blue-600 px-4 py-2 rounded"
+                        >
+                            Envoyer
+                        </button>
+                    </div>
+                )}
+
 
                 {/* LIST */}
                 <div className="flex flex-col gap-4">
                     {comments.map((comment) => (
                         <div key={comment.id} className="bg-gray-900 p-4 rounded">
                             <p className="text-sm text-gray-400 mb-1">
-                                {comment.user?.username || "User"}
+                                {comment.User?.username || "User"}
                             </p>
 
                             {editingId === comment.id ? (
@@ -202,24 +206,27 @@ export default function Chapter() {
                                 <p>{comment.content}</p>
                             )}
 
-                            <div className="flex gap-3 mt-2 text-sm">
-                                <button
-                                    onClick={() => {
-                                        setEditingId(comment.id);
-                                        setEditContent(comment.content);
-                                    }}
-                                    className="text-yellow-400"
-                                >
-                                    Modifier
-                                </button>
+                            {comment.User?.username === username && (
+                                <div className="flex gap-3 mt-2 text-sm">
+                                    <button
+                                        onClick={() => {
+                                            setEditingId(comment.id);
+                                            setEditContent(comment.content);
+                                        }}
+                                        className="text-yellow-400"
+                                    >
+                                        Modifier
+                                    </button>
 
-                                <button
-                                    onClick={() => handleDelete(comment.id)}
-                                    className="text-red-400"
-                                >
-                                    Supprimer
-                                </button>
-                            </div>
+                                    <button
+                                        onClick={() => handleDelete(comment.id)}
+                                        className="text-red-400"
+                                    >
+                                        Supprimer
+                                    </button>
+                                </div>
+                            )}
+
                         </div>
                     ))}
                 </div>
