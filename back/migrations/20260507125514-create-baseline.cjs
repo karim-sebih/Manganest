@@ -36,7 +36,7 @@ module.exports = {
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     mangadex_id VARCHAR(50) NOT NULL,
-    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 10),
 
     UNIQUE KEY unique_rating (user_id, mangadex_id),
 

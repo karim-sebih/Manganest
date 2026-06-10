@@ -4,6 +4,7 @@ import { getMangaById } from "../../api/manga.js";
 import { useTranslation } from "react-i18next";
 import { getCommentsByManga, createComment, deleteComment, updateComment } from "../../api/comments.js";
 import { getLikesByChapter } from "../../api/like.js";
+import { getRatingsByManga, createOrUpdateRating, deleteRating } from "../../api/rating.js";
 
 export default function MangaDetails() {
     const { id } = useParams();
@@ -20,6 +21,9 @@ export default function MangaDetails() {
     const [content, setContent] = useState("");
     const [editingId, setEditingId] = useState(null);
     const [editContent, setEditContent] = useState("");
+    const [rating, setRating] = useState(null);
+    const [average, setAverage] = useState(0);
+    const [ratingCount, setRatingCount] = useState(0);
 
     const username = localStorage.getItem("username");
 
@@ -88,7 +92,7 @@ export default function MangaDetails() {
         fetchComments();
     };
 
-    // LIKES 
+    // AFFICHAGE LIKES 
     useEffect(() => {
         async function fetchLikes() {
             try {
@@ -109,6 +113,52 @@ export default function MangaDetails() {
             fetchLikes();
         }
     }, [chapters]);
+
+    // RATINGS
+    useEffect(() => {
+        async function fetchRatings() {
+            try {
+                const data = await getRatingsByManga(id);
+
+                setRating(data.userRating);
+                setAverage(data.average);
+                setRatingCount(data.count);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        fetchRatings();
+    }, [id]);
+
+    const handleRate = async (value) => {
+        try {
+            await createOrUpdateRating(id, value);
+
+            setRating(value);
+
+            const data = await getRatingsByManga(id);
+            setAverage(data.average);
+            setRatingCount(data.count);
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDeleteRating = async () => {
+        try {
+            await deleteRating(id);
+            setRating(null);
+
+            const data = await getRatingsByManga(id);
+            setAverage(data.average);
+            setRatingCount(data.count);
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
 
     const handleChapterClick = (chapterId, index) => {
@@ -138,7 +188,7 @@ export default function MangaDetails() {
         );
     }
 
-    //  RENDER
+    // Visuel
     return (
         <div className="min-h-screen bg-[#0F172A] text-white">
             <div className="max-w-6xl mx-auto px-6 py-10">
@@ -154,6 +204,37 @@ export default function MangaDetails() {
                         <h1 className="text-4xl font-bold mb-4">
                             {manga.title}
                         </h1>
+                        <div className="mt-2">
+                            <p className="text-yellow-400 font-semibold">
+                                ⭐ {average.toFixed(1)} / 10 ({ratingCount} votes)
+                            </p>
+
+                            {username && (
+                                <div className="flex gap-2 mt-2 flex-wrap py-6 ">
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                                        <button
+                                            key={num}
+                                            onClick={() => handleRate(num)}
+                                            className={`px-2 py-1 rounded transition ${rating === num
+                                                ? "bg-yellow-500 text-black"
+                                                : "bg-gray-700 hover:bg-gray-600"
+                                                }`}
+                                        >
+                                            {num}
+                                        </button>
+                                    ))}
+
+                                    {rating && (
+                                        <button
+                                            onClick={handleDeleteRating}
+                                            className="ml-2 text-red-400"
+                                        >
+                                            ❌
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
 
                         <div className="flex flex-wrap gap-2">
                             {manga.tags?.map((tag) => (

@@ -6,6 +6,7 @@ import userRouter from "./user.route.js";
 import profileRouter from "./profile.route.js";
 import commentRouter from "./comment.route.js";
 import likeRouter from "./like.route.js";
+import ratingRouter from "./rating.route.js";
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ router.use('/user', userRouter)
 router.use('/profile', profileRouter);
 router.use('/comments', commentRouter);
 router.use('/likes', likeRouter);
+router.use('/ratings', ratingRouter);
 
 
 export default router;
