@@ -4,9 +4,6 @@ import User from "../models/User.js";
 async function createComment(req, res) {
     try {
         const { content, mangadex_id, mangadex_chapter_id } = req.body;
-        console.log(req.body);
-        console.log(req.user);
-
         const comment = await Comments.create({
             content,
             mangadex_id,

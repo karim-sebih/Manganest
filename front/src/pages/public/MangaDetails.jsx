@@ -14,7 +14,7 @@ export default function MangaDetails() {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
-    // ✅ STATES
+    //  STATES
     const [manga, setManga] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -27,7 +27,7 @@ export default function MangaDetails() {
 
     const username = localStorage.getItem("username");
 
-    // ✅ FETCH MANGA
+    //  FETCH MANGA
     useEffect(() => {
         async function fetchManga() {
             try {
@@ -51,7 +51,7 @@ export default function MangaDetails() {
         fetchManga();
     }, [id]);
 
-    // ✅ FETCH COMMENTS
+    //  FETCH COMMENTS
     const fetchComments = async () => {
         try {
             const data = await getCommentsByManga(id);
@@ -65,7 +65,7 @@ export default function MangaDetails() {
         fetchComments();
     }, [id]);
 
-    // ✅ ACTIONS
+    //  ACTIONS
     const handleCreate = async () => {
         if (!content.trim()) return;
 
@@ -102,7 +102,7 @@ export default function MangaDetails() {
         });
     };
 
-    // ✅ CONDITIONS (APRÈS LES HOOKS)
+    //  CONDITIONS (APRÈS LES HOOKS)
     if (loading) {
         return (
             <div className="min-h-screen bg-[#0F172A] flex items-center justify-center text-white">
@@ -119,7 +119,7 @@ export default function MangaDetails() {
         );
     }
 
-    // ✅ RENDER
+    //  RENDER
     return (
         <div className="min-h-screen bg-[#0F172A] text-white">
             <div className="max-w-6xl mx-auto px-6 py-10">
@@ -176,7 +176,7 @@ export default function MangaDetails() {
                     </div>
                 </div>
 
-                {/* 📚 CHAPTERS */}
+                {/*  CHAPTERS */}
                 <div className="mt-14">
                     <h2 className="text-3xl font-bold mb-6">
                         {t('mangaDetails.chaptersSection')}
@@ -246,7 +246,7 @@ export default function MangaDetails() {
                                             onClick={() => handleUpdate(comment.id)}
                                             className="bg-green-600 px-2 rounded"
                                         >
-                                            ✅
+                                            Confirm
                                         </button>
                                     </div>
                                 ) : (
