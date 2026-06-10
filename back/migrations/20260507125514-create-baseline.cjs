@@ -19,16 +19,21 @@ module.exports = {
       `);
 
       await q(`
-       CREATE TABLE library (
+    CREATE TABLE library (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     mangadex_id VARCHAR(50) NOT NULL,
+
+    status ENUM('READING', 'COMPLETED', 'PLAN_TO_READ', 'DROPPED') DEFAULT 'READING',
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     UNIQUE KEY unique_user_manga (user_id, mangadex_id),
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
       `);
 
       await q(`

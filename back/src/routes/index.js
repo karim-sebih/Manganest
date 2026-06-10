@@ -7,6 +7,7 @@ import profileRouter from "./profile.route.js";
 import commentRouter from "./comment.route.js";
 import likeRouter from "./like.route.js";
 import ratingRouter from "./rating.route.js";
+import libraryRouter from "./library.route.js";
 
 const router = express.Router();
 
@@ -18,6 +19,6 @@ router.use('/profile', profileRouter);
 router.use('/comments', commentRouter);
 router.use('/likes', likeRouter);
 router.use('/ratings', ratingRouter);
-
+router.use('/library', libraryRouter);
 
 export default router;

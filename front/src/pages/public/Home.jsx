@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getAllManga, getLatestChapters } from "../../api/manga.js";
 import { useNavigate } from "react-router";
 import Pagination from "../../components/Pagination.jsx";
