@@ -19,7 +19,13 @@ const Library = sequelize.define(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "PLAN_TO_READ"
+    }
   },
+
   {
     tableName: "library",
     timestamps: true,

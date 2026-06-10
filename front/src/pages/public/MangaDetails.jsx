@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { getCommentsByManga, createComment, deleteComment, updateComment } from "../../api/comments.js";
 import { getLikesByChapter } from "../../api/like.js";
 import { getRatingsByManga, createOrUpdateRating, deleteRating } from "../../api/rating.js";
+import { getLibrary, addOrUpdateEntry, deleteEntry } from "../../api/library";
 
 export default function MangaDetails() {
     const { id } = useParams();
@@ -24,6 +25,11 @@ export default function MangaDetails() {
     const [rating, setRating] = useState(null);
     const [average, setAverage] = useState(0);
     const [ratingCount, setRatingCount] = useState(0);
+    const [libraryEntry, setLibraryEntry] = useState(null);
+    const [loadingLibrary, setLoadingLibrary] = useState(true);
+    const [openDropdown, setOpenDropdown] = useState(false);
+
+
 
     const username = localStorage.getItem("username");
 
@@ -160,6 +166,75 @@ export default function MangaDetails() {
         }
     };
 
+    // LIBRARY
+    useEffect(() => {
+        async function fetchLibrary() {
+            try {
+                const data = await getLibrary();
+
+                const entry = data.find(
+                    (item) => item.mangadex_id === id
+                );
+                setLibraryEntry(entry || null);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoadingLibrary(false);
+            }
+        }
+
+        fetchLibrary();
+    }, [id]);
+
+    async function handleAdd() {
+        try {
+            await addOrUpdateEntry(id, "READING");
+
+            setLibraryEntry({
+                mangadex_id: id,
+                status: "READING"
+            });
+
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+
+    async function handleRemove() {
+        try {
+            await deleteEntry(id);
+            setLibraryEntry(null);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function handleStatusChange(e) {
+        const newStatus = e.target.value;
+
+        try {
+            const res = await addOrUpdateEntry(id, newStatus);
+            setLibraryEntry({ ...libraryEntry, status: newStatus });
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    useEffect(() => {
+        function handleClickOutside() {
+            setOpenDropdown(false);
+        }
+
+        if (openDropdown) {
+            window.addEventListener("click", handleClickOutside);
+        }
+
+        return () => {
+            window.removeEventListener("click", handleClickOutside);
+        };
+    }, [openDropdown]);
+
 
     const handleChapterClick = (chapterId, index) => {
         navigate(`/chapter/${chapterId}`, {
@@ -273,7 +348,87 @@ export default function MangaDetails() {
                                 {manga.status}
                             </p>
                         </div>
+                        <div className="relative mt-4">
+
+                            {loadingLibrary ? (
+                                <p className="text-gray-400">Loading...</p>
+                            ) : libraryEntry ? (
+                                <>
+                                    {/* BOUTON */}
+
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenDropdown(!openDropdown);
+                                        }}
+
+                                        className="bg-[#1E293B] hover:bg-[#334155] px-4 py-2 rounded-lg flex items-center gap-2"
+                                    >
+                                        📚 {libraryEntry.status}
+                                        <span>›</span>
+                                    </button>
+
+                                    {/* DROPDOWN */}
+                                    {openDropdown && (
+                                        <div
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="absolute mt-2 w-56 bg-[#1E293B] border border-gray-700 rounded-xl shadow-lg z-50"
+                                        >
+
+
+                                            <p className="px-4 py-2 text-xs text-gray-400">
+                                                MOVE TO
+                                            </p>
+
+                                            {[
+                                                { label: "Reading", value: "READING" },
+                                                { label: "Completed", value: "COMPLETED" },
+                                                { label: "Plan to Read", value: "PLAN_TO_READ" },
+                                                { label: "Dropped", value: "DROPPED" },
+                                            ].map((item) => (
+                                                <div
+                                                    key={item.value}
+                                                    onClick={() => {
+                                                        handleStatusChange({ target: { value: item.value } });
+                                                        setOpenDropdown(false);
+                                                    }}
+                                                    className={`px-4 py-2 cursor-pointer hover:bg-[#334155] flex justify-between ${libraryEntry.status === item.value ? "text-blue-400" : ""
+                                                        }`}
+                                                >
+                                                    {item.label}
+                                                    {libraryEntry.status === item.value && "✓"}
+                                                </div>
+                                            ))}
+
+                                            <div className="border-t border-gray-700 my-2"></div>
+
+                                            <div
+                                                onClick={() => {
+                                                    handleRemove();
+                                                    setOpenDropdown(false);
+                                                }}
+                                                className="px-4 py-2 text-red-400 cursor-pointer hover:bg-[#334155]"
+                                            >
+                                                ✖ Remove
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <button
+                                    onClick={handleAdd}
+                                    className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg"
+                                >
+                                    ➕ Ajouter à ma liste
+                                </button>
+                            )}
+
+                        </div>
                     </div>
+
+
+
+
                 </div>
 
                 {/*  CHAPTERS */}
@@ -354,7 +509,7 @@ export default function MangaDetails() {
                                             onClick={() => handleUpdate(comment.id)}
                                             className="bg-green-600 px-2 rounded"
                                         >
-                                            Confirm
+                                            ✓
                                         </button>
                                     </div>
                                 ) : (

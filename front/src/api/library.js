@@ -10,14 +10,11 @@ async function getLibrary() {
     }
 }
 
-async function addOrUpdateEntry(mangadexId, status, rating) {
-    try {
-        const response = await instance.post("/library", { mangadexId, status, rating });
-        return response.data;
-    } catch (error) {
-        console.error("Error adding/updating library entry:", error);
-        throw error;
-    }
+async function addOrUpdateEntry(mangadexId, status) {
+    return instance.post("/library", {
+        mangadex_id: mangadexId,
+        status
+    });
 }
 
 async function deleteEntry(mangadexId) {
@@ -30,4 +27,8 @@ async function deleteEntry(mangadexId) {
     }
 }
 
-export { getLibrary, addOrUpdateEntry, deleteEntry };
+async function getUserLibrary() {
+
+}
+
+export { getLibrary, addOrUpdateEntry, deleteEntry, getUserLibrary };

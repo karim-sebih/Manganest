@@ -257,7 +257,7 @@ export default function Chapter() {
                                         onClick={() => handleUpdate(comment.id)}
                                         className="bg-green-600 px-2 rounded"
                                     >
-                                        ✅
+                                        ✓
                                     </button>
                                 </div>
                             ) : (

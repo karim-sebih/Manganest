@@ -28,7 +28,7 @@ const mangadexService = {
             throw error;
         }
     },
-    // Manga par ID
+    // Un Manga par ID
     getMangaById: async (id) => {
         try {
 
@@ -42,6 +42,24 @@ const mangadexService = {
 
         } catch (error) {
             console.error("getMangaById Error:", error.message);
+            throw error;
+        }
+    },
+
+    // plusieurs mangas par ID
+    getMangasByIds: async (ids) => {
+        try {
+            const params = new URLSearchParams();
+
+            ids.forEach(id => params.append("ids[]", id));
+            params.append("includes[]", "cover_art");
+
+            const res = await fetch(`${BASE_URL}/manga?${params}`);
+            const data = await res.json();
+
+            return data.data || [];
+        } catch (error) {
+            console.error("getMangasByIds Error:", error.message);
             throw error;
         }
     },
