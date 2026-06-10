@@ -2,12 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { getMangaById } from "../../api/manga.js";
 import { useTranslation } from "react-i18next";
-import {
-    getCommentsByManga,
-    createComment,
-    deleteComment,
-    updateComment
-} from "../../api/comments.js";
+import { getCommentsByManga, createComment, deleteComment, updateComment } from "../../api/comments.js";
+import { getLikesByChapter } from "../../api/like.js";
 
 export default function MangaDetails() {
     const { id } = useParams();
@@ -19,7 +15,7 @@ export default function MangaDetails() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [chapters, setChapters] = useState([]);
-
+    const [likes, setLikes] = useState({});
     const [comments, setComments] = useState([]);
     const [content, setContent] = useState("");
     const [editingId, setEditingId] = useState(null);
@@ -65,7 +61,7 @@ export default function MangaDetails() {
         fetchComments();
     }, [id]);
 
-    //  ACTIONS
+    //  ACTIONS COMMENTS
     const handleCreate = async () => {
         if (!content.trim()) return;
 
@@ -91,6 +87,29 @@ export default function MangaDetails() {
         setEditContent("");
         fetchComments();
     };
+
+    // LIKES 
+    useEffect(() => {
+        async function fetchLikes() {
+            try {
+                const likesData = {};
+
+                for (const chapter of chapters) {
+                    const count = await getLikesByChapter(chapter.id);
+                    likesData[chapter.id] = count.length;
+                }
+
+                setLikes(likesData);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        if (chapters.length > 0) {
+            fetchLikes();
+        }
+    }, [chapters]);
+
 
     const handleChapterClick = (chapterId, index) => {
         navigate(`/chapter/${chapterId}`, {
@@ -187,16 +206,24 @@ export default function MangaDetails() {
                             <div
                                 key={chapter.id}
                                 onClick={() => handleChapterClick(chapter.id, index)}
-                                className="bg-[#1E293B] p-5 rounded-xl cursor-pointer hover:bg-[#334155]"
+                                className="bg-[#1E293B] p-5 rounded-xl cursor-pointer hover:bg-[#334155] flex justify-between items-center"
                             >
-                                <p className="text-lg font-semibold">
-                                    {t('mangaDetails.chapterPrefix')} {chapter.chapter}
-                                </p>
+                                <div>
+                                    <p className="text-lg font-semibold">
+                                        {t('mangaDetails.chapterPrefix')} {chapter.chapter}
+                                    </p>
 
-                                <p className="text-gray-400">
-                                    {chapter.title}
-                                </p>
+                                    <p className="text-gray-400">
+                                        {chapter.title}
+                                    </p>
+                                </div>
+
+                                <div className="text-blue-400 font-semibold">
+                                    ❤️ {likes[chapter.id] || 0}
+                                </div>
                             </div>
+
+
                         ))}
                     </div>
                 </div>

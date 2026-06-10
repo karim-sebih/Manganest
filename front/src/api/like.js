@@ -31,4 +31,4 @@ async function removeLike(chapterId) {
     }
 }
 
-export default { getLikesByChapter, addLike, removeLike };
+export { getLikesByChapter, addLike, removeLike };

@@ -24,11 +24,15 @@ async function getLikesByChapter(req, res) {
 
 async function addLike(req, res) {
     try {
-        const { mangadex_chapter_id } = req.body;
+        if (!req.user) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+
         const like = await Likes.create({
             user_id: req.user.id,
-            mangadex_chapter_id,
+            mangadex_chapter_id: req.params.id,
         });
+
         res.json({ success: true, like });
 
     } catch (error) {
@@ -36,6 +40,7 @@ async function addLike(req, res) {
         res.status(500).json({ error: "Internal server error" });
     }
 }
+
 
 async function removeLike(req, res) {
     try {
@@ -56,3 +61,5 @@ async function removeLike(req, res) {
         res.status(500).json({ error: "Internal server error" });
     }
 }
+
+export { getLikesByChapter, addLike, removeLike };

@@ -1,12 +1,8 @@
 import { useParams, useNavigate, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import { getChapterPages } from "../../api/manga.js";
-import {
-    getCommentsByChapter,
-    createComment,
-    deleteComment,
-    updateComment
-} from "../../api/comments.js";
+import { getCommentsByChapter, createComment, deleteComment, updateComment } from "../../api/comments.js";
+import { addLike, getLikesByChapter, removeLike } from "../../api/like.js";
 import { useTranslation } from "react-i18next";
 
 export default function Chapter() {
@@ -27,6 +23,9 @@ export default function Chapter() {
     const [content, setContent] = useState("");
     const [editingId, setEditingId] = useState(null);
     const [editContent, setEditContent] = useState("");
+    const [likesCount, setLikesCount] = useState(0);
+    const [liked, setLiked] = useState(false);
+
 
     useEffect(() => {
         async function fetchPage() {
@@ -58,11 +57,6 @@ export default function Chapter() {
         fetchComments();
     }, [id]);
 
-    // scroll top
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [id]);
-
     const handleCreate = async () => {
         if (!content.trim()) return;
 
@@ -73,7 +67,7 @@ export default function Chapter() {
         });
 
         setContent("");
-        fetchComments(); // ✅ refresh propre
+        fetchComments();
     };
 
     const handleDelete = async (commentId) => {
@@ -88,6 +82,52 @@ export default function Chapter() {
         setEditContent("");
         fetchComments();
     };
+
+    const fetchLikes = async () => {
+        try {
+            const data = await getLikesByChapter(id);
+
+            setLikesCount(data.length);
+            const userLiked = data.some(
+                (like) => like.User?.username === username
+            );
+            setLiked(userLiked);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
+    const handleLike = async () => {
+        if (!username) return;
+
+        try {
+            if (liked) {
+                await removeLike(id);
+                setLikesCount((prev) => prev - 1);
+            } else {
+                await addLike(id);
+                setLikesCount((prev) => prev + 1);
+            }
+
+            setLiked(!liked);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
+
+    useEffect(() => {
+        fetchLikes();
+    }, [id]);
+
+
+
+    // scroll top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [id]);
 
     if (loading) {
         return (
@@ -150,6 +190,24 @@ export default function Chapter() {
                 >
                     Suivant ➡️
                 </button>
+            </div>
+
+            <div className="w-full max-w-5xl flex items-center justify-between py-6 text-white">
+
+                <button
+                    onClick={handleLike}
+                    className={`px-4 py-2 rounded-lg flex items-center gap-2 ${liked ? "bg-red-600" : "bg-gray-800"
+                        }`}
+                >
+                    ❤️ {likesCount}
+                </button>
+
+                {!username && (
+                    <p className="text-gray-400 text-sm">
+                        Connecte-toi pour liker
+                    </p>
+                )}
+
             </div>
 
             <div className="w-full max-w-5xl text-white mb-20">
@@ -230,6 +288,7 @@ export default function Chapter() {
                         </div>
                     ))}
                 </div>
+
             </div>
         </div>
     );
