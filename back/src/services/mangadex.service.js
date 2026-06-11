@@ -303,6 +303,91 @@ const mangadexService = {
     },
 
 
+    getLatestChaptersByMangaIds: async (mangaIds, languages = ["fr", "en"]) => {
+        try {
+            if (!mangaIds || mangaIds.length === 0) return [];
+
+            // ✅ limiter pour éviter 400
+            const chunkSize = 20;
+
+            const chunkArray = (arr, size) => {
+                const res = [];
+                for (let i = 0; i < arr.length; i += size) {
+                    res.push(arr.slice(i, i + size));
+                }
+                return res;
+            };
+
+            const chunks = chunkArray(mangaIds, chunkSize);
+
+            let allChapters = [];
+
+            for (const chunk of chunks) {
+                const params = new URLSearchParams();
+
+                chunk.forEach(id => params.append("manga[]", id));
+
+                params.append("limit", "100"); // max safe
+                params.append("includes[]", "manga");
+                params.append("includes[]", "cover_art");
+                params.append("order[readableAt]", "desc");
+
+                languages.forEach(lang =>
+                    params.append("translatedLanguage[]", lang)
+                );
+
+                const res = await fetch(`${BASE_URL}/chapter?${params}`);
+
+                if (!res.ok) {
+                    console.warn("MangaDex chunk error:", res.status);
+                    continue; // ✅ skip au lieu de crash
+                }
+
+                const data = await res.json();
+                allChapters.push(...(data.data || []));
+            }
+
+            // ✅ tri global
+            allChapters.sort(
+                (a, b) =>
+                    new Date(b.attributes.readableAt) -
+                    new Date(a.attributes.readableAt)
+            );
+
+            // ✅ limiter résultat final
+            const chapters = allChapters.slice(0, 30);
+
+            return chapters.map((chapter) => {
+                const mangaRel = chapter.relationships.find(r => r.type === "manga");
+                const coverRel = chapter.relationships.find(r => r.type === "cover_art");
+
+                const title = mangaRel?.attributes?.title
+                    ? Object.values(mangaRel.attributes.title)[0]
+                    : "Titre inconnu";
+
+                const cover = coverRel?.attributes?.fileName
+                    ? `https://uploads.mangadex.org/covers/${mangaRel.id}/${coverRel.attributes.fileName}`
+                    : null;
+
+                return {
+                    id: chapter.id,
+                    mangaId: mangaRel?.id,
+                    title,
+                    chapter: chapter.attributes.chapter || "??",
+                    publishAt: chapter.attributes.readableAt,
+                    cover
+                };
+            });
+
+        } catch (error) {
+            console.error("getLatestChaptersByMangaIds Error:", error);
+
+            // ✅ IMPORTANT : ne jamais throw ici
+            return [];
+        }
+    },
+
+
 
 
     // Cover d’un manga

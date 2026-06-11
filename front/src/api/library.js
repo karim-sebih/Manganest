@@ -25,10 +25,18 @@ async function deleteEntry(mangadexId) {
         console.error("Error deleting library entry:", error);
         throw error;
     }
+};
+
+async function getLibraryLatestChapters() {
+    try {
+        const res = await instance.get("/library/latest-chapters");
+        return res.data;
+    } catch (error) {
+        console.error("Error fetching library latest chapters:", error);
+        throw error;
+    }
 }
 
-async function getUserLibrary() {
 
-}
 
-export { getLibrary, addOrUpdateEntry, deleteEntry, getUserLibrary };
+export { getLibrary, addOrUpdateEntry, deleteEntry, getLibraryLatestChapters };

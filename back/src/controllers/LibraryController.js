@@ -61,57 +61,46 @@ async function deleteEntry(req, res) {
     }
 }
 
-async function getUserLibrary(req, res) {
+
+
+async function getLibraryLatestChapters(req, res) {
     try {
-        const user_id = req.user.id; // ou mock si pas d'auth
+        const user_id = req.user.id;
 
         const library = await Library.findAll({
             where: { user_id }
         });
 
-        if (!library.length) {
-            return res.json([]);
-        }
+        const ids = library.map(l => l.mangadex_id);
 
-        const ids = library.map(item => item.mangadex_id);
+        if (!ids.length) return res.json([]);
 
-        const mangas = await mangadexService.getMangasByIds(ids);
+        const languages = req.query.languages || ["fr"];
 
-        const mangaMap = new Map(mangas.map(m => [m.id, m]));
+        const chapters = await mangadexService.getLatestChaptersByMangaIds(
+            ids,
+            languages
+        );
 
-        const result = library.map(item => {
-            const manga = mangaMap.get(item.mangadex_id);
+        // ✅ 1 chapitre par manga
+        const seen = new Set();
 
-            const title = manga?.attributes?.title
-                ? Object.values(manga.attributes.title)[0]
-                : "Titre inconnu";
+        const uniqueChapters = chapters.filter(chapter => {
+            if (!chapter.mangaId || seen.has(chapter.mangaId)) return false;
 
-            const coverRel = manga?.relationships?.find(r => r.type === "cover_art");
-
-            const cover = coverRel?.attributes?.fileName
-                ? `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes.fileName}`
-                : null;
-
-            return {
-                id: item.id,
-                mangadex_id: item.mangadex_id,
-                status: item.status,
-                title,
-                cover
-            };
+            seen.add(chapter.mangaId);
+            return true;
         });
 
+        res.json(uniqueChapters);
 
-        res.json(result);
-
-    } catch (error) {
-        console.error("getUserLibrary Error:", error.message);
-
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error fetching library chapters" });
     }
 }
 
-export { getLibrary, addOrUpdateEntry, deleteEntry, getUserLibrary };
+
+
+
+export { getLibrary, addOrUpdateEntry, deleteEntry, getLibraryLatestChapters };

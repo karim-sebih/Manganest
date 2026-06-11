@@ -1,10 +1,11 @@
 import express from 'express';
-import { getLibrary, addOrUpdateEntry, deleteEntry, getUserLibrary } from '../controllers/LibraryController.js';
+import { getLibrary, addOrUpdateEntry, deleteEntry, getLibraryLatestChapters } from '../controllers/LibraryController.js';
 import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", AuthMiddleware, getUserLibrary);
+router.get("/", AuthMiddleware, getLibrary);
+router.get("/latest-chapters", AuthMiddleware, getLibraryLatestChapters);
 router.post("/", AuthMiddleware, addOrUpdateEntry);
 router.delete("/:mangadex_id", AuthMiddleware, deleteEntry);
 
