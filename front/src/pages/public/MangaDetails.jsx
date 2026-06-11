@@ -6,6 +6,7 @@ import { getCommentsByManga, createComment, deleteComment, updateComment } from 
 import { getLikesByChapter } from "../../api/like.js";
 import { getRatingsByManga, createOrUpdateRating, deleteRating } from "../../api/rating.js";
 import { getLibrary, addOrUpdateEntry, deleteEntry } from "../../api/library";
+import { getProgress } from "../../api/progress.js";
 
 export default function MangaDetails() {
     const { id } = useParams();
@@ -28,6 +29,7 @@ export default function MangaDetails() {
     const [libraryEntry, setLibraryEntry] = useState(null);
     const [loadingLibrary, setLoadingLibrary] = useState(true);
     const [openDropdown, setOpenDropdown] = useState(false);
+    const [progress, setProgress] = useState(null);
 
 
 
@@ -166,6 +168,33 @@ export default function MangaDetails() {
         }
     };
 
+    // PROGRESS
+
+    const lastChapter = chapters.find(
+        (c) => c.id === progress?.mangadex_chapter_id
+    );
+
+    const chapterIndex = chapters.findIndex(
+        (c) => c.id === progress?.mangadex_chapter_id
+    );
+
+    useEffect(() => {
+        async function fetchProgress() {
+            try {
+                const data = await getProgress(id);
+                setProgress(data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        if (username) {
+            fetchProgress();
+        }
+    }, [id, username]);
+
+
+
     // LIBRARY
     useEffect(() => {
         async function fetchLibrary() {
@@ -221,6 +250,9 @@ export default function MangaDetails() {
         }
     }
 
+
+
+
     useEffect(() => {
         function handleClickOutside() {
             setOpenDropdown(false);
@@ -269,12 +301,34 @@ export default function MangaDetails() {
             <div className="max-w-6xl mx-auto px-6 py-10">
 
                 <div className="flex flex-col md:flex-row gap-10">
-                    <img
-                        src={manga.cover}
-                        alt={manga.title}
-                        className="w-64 h-[380px] object-cover rounded-2xl shadow-lg"
-                    />
 
+                    <div className="flex flex-col">
+                        <img
+                            src={manga.cover}
+                            alt={manga.title}
+                            className="w-64 h-[380px] object-cover rounded-2xl shadow-lg"
+                        />
+
+                        {/* BOUTON REPRENDRE */}
+                        {progress && chapters.length > 0 && lastChapter && (
+                            <button
+                                onClick={() =>
+                                    navigate(`/chapter/${progress.mangadex_chapter_id}`, {
+                                        state: {
+                                            mangaId: id,
+                                            chapters,
+                                            currentIndex: chapterIndex !== -1 ? chapterIndex : 0,
+                                            page: progress.page
+                                        }
+                                    })
+                                }
+                                className="mt-4 bg-green-600 hover:bg-green-500 px-4 py-2 rounded-xl font-semibold transition"
+                            >
+                                ▶ Reprendre chapitre {lastChapter.chapter}
+                            </button>
+                        )}
+
+                    </div>
                     <div className="flex-1">
                         <h1 className="text-4xl font-bold mb-4">
                             {manga.title}

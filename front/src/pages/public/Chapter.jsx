@@ -4,6 +4,7 @@ import { getChapterPages } from "../../api/manga.js";
 import { getCommentsByChapter, createComment, deleteComment, updateComment } from "../../api/comments.js";
 import { addLike, getLikesByChapter, removeLike } from "../../api/like.js";
 import { useTranslation } from "react-i18next";
+import { saveProgress, getProgress } from "../../api/progress.js";
 
 export default function Chapter() {
     const { t } = useTranslation();
@@ -11,6 +12,10 @@ export default function Chapter() {
     const username = localStorage.getItem("username");
     const location = useLocation();
     const navigate = useNavigate();
+    const userId = localStorage.getItem("userId");
+
+
+
 
     const { mangaId, chapters, currentIndex } = location.state || {};
     const prevChapter = chapters?.[currentIndex + 1];
@@ -25,6 +30,8 @@ export default function Chapter() {
     const [editContent, setEditContent] = useState("");
     const [likesCount, setLikesCount] = useState(0);
     const [liked, setLiked] = useState(false);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [savedPage, setSavedPage] = useState(0);
 
 
     useEffect(() => {
@@ -89,7 +96,7 @@ export default function Chapter() {
 
             setLikesCount(data.length);
             const userLiked = data.some(
-                (like) => like.User?.username === username
+                (like) => like.user_id == userId
             );
             setLiked(userLiked);
         } catch (err) {
@@ -99,7 +106,11 @@ export default function Chapter() {
 
 
     const handleLike = async () => {
-        if (!username) return;
+        if (!username) {
+            alert("Tu dois être connecté pour liker");
+            return;
+        }
+
 
         try {
             if (liked) {
@@ -123,6 +134,77 @@ export default function Chapter() {
     }, [id]);
 
 
+    // progression
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const images = document.querySelectorAll("img");
+
+            let current = 0;
+
+            images.forEach((img, index) => {
+                const rect = img.getBoundingClientRect();
+
+                if (rect.top <= window.innerHeight / 2) {
+                    current = index;
+                }
+            });
+
+            setCurrentPage(current);
+        };
+
+        window.addEventListener("scroll", handleScroll);
+
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    useEffect(() => {
+        async function fetchProgress() {
+            if (!mangaId) return;
+
+            try {
+                const data = await getProgress(mangaId);
+
+                if (data && data.mangadex_chapter_id === id) {
+                    setSavedPage(data.page);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        fetchProgress();
+    }, [id, mangaId]);
+
+    // pour save auto
+
+    useEffect(() => {
+        if (!mangaId || pages.length === 0) return;
+
+        const timeout = setTimeout(() => {
+            saveProgress(mangaId, {
+                mangadex_chapter_id: id,
+                page: currentPage
+            });
+        }, 1000); // évite spam API
+
+        return () => clearTimeout(timeout);
+    }, [currentPage]);
+
+
+    // auto scroll a la page dernierement lue 
+    useEffect(() => {
+        if (savedPage === null || pages.length === 0) return;
+
+        const images = document.querySelectorAll("img");
+
+        if (images[savedPage]) {
+            images[savedPage].scrollIntoView({
+                behavior: "auto", // évite l'effet bizarre au reload
+                block: "start"
+            });
+        }
+    }, [savedPage, pages]);
 
     // scroll top
     useEffect(() => {
