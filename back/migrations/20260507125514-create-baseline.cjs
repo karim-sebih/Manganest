@@ -78,18 +78,6 @@ CREATE TABLE progress (
       `);
 
       await q(`
-       CREATE TABLE history (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    mangadex_id VARCHAR(50) NOT NULL,
-    mangadex_chapter_id VARCHAR(50) NOT NULL,
-    viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-      `);
-
-      await q(`
         CREATE TABLE comments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
