@@ -100,7 +100,6 @@ CREATE TABLE progress (
       await q(`DROP TABLE users;`);
       await q(`DROP TABLE comments;`);
       await q(`DROP TABLE library;`);
-      await q(`DROP TABLE history;`);
       await q(`DROP TABLE likes;`);
       await q(`DROP TABLE progress;`);
       await q(`DROP TABLE ratings;`);
