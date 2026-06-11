@@ -3,6 +3,10 @@ import { getAllManga, getLatestChapters } from "../../api/manga.js";
 import { useNavigate } from "react-router";
 import Pagination from "../../components/Pagination.jsx";
 import { useTranslation } from "react-i18next";
+import Carousel from "../../components/Carousel.jsx";
+import { getProgressList } from "../../api/progress.js";
+
+
 
 export default function Home() {
   const { t } = useTranslation();
@@ -11,6 +15,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
+  const [progressList, setProgressList] = useState([]);
+
 
 
   const LIMIT = 20;
@@ -65,6 +71,48 @@ export default function Home() {
     fetchData();
   }, [page]);
 
+
+  //Pour progression 
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+
+        const [mangaData, chapterData, progressData] = await Promise.all([
+          getAllManga(
+            LIMIT,
+            (page - 1) * LIMIT,
+            contentFilters,
+            tags.included,
+            tags.excluded
+          ),
+          getLatestChapters(
+            LIMIT,
+            (page - 1) * LIMIT,
+            chapterLanguage,
+            contentFilters,
+            tags.included,
+            tags.excluded
+          ),
+          getProgressList()
+        ]);
+
+        setMangas(mangaData.mangas || []);
+        setLatestChapters(chapterData.chapters || []);
+        setProgressList(progressData || []);
+
+      } catch (err) {
+        console.error(err);
+        setError("Impossible de charger les données");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [page]);
+
   const handleMangaClick = (id) => {
     navigate(`/manga/${id}`);
   };
@@ -90,6 +138,72 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0F172A] text-white pb-12">
       <div className="max-w-7xl mx-auto px-6 pt-8">
+
+        <Carousel
+          title="Continuer la lecture"
+          items={progressList}
+          renderItem={(item) => (
+            <div
+              onClick={() => navigate(`/chapter/${item.mangadex_chapter_id}`)}
+              className="bg-[#1E293B] rounded-2xl p-4 hover:bg-[#25334b] transition-all cursor-pointer flex gap-4 w-[300px]"
+            >
+              <img
+                src={item.cover}
+                alt=""
+                className="w-24 h-36 object-cover rounded-xl flex-shrink-0"
+                onError={(e) => {
+                  e.target.src = "https://picsum.photos/300/420?random=1";
+                }}
+              />
+
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold line-clamp-2">
+                  {item.title}
+                </p>
+
+                <p className="text-blue-400 mt-2 text-sm">
+                  Page {item.page}
+                </p>
+              </div>
+            </div>
+          )}
+
+        />
+
+
+        <Carousel
+          title="Derniers chapitres"
+          items={latestChapters}
+          renderItem={(item) => (
+            <div
+              onClick={() => navigate(`/chapter/${item.id}`)}
+              className="bg-[#1E293B] rounded-2xl p-4 hover:bg-[#25334b] transition-all cursor-pointer flex gap-4 w-[300px]"
+            >
+              <img
+                src={item.cover}
+                alt=""
+                className="w-24 h-36 object-cover rounded-xl flex-shrink-0"
+                onError={(e) => {
+                  e.target.src = "https://picsum.photos/300/420?random=1";
+                }}
+              />
+
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold line-clamp-2">
+                  {item.title}
+                </p>
+
+                <p className="text-blue-400 mt-2 text-sm">
+                  Chapitre {item.chapter}
+                </p>
+              </div>
+            </div>
+          )}
+
+        />
+
+
+
 
         <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
           {t('home.title')}

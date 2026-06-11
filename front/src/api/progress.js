@@ -25,4 +25,16 @@ async function getProgress(mangadex_id) {
     }
 }
 
-export { saveProgress, getProgress };
+async function getProgressList() {
+    try {
+        const response = await instance.get("/progress");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching progress list:", error);
+        throw error;
+    }
+}
+
+
+
+export { saveProgress, getProgress, getProgressList };

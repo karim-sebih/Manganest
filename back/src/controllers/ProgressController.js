@@ -39,4 +39,55 @@ async function getProgress(req, res) {
     }
 }
 
-export { getProgress, saveProgress };
+async function getAllProgress(req, res) {
+    try {
+        const user_id = req.user.id;
+
+        const progressList = await Progress.findAll({
+            where: { user_id },
+            order: [["updated_at", "DESC"]]
+        });
+
+        if (!progressList.length) {
+            return res.json([]);
+        }
+
+        const ids = progressList.map(p => p.mangadex_id);
+
+        const mangas = await mangadexService.getMangasByIds(ids);
+
+        const mangaMap = new Map(mangas.map(m => [m.id, m]));
+
+        const result = progressList.map(item => {
+            const manga = mangaMap.get(item.mangadex_id);
+
+            const title = manga?.attributes?.title
+                ? Object.values(manga.attributes.title)[0]
+                : "Titre inconnu";
+
+            const coverRel = manga?.relationships?.find(r => r.type === "cover_art");
+
+            const cover = coverRel?.attributes?.fileName
+                ? `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes.fileName}`
+                : null;
+
+            return {
+                mangadex_id: item.mangadex_id,
+                mangadex_chapter_id: item.mangadex_chapter_id,
+                page: item.page,
+                updatedAt: item.updated_at,
+                title,
+                cover
+            };
+        });
+
+        res.json(result);
+
+    } catch (error) {
+        console.error("Error fetching all progress:", error);
+        res.status(500).json({ message: "Error fetching progress" });
+    }
+}
+
+
+export { getProgress, saveProgress, getAllProgress };
