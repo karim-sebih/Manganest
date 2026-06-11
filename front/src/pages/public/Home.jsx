@@ -171,36 +171,7 @@ export default function Home() {
         />
 
 
-        <Carousel
-          title="Derniers chapitres"
-          items={latestChapters}
-          renderItem={(item) => (
-            <div
-              onClick={() => navigate(`/chapter/${item.id}`)}
-              className="bg-[#1E293B] rounded-2xl p-4 hover:bg-[#25334b] transition-all cursor-pointer flex gap-4 w-[300px]"
-            >
-              <img
-                src={item.cover}
-                alt=""
-                className="w-24 h-36 object-cover rounded-xl flex-shrink-0"
-                onError={(e) => {
-                  e.target.src = "https://picsum.photos/300/420?random=1";
-                }}
-              />
 
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold line-clamp-2">
-                  {item.title}
-                </p>
-
-                <p className="text-blue-400 mt-2 text-sm">
-                  Chapitre {item.chapter}
-                </p>
-              </div>
-            </div>
-          )}
-
-        />
 
 
 
