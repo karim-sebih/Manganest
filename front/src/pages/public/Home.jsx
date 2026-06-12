@@ -146,10 +146,10 @@ export default function Home() {
             <div
               onClick={() => navigate(`/chapter/${item.mangadex_chapter_id}`, {
                 state: {
-                  mangaId: item.mangadex_id
+                  mangaId: item.mangadex_id,
+                  chapterNumber: item.chapter
                 }
               })}
-
               className="bg-[#1E293B] rounded-2xl p-4 hover:bg-[#25334b] transition-all cursor-pointer flex gap-4 w-[300px]"
             >
               <img

@@ -14,12 +14,13 @@ export default function Chapter() {
     const navigate = useNavigate();
     const userId = localStorage.getItem("userId");
 
-
-
-
     const { mangaId, chapters, currentIndex } = location.state || {};
-    const prevChapter = chapters?.[currentIndex + 1];
-    const nextChapter = chapters?.[currentIndex - 1];
+
+    const [localChapters, setLocalChapters] = useState(chapters || null);
+    const [localIndex, setLocalIndex] = useState(currentIndex ?? null);
+
+    const prevChapter = localChapters?.[localIndex + 1];
+    const nextChapter = localChapters?.[localIndex - 1];
 
     const [pages, setPages] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -156,7 +157,42 @@ export default function Chapter() {
 
         fetchChapter();
     }, [id]);
+    //pagination
+    useEffect(() => {
+        if (localChapters && localIndex !== null) return;
 
+        async function fetchChapters() {
+            try {
+                let realMangaId = mangaId;
+
+                if (!realMangaId) {
+                    const res = await fetch(`https://api.mangadex.org/chapter/${id}`);
+                    const data = await res.json();
+
+                    const mangaRel = data.data.relationships.find(r => r.type === "manga");
+                    realMangaId = mangaRel?.id;
+                    setSafeMangaId(realMangaId);
+                }
+
+                const res = await fetch(
+                    `https://api.mangadex.org/manga/${realMangaId}/feed?translatedLanguage[]=en&order[chapter]=desc`
+                );
+
+                const data = await res.json();
+                const chaps = data.data;
+
+                setLocalChapters(chaps);
+
+                const index = chaps.findIndex(c => c.id === id);
+                setLocalIndex(index !== -1 ? index : 0);
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        fetchChapters();
+    }, [id]);
 
     // progression
 
@@ -270,9 +306,9 @@ export default function Chapter() {
                     onClick={() =>
                         navigate(`/chapter/${prevChapter.id}`, {
                             state: {
-                                mangaId,
-                                chapters,
-                                currentIndex: currentIndex + 1
+                                mangaId: safeMangaId,
+                                chapters: localChapters,
+                                currentIndex: localIndex + 1
                             }
                         })
                     }
@@ -284,11 +320,11 @@ export default function Chapter() {
                 <button
                     disabled={!nextChapter}
                     onClick={() =>
-                        navigate(`/chapter/${nextChapter.id}`, {
+                        navigate(`/chapter/${prevChapter.id}`, {
                             state: {
-                                mangaId,
-                                chapters,
-                                currentIndex: currentIndex - 1
+                                mangaId: safeMangaId,
+                                chapters: localChapters,
+                                currentIndex: localIndex - 1
                             }
                         })
                     }

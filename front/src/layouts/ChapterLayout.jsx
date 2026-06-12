@@ -94,7 +94,7 @@ export default function ChapterLayout() {
                 <span>
                     Chapitre {
                         currentChapter?.chapter ??
-                        currentChapter?.attributes?.chapter ??
+                        location.state?.chapterNumber ??
                         "?"
                     }
 

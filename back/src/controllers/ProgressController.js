@@ -53,10 +53,37 @@ async function getAllProgress(req, res) {
         }
 
         const ids = progressList.map(p => p.mangadex_id);
-
         const mangas = await mangadexService.getMangasByIds(ids);
-
         const mangaMap = new Map(mangas.map(m => [m.id, m]));
+
+        // ✅ NOUVEAU : récupérer les chapitres
+        const chapterPromises = progressList.map(async (item) => {
+            if (!item.mangadex_chapter_id) return null;
+
+            try {
+                const res = await fetch(
+                    `https://api.mangadex.org/chapter/${item.mangadex_chapter_id}`
+                );
+                const data = await res.json();
+
+                return {
+                    id: item.mangadex_chapter_id,
+                    chapter: data.data?.attributes?.chapter ?? "?"
+                };
+            } catch {
+                return {
+                    id: item.mangadex_chapter_id,
+                    chapter: "?"
+                };
+            }
+        });
+
+        const chaptersData = await Promise.all(chapterPromises);
+        const chapterMap = new Map(
+            chaptersData
+                .filter(Boolean)
+                .map(c => [c.id, c.chapter])
+        );
 
         const result = progressList.map(item => {
             const manga = mangaMap.get(item.mangadex_id);
@@ -74,15 +101,15 @@ async function getAllProgress(req, res) {
             return {
                 mangadex_id: item.mangadex_id || null,
                 mangadex_chapter_id: item.mangadex_chapter_id || null,
-                hasChapter: !!item.mangadex_chapter_id,
                 page: item.page ?? 0,
                 updatedAt: item.updated_at || null,
 
                 title: title || "Titre inconnu",
+                cover: cover || "https://picsum.photos/300/420",
 
-                cover: cover || "https://picsum.photos/300/420"
+                // ✅ IMPORTANT
+                chapter: chapterMap.get(item.mangadex_chapter_id) || "?"
             };
-
         });
 
         res.json(result);
