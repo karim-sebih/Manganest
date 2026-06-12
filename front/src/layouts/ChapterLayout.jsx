@@ -68,6 +68,14 @@ export default function ChapterLayout() {
         fetchData();
     }, [id]);
 
+    useEffect(() => {
+        if (location.state) {
+            setChapters(location.state.chapters || null);
+            setCurrentIndex(location.state.currentIndex ?? null);
+            setMangaId(location.state.mangaId || null);
+        }
+    }, [location.state]);
+
     //  LOADING SAFE
     if (loading || !chapters || currentIndex === null) {
         return (

@@ -271,6 +271,18 @@ export default function Chapter() {
         window.scrollTo(0, 0);
     }, [id]);
 
+    useEffect(() => {
+        if (currentIndex !== undefined && currentIndex !== null) {
+            setLocalIndex(currentIndex);
+        }
+    }, [currentIndex]);
+
+    useEffect(() => {
+        if (chapters) {
+            setLocalChapters(chapters);
+        }
+    }, [chapters]);
+
     if (loading) {
         return (
             <div className="min-h-screen bg-[#0F172A] flex items-center justify-center">
@@ -303,15 +315,17 @@ export default function Chapter() {
             <div className="w-full max-w-5xl flex justify-between items-center py-10">
                 <button
                     disabled={!prevChapter}
-                    onClick={() =>
+                    onClick={() => {
+                        if (!prevChapter) return;
+
                         navigate(`/chapter/${prevChapter.id}`, {
                             state: {
                                 mangaId: safeMangaId,
                                 chapters: localChapters,
                                 currentIndex: localIndex + 1
                             }
-                        })
-                    }
+                        });
+                    }}
                     className="bg-gray-800 px-6 py-3 rounded-lg disabled:opacity-30"
                 >
                     ⬅️ Précédent
@@ -319,15 +333,18 @@ export default function Chapter() {
 
                 <button
                     disabled={!nextChapter}
-                    onClick={() =>
-                        navigate(`/chapter/${prevChapter.id}`, {
+                    onClick={() => {
+                        if (!nextChapter) return;
+
+                        navigate(`/chapter/${nextChapter.id}`, {
                             state: {
                                 mangaId: safeMangaId,
                                 chapters: localChapters,
                                 currentIndex: localIndex - 1
                             }
-                        })
-                    }
+                        });
+                    }}
+
                     className="bg-gray-800 px-6 py-3 rounded-lg disabled:opacity-30"
                 >
                     Suivant ➡️
