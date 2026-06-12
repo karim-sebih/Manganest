@@ -194,7 +194,7 @@ const mangadexService = {
 
         // 1) query manga
         const params = new URLSearchParams();
-        params.append("limit", "50");
+        params.append("limit", limit);
         params.append("offset", offset);
         params.append("includes[]", "cover_art");
         params.append("order[latestUploadedChapter]", "desc");
@@ -274,6 +274,22 @@ const mangadexService = {
             (a, b) =>
                 new Date(b.attributes.readableAt) - new Date(a.attributes.readableAt)
         );
+        // 3.5) faire en sorte de gardé un manga avec le chap le plus récent pour pas a avoir des doublons manga avec diff chap
+        const uniqueManga = new Map();
+
+        for (const chapter of chapters) {
+            const mangaRel = chapter.relationships.find(r => r.type === "manga");
+            const mangaId = mangaRel?.id;
+
+            if (!mangaId) continue;
+
+            // garde seulement le premier (donc le plus récent)
+            if (!uniqueManga.has(mangaId)) {
+                uniqueManga.set(mangaId, chapter);
+            }
+        }
+
+        chapters = Array.from(uniqueManga.values());
 
         // 4) slice
         chapters = chapters.slice(0, limit);
