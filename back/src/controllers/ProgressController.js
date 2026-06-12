@@ -45,7 +45,8 @@ async function getAllProgress(req, res) {
 
         const progressList = await Progress.findAll({
             where: { user_id },
-            order: [["updated_at", "DESC"]]
+            order: [["updated_at", "DESC"]],
+            limit: 10
         });
 
         if (!progressList.length) {

@@ -6,13 +6,19 @@ export default function Carousel({ title, items, renderItem }) {
     const scroll = (direction) => {
         if (!scrollRef.current) return;
 
-        const scrollAmount = 300;
+        const container = scrollRef.current;
+        const card = container.querySelector("div"); // 1ère card
 
-        scrollRef.current.scrollBy({
-            left: direction === "left" ? -scrollAmount : scrollAmount,
+        if (!card) return;
+
+        const cardWidth = card.offsetWidth + 16; // gap-4 = 16px
+
+        container.scrollBy({
+            left: direction === "left" ? -cardWidth : cardWidth,
             behavior: "smooth",
         });
     };
+
 
     return (
         <div className="mb-8">
@@ -45,7 +51,7 @@ export default function Carousel({ title, items, renderItem }) {
                     <p className="text-gray-400">Aucun contenu</p>
                 ) : (
                     items.map((item, index) => (
-                        <div key={index} className="min-w-[150px] flex-shrink-0">
+                        <div key={item.mangadex_id} className="min-w-[150px] flex-shrink-0">
                             {renderItem(item)}
                         </div>
                     ))
