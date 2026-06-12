@@ -1,5 +1,5 @@
 import express from 'express';
-import { getLibrary, addOrUpdateEntry, deleteEntry, getUserLibrary } from '../controllers/LibraryController.js';
+import { addOrUpdateEntry, deleteEntry, getUserLibrary } from '../controllers/LibraryController.js';
 import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const router = express.Router();

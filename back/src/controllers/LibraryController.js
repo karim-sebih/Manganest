@@ -3,21 +3,6 @@ import Library from '../models/Library.js';
 import mangadexService from "../services/mangadex.service.js";
 
 
-async function getLibrary(req, res) {
-    try {
-        const user_id = req.user.id;
-        const { status } = req.query;
-
-        const where = { user_id };
-        if (status) where.status = status;
-
-        const library = await Library.findAll({ where });
-
-        res.json(library);
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching library' });
-    }
-}
 
 async function addOrUpdateEntry(req, res) {
     try {
@@ -114,4 +99,4 @@ async function getUserLibrary(req, res) {
     }
 }
 
-export { getLibrary, addOrUpdateEntry, deleteEntry, getUserLibrary };
+export { addOrUpdateEntry, deleteEntry, getUserLibrary };

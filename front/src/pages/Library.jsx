@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getLibrary } from "../api/library.js";
+import { getUserLibrary } from "../api/library.js";
 import { useNavigate } from "react-router";
 
 
@@ -12,7 +12,7 @@ export default function Library() {
     useEffect(() => {
         async function fetchLibrary() {
             try {
-                const data = await getLibrary();
+                const data = await getUserLibrary();
                 setLibrary(data);
             } catch (err) {
                 console.error(err);

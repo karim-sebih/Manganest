@@ -1,6 +1,6 @@
 import instance from "./config.js";
 
-async function getLibrary() {
+async function getUserLibrary() {
     try {
         const response = await instance.get("/library");
         return response.data;
@@ -27,8 +27,6 @@ async function deleteEntry(mangadexId) {
     }
 }
 
-async function getUserLibrary() {
 
-}
 
-export { getLibrary, addOrUpdateEntry, deleteEntry, getUserLibrary };
+export { addOrUpdateEntry, deleteEntry, getUserLibrary };

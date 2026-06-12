@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { getCommentsByManga, createComment, deleteComment, updateComment } from "../../api/comments.js";
 import { getLikesByChapter } from "../../api/like.js";
 import { getRatingsByManga, createOrUpdateRating, deleteRating } from "../../api/rating.js";
-import { getLibrary, addOrUpdateEntry, deleteEntry } from "../../api/library";
+import { getUserLibrary, addOrUpdateEntry, deleteEntry } from "../../api/library";
 import { getProgress } from "../../api/progress.js";
 
 export default function MangaDetails() {
@@ -199,7 +199,7 @@ export default function MangaDetails() {
     useEffect(() => {
         async function fetchLibrary() {
             try {
-                const data = await getLibrary();
+                const data = await getUserLibrary();
 
                 const entry = data.find(
                     (item) => item.mangadex_id === id
