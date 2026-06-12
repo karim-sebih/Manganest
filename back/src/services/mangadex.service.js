@@ -310,6 +310,7 @@ const mangadexService = {
 
             return {
                 id: manga?.id,
+                chapterId: chapter.id,
                 mangaTitle: title,
                 lastChapter: chapter.attributes.chapter || "??",
                 publishAt: chapter.attributes.readableAt,

@@ -92,7 +92,12 @@ export default function ChapterLayout() {
                 </button>
 
                 <span>
-                    Chapitre {currentChapter?.attributes?.chapter ?? "?"}
+                    Chapitre {
+                        currentChapter?.chapter ??
+                        currentChapter?.attributes?.chapter ??
+                        "?"
+                    }
+
                 </span>
 
                 <button onClick={() => setOpenSidebar(!openSidebar)}>
