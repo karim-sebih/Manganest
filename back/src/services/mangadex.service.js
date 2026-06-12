@@ -176,7 +176,7 @@ const mangadexService = {
         includedTags = [],
         excludedTags = []
     ) => {
-        const timeoutMs = 10000;
+        const timeoutMs = 50000;
 
         const fetchWithTimeout = async (url) => {
             const ctrl = new AbortController();
@@ -192,10 +192,16 @@ const mangadexService = {
 
         const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-        // 1) query manga
+        // ✅ FIX PAGINATION
+        const FETCH_MULTIPLIER = 4;
+        const FETCH_SIZE = limit * FETCH_MULTIPLIER;
+
+        // 🔥 correction ici
+        const adjustedOffset = offset * FETCH_MULTIPLIER;
+
         const params = new URLSearchParams();
-        params.append("limit", limit);
-        params.append("offset", offset);
+        params.append("limit", FETCH_SIZE);
+        params.append("offset", adjustedOffset);
         params.append("includes[]", "cover_art");
         params.append("order[latestUploadedChapter]", "desc");
 
@@ -203,30 +209,22 @@ const mangadexService = {
         includedTags.forEach((tag) => params.append("includedTags[]", tag));
         excludedTags.forEach((tag) => params.append("excludedTags[]", tag));
 
-        // langues
         params.append("availableTranslatedLanguage[]", "fr");
         params.append("availableTranslatedLanguage[]", "en");
 
         const mangaRes = await fetch(`${BASE_URL}/manga?${params}`);
         if (!mangaRes.ok) throw new Error(`MangaDex manga error: ${mangaRes.status}`);
-        const mangaData = await mangaRes.json();
 
+        const mangaData = await mangaRes.json();
         const mangas = mangaData.data || [];
+
         if (!mangas.length) return [];
 
         const mangaIds = mangas.map((m) => m.id);
 
-        // 2) limiter concurrence
-        const perMangaLimit = 5;
-
+        const perMangaLimit = 3;
         const concurrency = 6;
         const allResults = [];
-        console.log(
-            "mangas trouvés:",
-            mangas.length,
-            "sample contentRating:",
-            mangas[0]?.attributes?.contentRating
-        );
 
         for (let i = 0; i < mangaIds.length; i += concurrency) {
             const slice = mangaIds.slice(i, i + concurrency);
@@ -235,31 +233,31 @@ const mangadexService = {
                 slice.map(async (id) => {
                     const url =
                         `${BASE_URL}/chapter?manga=${id}` +
-                        `&translatedLanguage[]=${language}`
-
-                        +
+                        `&translatedLanguage[]=${language}` +
                         `&order[readableAt]=desc` +
                         `&limit=${perMangaLimit}`;
 
-                    // retry 1 fois si échec temporaire
                     for (let attempt = 0; attempt < 2; attempt++) {
                         try {
                             const res = await fetchWithTimeout(url);
+
                             if (!res.ok) {
-                                // si 429/5xx => retry
                                 if (res.status === 429 || res.status >= 500) {
                                     await sleep(400 * (attempt + 1));
                                     continue;
                                 }
                                 return [];
                             }
+
                             const json = await res.json();
                             return json.data || [];
+
                         } catch (e) {
                             if (attempt === 1) return [];
                             await sleep(400 * (attempt + 1));
                         }
                     }
+
                     return [];
                 })
             );
@@ -269,12 +267,13 @@ const mangadexService = {
 
         let chapters = allResults.flatMap((r) => r || []);
 
-        // 3) tri global (dates)
+        // ✅ TRI GLOBAL
         chapters.sort(
             (a, b) =>
                 new Date(b.attributes.readableAt) - new Date(a.attributes.readableAt)
         );
-        // 3.5) faire en sorte de gardé un manga avec le chap le plus récent pour pas a avoir des doublons manga avec diff chap
+
+        // ✅ UNIQUE MANGA
         const uniqueManga = new Map();
 
         for (const chapter of chapters) {
@@ -283,7 +282,6 @@ const mangadexService = {
 
             if (!mangaId) continue;
 
-            // garde seulement le premier (donc le plus récent)
             if (!uniqueManga.has(mangaId)) {
                 uniqueManga.set(mangaId, chapter);
             }
@@ -291,11 +289,23 @@ const mangadexService = {
 
         chapters = Array.from(uniqueManga.values());
 
-        // 4) slice
-        chapters = chapters.slice(0, limit);
+        // ✅ FILTRE DATE
+        const MAX_DAYS = 30;
+        const now = new Date();
 
-        // 5) mapping
-        return chapters.map((chapter) => {
+        let filtered = chapters.filter(ch => {
+            const date = new Date(ch.attributes.readableAt);
+            const diff = (now - date) / (1000 * 60 * 60 * 24);
+            return diff <= MAX_DAYS;
+        });
+
+        if (filtered.length < limit) {
+            filtered = chapters;
+        }
+
+        filtered = filtered.slice(0, limit);
+
+        return filtered.map((chapter) => {
             const mangaRel = chapter.relationships.find((r) => r.type === "manga");
             const manga = mangas.find((m) => m.id === mangaRel?.id);
 
@@ -304,6 +314,7 @@ const mangadexService = {
                 : "Titre inconnu";
 
             const coverRel = manga?.relationships?.find((r) => r.type === "cover_art");
+
             const cover = coverRel?.attributes?.fileName
                 ? `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes.fileName}`
                 : null;
@@ -318,6 +329,8 @@ const mangadexService = {
             };
         });
     },
+
+
 
 
 
