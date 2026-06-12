@@ -72,13 +72,17 @@ async function getAllProgress(req, res) {
                 : null;
 
             return {
-                mangadex_id: item.mangadex_id,
-                mangadex_chapter_id: item.mangadex_chapter_id,
-                page: item.page,
-                updatedAt: item.updated_at,
-                title,
-                cover
+                mangadex_id: item.mangadex_id || null,
+                mangadex_chapter_id: item.mangadex_chapter_id || null,
+                hasChapter: !!item.mangadex_chapter_id,
+                page: item.page ?? 0,
+                updatedAt: item.updated_at || null,
+
+                title: title || "Titre inconnu",
+
+                cover: cover || "https://picsum.photos/300/420"
             };
+
         });
 
         res.json(result);

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import Pagination from "../../components/Pagination.jsx";
 import { useTranslation } from "react-i18next";
 import Carousel from "../../components/Carousel.jsx";
-import { getProgressList } from "../../api/progress.js";
+import { getAllProgress } from "../../api/progress.js";
 
 
 
@@ -95,7 +95,7 @@ export default function Home() {
             tags.included,
             tags.excluded
           ),
-          getProgressList()
+          getAllProgress()
         ]);
 
         setMangas(mangaData.mangas || []);
@@ -144,7 +144,12 @@ export default function Home() {
           items={progressList}
           renderItem={(item) => (
             <div
-              onClick={() => navigate(`/chapter/${item.mangadex_chapter_id}`)}
+              onClick={() => navigate(`/chapter/${item.mangadex_chapter_id}`, {
+                state: {
+                  mangaId: item.mangadex_id
+                }
+              })}
+
               className="bg-[#1E293B] rounded-2xl p-4 hover:bg-[#25334b] transition-all cursor-pointer flex gap-4 w-[300px]"
             >
               <img

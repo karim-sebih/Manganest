@@ -25,7 +25,7 @@ async function getProgress(mangadex_id) {
     }
 }
 
-async function getProgressList() {
+async function getAllProgress() {
     try {
         const response = await instance.get("/progress");
         return response.data;
@@ -37,4 +37,4 @@ async function getProgressList() {
 
 
 
-export { saveProgress, getProgress, getProgressList };
+export { saveProgress, getProgress, getAllProgress };

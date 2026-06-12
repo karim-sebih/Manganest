@@ -32,6 +32,8 @@ export default function Chapter() {
     const [liked, setLiked] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
     const [savedPage, setSavedPage] = useState(0);
+    const [safeMangaId, setSafeMangaId] = useState(mangaId || null);
+
 
 
     useEffect(() => {
@@ -133,6 +135,28 @@ export default function Chapter() {
         fetchLikes();
     }, [id]);
 
+    //secu
+    useEffect(() => {
+        if (safeMangaId) return;
+
+        async function fetchChapter() {
+            try {
+                const res = await fetch(`https://api.mangadex.org/chapter/${id}`);
+                const data = await res.json();
+
+                const mangaRel = data.data.relationships.find(r => r.type === "manga");
+
+                if (mangaRel) {
+                    setSafeMangaId(mangaRel.id);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        fetchChapter();
+    }, [id]);
+
 
     // progression
 
@@ -160,7 +184,7 @@ export default function Chapter() {
 
     useEffect(() => {
         async function fetchProgress() {
-            if (!mangaId) return;
+            if (!safeMangaId) return;
 
             try {
                 const data = await getProgress(mangaId);
@@ -182,7 +206,7 @@ export default function Chapter() {
         if (!mangaId || pages.length === 0) return;
 
         const timeout = setTimeout(() => {
-            saveProgress(mangaId, {
+            saveProgress(safeMangaId, {
                 mangadex_chapter_id: id,
                 page: currentPage
             });

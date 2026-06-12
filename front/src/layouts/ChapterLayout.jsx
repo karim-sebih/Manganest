@@ -1,19 +1,80 @@
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate, useParams } from "react-router";
 import { useState, useEffect } from "react";
 
 export default function ChapterLayout() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { id } = useParams();
+
+    const state = location.state || {};
+
     const [openSidebar, setOpenSidebar] = useState(false);
+    const [chapters, setChapters] = useState(state.chapters || null);
+    const [currentIndex, setCurrentIndex] = useState(
+        state.currentIndex ?? null
+    );
+    const [mangaId, setMangaId] = useState(state.mangaId || null);
+    const [loading, setLoading] = useState(!state.chapters);
 
-    const { mangaId, chapters, currentIndex } = location.state || {};
-
+    //  lock scroll sidebar
     useEffect(() => {
         document.body.style.overflow = openSidebar ? "hidden" : "auto";
     }, [openSidebar]);
 
-    if (!chapters) {
-        return <div className="text-white">Erreur: données manquantes</div>;
+    // * FETCH si reload
+    useEffect(() => {
+        if (chapters && currentIndex !== null) return;
+
+        async function fetchData() {
+            try {
+                setLoading(true);
+
+                let realMangaId = mangaId;
+
+                //  récupérer mangaId si absent
+                if (!realMangaId) {
+                    const res = await fetch(`https://api.mangadex.org/chapter/${id}`);
+                    const data = await res.json();
+
+                    const mangaRel = data.data.relationships.find(
+                        (r) => r.type === "manga"
+                    );
+
+                    realMangaId = mangaRel?.id;
+                    setMangaId(realMangaId);
+                }
+
+                //  récupérer tous les chapitres
+                const res = await fetch(
+                    `https://api.mangadex.org/manga/${realMangaId}/feed?translatedLanguage[]=en&order[chapter]=desc`
+                );
+                const data = await res.json();
+
+                const chaps = data.data;
+
+                setChapters(chaps);
+
+                // trouver index actuel
+                const foundIndex = chaps.findIndex((c) => c.id === id);
+                setCurrentIndex(foundIndex !== -1 ? foundIndex : 0);
+
+            } catch (err) {
+                console.error("Erreur fetch chapters:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData();
+    }, [id]);
+
+    //  LOADING SAFE
+    if (loading || !chapters || currentIndex === null) {
+        return (
+            <div className="text-white flex items-center justify-center h-screen">
+                Chargement...
+            </div>
+        );
     }
 
     const currentChapter = chapters[currentIndex];
@@ -31,7 +92,7 @@ export default function ChapterLayout() {
                 </button>
 
                 <span>
-                    Chapitre {currentChapter.chapter} / {chapters[0]?.chapter}
+                    Chapitre {currentChapter?.attributes?.chapter ?? "?"}
                 </span>
 
                 <button onClick={() => setOpenSidebar(!openSidebar)}>
@@ -49,18 +110,17 @@ export default function ChapterLayout() {
 
             {/* SIDEBAR */}
             <div
-                className={`fixed top-0 right-0 h-full w-64 bg-[#020617] text-white z-50 transform transition-transform duration-300 ease-in-out
+                className={`fixed top-0 right-0 h-full w-64 bg-[#020617] z-50 transform transition-transform duration-300
                 ${openSidebar ? "translate-x-0" : "translate-x-full"}`}
             >
                 <div className="p-4 pt-20">
 
-                    {/* HEADER */}
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-lg">Chapitres</h2>
+                    <div className="flex justify-between mb-4">
+                        <h2>Chapitres</h2>
                         <button onClick={() => setOpenSidebar(false)}>✕</button>
                     </div>
 
-                    {/* NAVIGATION */}
+                    {/* NAV */}
                     <div className="flex justify-between mb-4">
                         <button
                             disabled={!prevChapter}
@@ -68,7 +128,11 @@ export default function ChapterLayout() {
                                 if (!prevChapter) return;
 
                                 navigate(`/chapter/${prevChapter.id}`, {
-                                    state: { mangaId, chapters, currentIndex: currentIndex + 1 }
+                                    state: {
+                                        mangaId,
+                                        chapters,
+                                        currentIndex: currentIndex + 1
+                                    }
                                 });
 
                                 setOpenSidebar(false);
@@ -83,7 +147,11 @@ export default function ChapterLayout() {
                                 if (!nextChapter) return;
 
                                 navigate(`/chapter/${nextChapter.id}`, {
-                                    state: { mangaId, chapters, currentIndex: currentIndex - 1 }
+                                    state: {
+                                        mangaId,
+                                        chapters,
+                                        currentIndex: currentIndex - 1
+                                    }
                                 });
 
                                 setOpenSidebar(false);
@@ -93,23 +161,27 @@ export default function ChapterLayout() {
                         </button>
                     </div>
 
-                    {/* LISTE */}
+                    {/* LIST */}
                     <div className="overflow-y-auto max-h-[70vh] space-y-2">
-                        {chapters.map((chap, index) => (
+                        {chapters.map((chap, i) => (
                             <div
                                 key={chap.id}
                                 onClick={() => {
                                     navigate(`/chapter/${chap.id}`, {
-                                        state: { mangaId, chapters, currentIndex: index }
+                                        state: {
+                                            mangaId,
+                                            chapters,
+                                            currentIndex: i
+                                        }
                                     });
                                     setOpenSidebar(false);
                                 }}
-                                className={`p-2 rounded cursor-pointer ${index === currentIndex
+                                className={`p-2 rounded cursor-pointer ${i === currentIndex
                                     ? "bg-blue-500"
                                     : "hover:bg-gray-700"
                                     }`}
                             >
-                                Chapitre {chap.chapter}
+                                Chapitre {chap.attributes?.chapter ?? "?"}
                             </div>
                         ))}
                     </div>
@@ -120,7 +192,6 @@ export default function ChapterLayout() {
             <div className="pt-16">
                 <Outlet />
             </div>
-
         </div>
     );
 }
