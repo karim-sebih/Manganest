@@ -10,7 +10,8 @@ import ratingRouter from "./rating.route.js";
 import libraryRouter from "./library.route.js";
 import ProgressRouter from "./Progress.route.js";
 import SelfMangarouter from "./selfmanga.route.js";
-import Chapterrouter from "./chapter.route.js"
+import Chapterrouter from "./chapter.route.js";
+import Pagerouter from "./page.route.js"
 
 const router = express.Router();
 
@@ -26,5 +27,6 @@ router.use('/library', libraryRouter);
 router.use("/progress", ProgressRouter);
 router.use("/selfmanga", SelfMangarouter);
 router.use("/chapitre", Chapterrouter);
+router.use("/pages", Pagerouter);
 
 export default router;
