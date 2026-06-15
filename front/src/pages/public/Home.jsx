@@ -37,65 +37,38 @@ export default function Home() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const [mangaData, chapterData] = await Promise.all([
-          getAllManga(
-            LIMIT,
-            (page - 1) * LIMIT,
-            contentFilters,
-            tags.included,
-            tags.excluded
-          ),
-          getLatestChapters(
-            LIMIT,
-            (page - 1) * LIMIT,
-            chapterLanguage,
-            contentFilters,
-            tags.included,
-            tags.excluded
-          ),]);
-
-        setMangas(mangaData.mangas || []);
-        setLatestChapters(chapterData.chapters || []);
-      } catch (err) {
-        console.error(err);
-        setError("Impossible de charger les données");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [page]);
 
 
-  //Pour progression 
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
+
+        const mangaPromise = getAllManga(
+          LIMIT,
+          (page - 1) * LIMIT,
+          contentFilters,
+          tags.included,
+          tags.excluded
+        );
+
+        const chapterPromise = getLatestChapters(
+          LIMIT,
+          (page - 1) * LIMIT,
+          chapterLanguage,
+          contentFilters,
+          tags.included,
+          tags.excluded
+        );
+
+        // ✅ SAFE progress
+        const progressPromise = getAllProgress().catch(() => []);
 
         const [mangaData, chapterData, progressData] = await Promise.all([
-          getAllManga(
-            LIMIT,
-            (page - 1) * LIMIT,
-            contentFilters,
-            tags.included,
-            tags.excluded
-          ),
-          getLatestChapters(
-            LIMIT,
-            (page - 1) * LIMIT,
-            chapterLanguage,
-            contentFilters,
-            tags.included,
-            tags.excluded
-          ),
-          getAllProgress()
+          mangaPromise,
+          chapterPromise,
+          progressPromise
         ]);
 
         setMangas(mangaData.mangas || []);
@@ -112,6 +85,7 @@ export default function Home() {
 
     fetchData();
   }, [page]);
+
 
   const handleMangaClick = (id) => {
     navigate(`/manga/${id}`);
