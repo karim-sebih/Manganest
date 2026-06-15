@@ -89,6 +89,43 @@ CREATE TABLE progress (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
         `);
+
+      await q(`
+          CREATE TABLE manga (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          user_id INT NOT NULL,
+          title VARCHAR(255) NOT NULL,
+          description TEXT,
+          cover VARCHAR(255),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+          );`
+      );
+
+      await q(`CREATE TABLE  chapters (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          manga_id INT NOT NULL,
+          title VARCHAR(255),
+          chapter_number INT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          
+          FOREING KEY (manga_id) REFERENCES mangas(id) ON DELETE CASCADE
+          );`
+      );
+
+      await q(`CREATE TABLE pages(
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          chapter_id INT NOT NULL,
+          image_url VARCHAR(255)NOT NULL,
+          page_number INT,
+
+          FOREIGN KEY(chapter_id) REFERENCE chapters(id) ON DELETE CASCADE
+          
+          );`);
+
+
+
     });
   },
 
@@ -103,6 +140,9 @@ CREATE TABLE progress (
       await q(`DROP TABLE likes;`);
       await q(`DROP TABLE progress;`);
       await q(`DROP TABLE ratings;`);
+      await q(`DROP TABLE mangas`);
+      await q(`DROP TABLE chapters`);
+      await q(`DROP TABLE pages`);
 
     });
   },
