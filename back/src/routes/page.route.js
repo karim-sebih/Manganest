@@ -4,7 +4,7 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js"
 import upload from "../middlewares/upload.js";
 
 
-const router = Router.express();
+const router = express.Router();
 
 router.post("/:id/pages", upload.array(100), AuthMiddleware, CreatePage);
 

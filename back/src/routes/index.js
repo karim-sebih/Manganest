@@ -13,7 +13,10 @@ import SelfMangarouter from "./selfmanga.route.js";
 import Chapterrouter from "./chapter.route.js";
 import Pagerouter from "./page.route.js"
 
+
 const router = express.Router();
+router.use("/uploads", express.static("uploads"));
+
 
 router.use('/auth', authRouter);
 router.use('/api/manga', MangaRouter);
