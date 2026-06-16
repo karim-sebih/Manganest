@@ -5,7 +5,7 @@ import Chapter from "../models/Chapter.js";
 async function CreateManga(req, res) {
     try {
         const { title, description } = req.body;
-        const user_id = req.user_id;
+        const user_id = req.user.id;
 
         const manga = await Manga.create({
             title,
@@ -20,7 +20,7 @@ async function CreateManga(req, res) {
 
 async function GetUsersSelfManga(req, res) {
     try {
-        const user_id = req.user_id;
+        const user_id = req.user.id;
 
         const manga = await Manga.findAll({
             where: { user_id },
@@ -40,7 +40,7 @@ async function UpdateSelfManga(req, res) {
 
         await Manga.update(
             { title, description },
-            { where: { id } }
+            { where: { id, user_id: req.user.id } }
         );
 
         res.json({ message: "Update SelfManga réussi" })
@@ -54,7 +54,7 @@ async function DeleteSelfManga(req, res) {
     try {
         const { id } = req.params;
 
-        await Manga.destroy({ where: { id } });
+        await Manga.destroy({ where: { id, user_id: req.user.id } });
 
         res.json({ message: "Manga supprimé" })
     } catch (error) {
@@ -65,15 +65,21 @@ async function DeleteSelfManga(req, res) {
 async function GetSelfMangaById(req, res) {
     try {
         const { id } = req.params;
-        const manga = await manga.findByPk(id);
+
+        const manga = await Manga.findByPk(id);
+
+        if (!manga) {
+            return res.status(404).json({ message: "Manga not found" });
+        }
 
         const chapters = await Chapter.findAll({
             where: { manga_id: id },
             order: [["chapter_number", "ASC"]]
         });
+
         res.json({ manga, chapters });
     } catch (err) {
-        res.status(500).json({ message: "Erreur fetch mangabyid" })
+        res.status(500).json({ message: "Erreur fetch manga" });
     }
 }
 

@@ -5,7 +5,7 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 const router = express.Router()
 
 router.post("/", AuthMiddleware, CreateChapter);
-router.get("/:id", GetChaptersByManga);
+router.get("/manga/:manga_id", GetChaptersByManga);
 router.put("/:id", AuthMiddleware, UpdateChapter);
 router.delete("/:id", AuthMiddleware, DeleteChapter);
 
