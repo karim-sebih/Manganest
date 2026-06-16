@@ -24,7 +24,7 @@ async function CreateChapter(req, res) {
 
         res.json(chapter);
     } catch (error) {
-        res.status(500).json({ message: "Erreur création chapitre" });
+        res.status(500).json({ message: "Error creating chapter" });
     }
 }
 
@@ -40,10 +40,25 @@ async function GetChaptersByManga(req, res) {
 
         res.json(chapters);
     } catch {
-        res.status(500).json({ message: "Erreur fetch chapitres" });
+        res.status(500).json({ message: "Error fetch chapters" });
     }
 }
 
+async function GetChapterById(req, res) {
+    try {
+        const { id } = req.params;
+
+        const chapter = await Chapter.findByPk(id)
+
+        if (!chapter) {
+            return res.status(404).json({ message: "Chapter not found" });
+        }
+
+        return response(chapter)
+    } catch (error) {
+        res.status(500).json({ message: "error fetching chapter" });
+    }
+}
 
 async function UpdateChapter(req, res) {
     try {
@@ -66,7 +81,7 @@ async function UpdateChapter(req, res) {
             { where: { id } }
         );
 
-        res.json({ message: "Chapitre mis à jour" });
+        res.json({ message: "Chapter updated" });
     } catch {
         res.status(500).json({ message: "Erreur update chapitre" });
     }
@@ -90,7 +105,7 @@ async function DeleteChapter(req, res) {
 
         await Chapter.destroy({ where: { id } });
 
-        res.json({ message: "Chapitre supprimé" });
+        res.json({ message: "Chapter deleted" });
     } catch {
         res.status(500).json({ message: "Erreur suppression chapitre" });
     }
@@ -100,6 +115,7 @@ async function DeleteChapter(req, res) {
 export {
     CreateChapter,
     GetChaptersByManga,
+    GetChapterById,
     UpdateChapter,
     DeleteChapter
 };

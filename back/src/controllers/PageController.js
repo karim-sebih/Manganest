@@ -5,7 +5,7 @@ import Manga from "../models/Manga.js";
 
 
 
-async function CreatePage(req, res) {
+async function CreatePages(req, res) {
     try {
         const { id: chapter_id } = req.params;
 
@@ -20,11 +20,14 @@ async function CreatePage(req, res) {
             return res.status(403).json({ message: "Unauthorized" });
         }
 
-        const pages = req.files.map((file, index) => ({
+        const pages = req.files.map((page, index) => ({
             chapter_id,
-            image_url: `/uploads/${file.filename}`,
+            image_url: `/uploads/${page.filename}`,
             page_number: index + 1
         }));
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ message: "No files uploaded" });
+        }
 
         await Page.bulkCreate(pages);
 
@@ -35,7 +38,7 @@ async function CreatePage(req, res) {
 }
 
 
-async function GetPageByChapter(req, res) {
+async function GetPagesByChapter(req, res) {
     try {
         const { chapter_id } = req.params;
 
@@ -57,6 +60,10 @@ async function UpdatePage(req, res) {
         const { page_number } = req.body;
 
         const page = await Page.findByPk(id);
+        if (!page) {
+            return res.status(404).json({ message: "Page not found" });
+        }
+
         const chapter = await Chapter.findByPk(page.chapter_id);
         const manga = await Manga.findByPk(chapter.manga_id);
 
@@ -94,9 +101,6 @@ async function DeletePage(req, res) {
             return res.status(403).json({ message: "Unauthorized" });
         }
 
-        if (!page) {
-            return res.status(404).json({ message: "Page not found" });
-        }
 
         await Page.destroy({ where: { id } });
 
@@ -107,4 +111,4 @@ async function DeletePage(req, res) {
 }
 
 
-export { CreatePage, GetPageByChapter, UpdatePage, DeletePage }
+export { CreatePages, GetPagesByChapter, UpdatePage, DeletePage }

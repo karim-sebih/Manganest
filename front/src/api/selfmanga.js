@@ -1,33 +1,55 @@
 import instance from "./config.js";
 
-async function getAllMangas() {
+async function getAllSelfMangas() {
     try {
         const response = await instance.get("/manga");
         return response.data;
     } catch (error) {
-
+        console.error("Error fetching selfmanga:", error);
+        throw error;
     }
 
 }
 
-async function getMangaById(id) {
-    const res = await instance.get(`/manga/${id}`);
-    return res.data;
+async function getSelfMangaById(id) {
+    try {
+        const response = await instance.get(`/manga/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching selfmanga by id:", error);
+        throw error;
+    }
+
 }
 
-async function createManga(data) {
-    const res = await instance.post("/manga", data);
-    return res.data;
+async function createSelfManga(data) {
+    try {
+        const response = await instance.post("/manga", data);
+        return response.data;
+    } catch (error) {
+        console.error("Error creating selfmanga :", error);
+        throw error;
+    }
 }
 
-async function updateManga(id, data) {
-    const res = await instance.put(`/manga/${id}`, data);
-    return res.data;
+async function updateSelfManga(id, data) {
+    try {
+        const response = await instance.put(`/manga/${id}`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating selfmanga :", error);
+        throw error;
+    }
 }
 
-async function deleteManga(id) {
-    const res = await instance.delete(`/manga/${id}`);
-    return res.data;
+async function deleteSelfManga(id) {
+    try {
+        const response = await instance.delete(`/manga/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting selfmanga :", error);
+        throw error;
+    }
 }
 
-export default { getAllMangas, getMangaById, createManga, updateManga, deleteManga }
+export default { getAllSelfMangas, getSelfMangaById, createSelfManga, updateSelfManga, deleteSelfManga }
