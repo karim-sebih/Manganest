@@ -18,6 +18,10 @@ async function CreateManga(req, res) {
     }
 }
 
+async function GetAllSelfManga() {
+
+}
+
 async function GetUsersSelfManga(req, res) {
     try {
         const user_id = req.user.id;
@@ -83,4 +87,48 @@ async function GetSelfMangaById(req, res) {
     }
 }
 
-export { CreateManga, GetUsersSelfManga, UpdateSelfManga, DeleteSelfManga, GetSelfMangaById };
+
+async function SubmitManga(req, res) {
+    try {
+        const { id } = req.params;
+        const user_id = req.user.id;
+
+        const manga = await Manga.findByPk(id);
+
+        if (!manga) {
+            return res.status(404).json({ message: "Manga introuvable" });
+        }
+
+        if (manga.user_id !== user_id) {
+            return res.status(403).json({ message: "Non autorisé" });
+        }
+
+        // check au moins 1 chapitre
+        const chapterCount = await Chapter.count({
+            where: { manga_id: id }
+        });
+
+        if (chapterCount === 0) {
+            return res.status(400).json({
+                message: "Ajoute au moins un chapitre avant de soumettre"
+            });
+        }
+
+        await manga.update({
+            status: "pending",
+            is_submitted: true
+        });
+        if (manga.is_submitted) {
+            return res.status(400).json({
+                message: "Manga déjà soumis"
+            });
+        }
+
+        res.json({ message: "Manga soumis pour validation" });
+
+    } catch (error) {
+        res.status(500).json({ message: "Erreur lors de la soumission" });
+    }
+}
+
+export { CreateManga, GetUsersSelfManga, UpdateSelfManga, DeleteSelfManga, GetSelfMangaById, SubmitManga };

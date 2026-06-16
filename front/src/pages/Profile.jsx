@@ -4,6 +4,7 @@ import { getProfile, updateProfile } from "../api/profile.js";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router";
 
 const profileSchema = z.object({
     username: z.string().min(1, "Le username est requis"),
@@ -12,6 +13,7 @@ const profileSchema = z.object({
 
 
 export default function Profile() {
+    const navigate = useNavigate();
 
     const queryClient = useQueryClient();
     const [isEditing, setIsEditing] = useState(false);
@@ -191,7 +193,12 @@ export default function Profile() {
                 )}
 
             </div>
-
+            <button
+                onClick={() => navigate("/creator")}
+                className="bg-purple-500 px-5 py-2 rounded-xl"
+            >
+                Devenir créateur
+            </button>
         </div>
     );
 }

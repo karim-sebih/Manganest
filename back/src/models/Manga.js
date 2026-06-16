@@ -33,7 +33,12 @@ const Manga = sequelize.define(
         created_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW,
+        },
+        status: {
+            type: DataTypes.ENUM("draft", "pending", "approved", "rejected"),
+            defaultValue: "draft"
         }
+
     },
     {
         tableName: "mangas",

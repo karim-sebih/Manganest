@@ -99,6 +99,9 @@ CREATE TABLE progress (
           cover VARCHAR(255),
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
+          status ENUM('draft', 'pending', 'approved', 'rejected') DEFAULT 'draft',
+          is_submitted BOOLEAN DEFAULT false,
+
           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
           );`
       );
@@ -109,8 +112,9 @@ CREATE TABLE progress (
           title VARCHAR(255),
           chapter_number INT,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          
-          FOREING KEY (manga_id) REFERENCES mangas(id) ON DELETE CASCADE
+          UNIQUE (manga_id, chapter_number),
+
+          FOREIGN KEY (manga_id) REFERENCES manga(id) ON DELETE CASCADE
           );`
       );
 
@@ -119,8 +123,10 @@ CREATE TABLE progress (
           chapter_id INT NOT NULL,
           image_url VARCHAR(255)NOT NULL,
           page_number INT,
+          UNIQUE (chapter_id, page_number),
 
-          FOREIGN KEY(chapter_id) REFERENCE chapters(id) ON DELETE CASCADE
+
+          FOREIGN KEY(chapter_id) REFERENCES chapters(id) ON DELETE CASCADE
           
           );`);
 

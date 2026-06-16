@@ -52,4 +52,14 @@ async function deleteSelfManga(id) {
     }
 }
 
-export default { getAllSelfMangas, getSelfMangaById, createSelfManga, updateSelfManga, deleteSelfManga }
+async function submitManga(id) {
+    try {
+        const response = await instance.put(`/manga/${id}/submit`);
+        return response.data;
+    } catch (error) {
+        console.error("Error submitting manga:", error);
+        throw error;
+    }
+}
+
+export { getAllSelfMangas, getSelfMangaById, createSelfManga, updateSelfManga, deleteSelfManga, submitManga }

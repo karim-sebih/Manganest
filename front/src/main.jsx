@@ -17,7 +17,10 @@ import Profile from './pages/Profile.jsx';
 import Chapter from './pages/public/Chapter.jsx';
 import ChapterLayout from './layouts/ChapterLayout.jsx'
 import AccessDeniedPage from './pages/public/AccessDenied.jsx';
-
+import CreatorDashboard from './pages/CreatorDashboard.jsx';
+import CreatorRules from './pages/CreatorRules.jsx';
+import CreateManga from './pages/CreateManga.jsx';
+import ManageManga from './pages/ManageManga.jsx';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

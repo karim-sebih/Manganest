@@ -1,5 +1,5 @@
 import express from "express"
-import { CreateManga, GetUsersSelfManga, UpdateSelfManga, DeleteSelfManga, GetSelfMangaById } from "../controllers/SelfMangaController.js";
+import { CreateManga, GetUsersSelfManga, UpdateSelfManga, DeleteSelfManga, GetSelfMangaById, SubmitManga } from "../controllers/SelfMangaController.js";
 import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const router = express.Router();
@@ -9,6 +9,7 @@ router.get("/", AuthMiddleware, GetUsersSelfManga);
 router.get("/:id", GetSelfMangaById);
 router.put("/:id", AuthMiddleware, UpdateSelfManga);
 router.delete("/:id", AuthMiddleware, DeleteSelfManga);
+router.put("/:id/submit", AuthMiddleware, SubmitManga);
 
 
 export default router;
