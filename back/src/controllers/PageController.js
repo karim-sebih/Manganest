@@ -7,9 +7,10 @@ import Manga from "../models/Manga.js";
 
 async function CreatePages(req, res) {
     try {
-        const { id: chapter_id } = req.params;
+        const { id } = req.params;
 
-        const chapter = await Chapter.findByPk(chapter_id);
+        const chapter = await Chapter.findByPk(id);
+
         if (!chapter) {
             return res.status(404).json({ message: "Chapter not found" });
         }
@@ -20,14 +21,17 @@ async function CreatePages(req, res) {
             return res.status(403).json({ message: "Unauthorized" });
         }
 
-        const pages = req.files.map((page, index) => ({
-            chapter_id,
-            image_url: `/uploads/${page.filename}`,
-            page_number: index + 1
-        }));
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ message: "No files uploaded" });
         }
+
+        const pages = req.files.map((page, index) => ({
+            chapter_id: id,
+            image_url: `/uploads/${page.filename}`,
+            page_number: index + 1
+        }));
+
+
 
         await Page.bulkCreate(pages);
 
@@ -69,9 +73,6 @@ async function UpdatePage(req, res) {
 
         if (manga.user_id !== req.user.id) {
             return res.status(403).json({ message: "Unauthorized" });
-        }
-        if (!page) {
-            return res.status(404).json({ message: "Page not found" });
         }
 
 

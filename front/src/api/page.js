@@ -1,22 +1,20 @@
 import instance from "./config";
 
-async function CreatePages() {
+async function CreatePages(chapter_id, formData) {
     try {
-        const formData = new FormData();
+        const response = await instance.post(
+            `/page/${chapter_id}/pages`,
+            formData
+        );
 
-        for (const file of pagesFiles) {
-            formData.append("pages", file);
-        }
-
-        const response = await instance.post(`/page/${chapter_id}/pages`, formData, {
-            headers: { "Content-Type": "multipart/form-data" }
-        })
         return response.data;
     } catch (error) {
         console.error("error creating page:", error);
         throw error;
     }
 }
+
+
 
 async function GetPagesByChapter(chapter_id) {
     try {

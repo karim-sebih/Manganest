@@ -192,13 +192,15 @@ export default function Profile() {
 
                 )}
 
+                <button
+                    onClick={() => navigate("/creator")}
+                    className="bg-purple-500 px-5 py-3 my-3 rounded-xl"
+                >
+                    Devenir créateur
+                </button>
+
             </div>
-            <button
-                onClick={() => navigate("/creator")}
-                className="bg-purple-500 px-5 py-2 rounded-xl"
-            >
-                Devenir créateur
-            </button>
+
         </div>
     );
 }

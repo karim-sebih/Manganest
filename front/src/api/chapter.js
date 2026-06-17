@@ -49,4 +49,4 @@ async function DeleteChapter(id) {
     }
 }
 
-export default { CreateChapter, GetChapterById, GetChaptersByManga, UpdateChapter, DeleteChapter };
+export { CreateChapter, GetChapterById, GetChaptersByManga, UpdateChapter, DeleteChapter };

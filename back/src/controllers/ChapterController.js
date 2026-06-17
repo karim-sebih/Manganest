@@ -54,7 +54,7 @@ async function GetChapterById(req, res) {
             return res.status(404).json({ message: "Chapter not found" });
         }
 
-        return response(chapter)
+        return res.json(chapter)
     } catch (error) {
         res.status(500).json({ message: "error fetching chapter" });
     }
