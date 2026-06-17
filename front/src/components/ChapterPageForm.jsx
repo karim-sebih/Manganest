@@ -1,26 +1,16 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CreatePages } from "../api/page.js";
 
 export default function ChapterPageForm({ chapterId }) {
     const [files, setFiles] = useState([]);
-    const queryClient = useQueryClient();
-
-    const uploadMutation = useMutation({
-        mutationFn: ({ chapterId, data }) => CreatePages(chapterId, data),
-        onSuccess: () => {
-            queryClient.invalidateQueries(["chapterPages", chapterId]);
-            setFiles([]);
-        },
-    });
-
+    const [loading, setLoading] = useState(false);
 
     function handleChange(e) {
         const selectedFiles = Array.from(e.target.files);
         setFiles(selectedFiles);
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
 
         if (files.length === 0) return;
@@ -30,12 +20,19 @@ export default function ChapterPageForm({ chapterId }) {
             formData.append("pages", file);
         });
 
-        uploadMutation.mutate({
-            chapterId,
-            data: formData,
-        });
-    }
+        try {
+            setLoading(true);
+            await CreatePages(chapterId, formData);
+            setFiles([]);
 
+            // 🔥 refresh simple
+            window.location.reload();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <div className="bg-white p-4 rounded-xl shadow">
@@ -50,12 +47,12 @@ export default function ChapterPageForm({ chapterId }) {
                 <button
                     type="submit"
                     className="bg-green-600 text-white px-4 py-2 rounded-lg"
+                    disabled={loading}
                 >
-                    Upload
+                    {loading ? "Upload..." : "Upload"}
                 </button>
             </form>
 
-            {/* preview */}
             <div className="grid grid-cols-3 gap-3 mt-4">
                 {files.map((file, index) => (
                     <img

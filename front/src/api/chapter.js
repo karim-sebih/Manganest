@@ -2,7 +2,7 @@ import instance from "./config.js";
 
 async function CreateChapter(data) {
     try {
-        const response = await instance.post("/chapter", data);
+        const response = await instance.post("/chapitre", data);
         return response.data;
     } catch (error) {
         console.error("error creating chapter:", error);
@@ -12,7 +12,7 @@ async function CreateChapter(data) {
 
 async function GetChaptersByManga(id) {
     try {
-        const response = await instance.get(`/chapter/manga/${id}`);
+        const response = await instance.get(`/chapitre/manga/${id}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching chapters:", error);
@@ -22,7 +22,7 @@ async function GetChaptersByManga(id) {
 
 async function GetChapterById(id) {
     try {
-        const response = await instance.get(`/chapter/${id}`);
+        const response = await instance.get(`/chapitre/${id}`);
         return response.data;
     } catch (error) {
         console.error("error fetching chapter:", error);
@@ -31,7 +31,7 @@ async function GetChapterById(id) {
 
 async function UpdateChapter(id, data) {
     try {
-        const response = await instance.put(`/chapter/${id}`, data);
+        const response = await instance.put(`/chapitre/${id}`, data);
         return response.data;
     } catch (error) {
         console.error("error updating chapter:", error);
@@ -41,7 +41,7 @@ async function UpdateChapter(id, data) {
 
 async function DeleteChapter(id) {
     try {
-        const response = await instance.delete(`/chapter/${id}`)
+        const response = await instance.delete(`/chapitre/${id}`)
         return response.data;
     } catch (error) {
         console.error("error deleting chapter:", error);

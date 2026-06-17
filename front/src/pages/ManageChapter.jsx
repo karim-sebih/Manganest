@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { GetChapterById } from "../api/chapter";
 import ChapterPageForm from "../components/ChapterPageForm.jsx";
 import ChapterPagesList from "../components/ChapterPagesList.jsx";
@@ -7,12 +7,25 @@ import ChapterPagesList from "../components/ChapterPagesList.jsx";
 export default function ManageChapter() {
     const { id } = useParams();
 
-    const { data: chapter, isLoading } = useQuery({
-        queryKey: ["chapter", id],
-        queryFn: () => GetChapterById(id),
-    });
+    const [chapter, setChapter] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    if (isLoading) return <div>Loading...</div>;
+    useEffect(() => {
+        async function fetchChapter() {
+            try {
+                const data = await GetChapterById(id);
+                setChapter(data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchChapter();
+    }, [id]);
+
+    if (loading) return <div>Loading...</div>;
     if (!chapter) return <div>Chapitre introuvable</div>;
 
     return (

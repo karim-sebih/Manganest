@@ -2,7 +2,7 @@ import instance from "./config.js";
 
 async function getAllSelfMangas() {
     try {
-        const response = await instance.get("/manga");
+        const response = await instance.get("/selfmanga");
         return response.data;
     } catch (error) {
         console.error("Error fetching selfmanga:", error);
@@ -13,7 +13,7 @@ async function getAllSelfMangas() {
 
 async function getSelfMangaById(id) {
     try {
-        const response = await instance.get(`/manga/${id}`);
+        const response = await instance.get(`/selfmanga/${id}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching selfmanga by id:", error);
@@ -24,7 +24,7 @@ async function getSelfMangaById(id) {
 
 async function createSelfManga(data) {
     try {
-        const response = await instance.post("/manga", data);
+        const response = await instance.post("/selfmanga", data);
         return response.data;
     } catch (error) {
         console.error("Error creating selfmanga :", error);
@@ -34,7 +34,7 @@ async function createSelfManga(data) {
 
 async function updateSelfManga(id, data) {
     try {
-        const response = await instance.put(`/manga/${id}`, data);
+        const response = await instance.put(`/selfmanga/${id}`, data);
         return response.data;
     } catch (error) {
         console.error("Error updating selfmanga :", error);
@@ -44,7 +44,7 @@ async function updateSelfManga(id, data) {
 
 async function deleteSelfManga(id) {
     try {
-        const response = await instance.delete(`/manga/${id}`);
+        const response = await instance.delete(`/selfmanga/${id}`);
         return response.data;
     } catch (error) {
         console.error("Error deleting selfmanga :", error);
@@ -54,7 +54,7 @@ async function deleteSelfManga(id) {
 
 async function submitManga(id) {
     try {
-        const response = await instance.put(`/manga/${id}/submit`);
+        const response = await instance.put(`/selfmanga/${id}/submit`);
         return response.data;
     } catch (error) {
         console.error("Error submitting manga:", error);

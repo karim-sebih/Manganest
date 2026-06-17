@@ -1,22 +1,35 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { GetPagesByChapter, DeletePage } from "../api/page.js";
 
 export default function ChapterPagesList({ chapterId }) {
-    const queryClient = useQueryClient();
+    const [pages, setPages] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const { data: pages, isLoading } = useQuery({
-        queryKey: ["chapterPages", chapterId],
-        queryFn: () => GetPagesByChapter(chapterId),
-    });
+    async function fetchPages() {
+        try {
+            const data = await GetPagesByChapter(chapterId);
+            setPages(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
-    const deleteMutation = useMutation({
-        mutationFn: DeletePage,
-        onSuccess: () => {
-            queryClient.invalidateQueries(["chapterPages", chapterId]);
-        },
-    });
+    useEffect(() => {
+        fetchPages();
+    }, [chapterId]);
 
-    if (isLoading) return <div>Loading pages...</div>;
+    async function handleDelete(id) {
+        try {
+            await DeletePage(id);
+            fetchPages(); // 🔥 refresh après delete
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    if (loading) return <div>Loading pages...</div>;
 
     if (!pages || pages.length === 0)
         return <p className="text-gray-500">Aucune page</p>;
@@ -32,7 +45,7 @@ export default function ChapterPagesList({ chapterId }) {
                     />
 
                     <button
-                        onClick={() => deleteMutation.mutate(page.id)}
+                        onClick={() => handleDelete(page.id)}
                         className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded"
                     >
                         X

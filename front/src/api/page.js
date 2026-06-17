@@ -3,7 +3,7 @@ import instance from "./config";
 async function CreatePages(chapter_id, formData) {
     try {
         const response = await instance.post(
-            `/page/${chapter_id}/pages`,
+            `/pages/${chapter_id}/pages`,
             formData
         );
 
@@ -18,7 +18,7 @@ async function CreatePages(chapter_id, formData) {
 
 async function GetPagesByChapter(chapter_id) {
     try {
-        const response = await instance.get(`/page/chapter/${chapter_id}`);
+        const response = await instance.get(`/pages/chapter/${chapter_id}`);
         return response.data;
     } catch (error) {
         console.error("error fetching pages by id:", error);
@@ -28,7 +28,7 @@ async function GetPagesByChapter(chapter_id) {
 
 async function UpdatePage(data, id) {
     try {
-        const response = await instance.put(`/page/${id}`, data);
+        const response = await instance.put(`/pages/${id}`, data);
         return response.data;
     } catch (error) {
         console.error("error updating page:", error);
@@ -38,7 +38,7 @@ async function UpdatePage(data, id) {
 
 async function DeletePage(id) {
     try {
-        const response = await instance.delete(`/page/${id}`);
+        const response = await instance.delete(`/pages/${id}`);
         return response.data;
     } catch (error) {
         console.error("error deleting page:", error);
