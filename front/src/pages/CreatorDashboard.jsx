@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { getSelfMangaById, GetUsersSelfManga } from "../api/selfmanga.js";
+import { getSelfMangaById, GetUsersSelfManga, deleteSelfManga, updateSelfManga } from "../api/selfmanga.js";
 import { GetChaptersByManga } from "../api/chapter.js";
 
 
@@ -11,7 +11,11 @@ export default function CreatorDashboard() {
     const [selectedManga, setSelectedManga] = useState(null);
     const [chapters, setChapters] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editData, setEditData] = useState({
+        title: "",
+        description: ""
+    });
     //  FETCH MANGAS
     useEffect(() => {
         async function fetchMangas() {
@@ -32,7 +36,6 @@ export default function CreatorDashboard() {
     }, []);
 
 
-    // ✅ CLICK MANGA
     const handleSelectManga = async (manga) => {
         try {
             setSelectedManga(manga);
@@ -52,6 +55,52 @@ export default function CreatorDashboard() {
         );
     }
 
+    const handleDelete = async (id) => {
+        try {
+            await deleteSelfManga(id);
+
+            // refresh liste
+            setMangas(prev => prev.filter(m => m.id !== id));
+
+            // reset si supprimé sélectionné
+            if (selectedManga?.id === id) {
+                setSelectedManga(null);
+                setChapters([]);
+            }
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleEdit = (manga) => {
+        setEditData({
+            title: manga.title,
+            description: manga.description
+        });
+        setSelectedManga(manga);
+        setIsEditOpen(true);
+    };
+    const handleUpdate = async () => {
+        try {
+            await updateSelfManga(selectedManga.id, editData);
+
+            // refresh UI
+            setMangas(prev =>
+                prev.map(m =>
+                    m.id === selectedManga.id
+                        ? { ...m, ...editData }
+                        : m
+                )
+            );
+
+            setIsEditOpen(false);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
     return (
         <div className="min-h-screen bg-[#0F172A] text-white p-10">
 
@@ -61,7 +110,7 @@ export default function CreatorDashboard() {
 
             <div className="flex gap-10">
 
-                {/* 🧱 COLONNE GAUCHE → MANGAS */}
+                {/* COLONNE GAUCHE → MANGAS */}
                 <div className="w-1/2 bg-[#1E293B] p-6 rounded-2xl">
 
                     <div className="flex justify-between items-center mb-6">
@@ -86,20 +135,43 @@ export default function CreatorDashboard() {
                             {mangas.map((manga) => (
                                 <div
                                     key={manga.id}
-                                    onClick={() => handleSelectManga(manga)}
-                                    className={`p-4 rounded-xl cursor-pointer transition ${selectedManga?.id === manga.id
+                                    className={`p-4 rounded-xl transition ${selectedManga?.id === manga.id
                                         ? "bg-blue-600"
-                                        : "bg-[#0F172A] hover:bg-[#334155]"
+                                        : "bg-[#0F172A]"
                                         }`}
                                 >
-                                    {manga.title}
+                                    <div
+                                        onClick={() => handleSelectManga(manga)}
+                                        className="cursor-pointer"
+                                    >
+                                        {manga.title}
+                                    </div>
+
+                                    {/* ACTIONS */}
+                                    <div className="flex gap-2 mt-2">
+                                        <button
+                                            onClick={() => handleEdit(manga)}
+                                            className="text-xs bg-yellow-500 px-2 py-1 rounded"
+                                        >
+                                            ✏️
+                                        </button>
+
+
+                                        <button
+                                            onClick={() => handleDelete(manga.id)}
+                                            className="text-xs bg-red-600 px-2 py-1 rounded"
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
+
                         </div>
                     )}
                 </div>
 
-                {/* 🧱 COLONNE DROITE → CHAPITRES */}
+                {/*  COLONNE DROITE → CHAPITRES */}
                 <div className="w-1/2 bg-[#1E293B] p-6 rounded-2xl">
 
                     <div className="flex justify-between items-center mb-6">
@@ -154,6 +226,53 @@ export default function CreatorDashboard() {
                 </div>
 
             </div>
+            {isEditOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+                    <div className="bg-[#1E293B] p-6 rounded-xl w-96">
+
+                        <h2 className="text-lg font-bold mb-4">
+                            Modifier le manga
+                        </h2>
+
+                        <input
+                            type="text"
+                            value={editData.title}
+                            onChange={(e) =>
+                                setEditData({ ...editData, title: e.target.value })
+                            }
+                            className="w-full mb-3 p-2 rounded bg-[#0F172A]"
+                            placeholder="Titre"
+                        />
+
+                        <textarea
+                            value={editData.description}
+                            onChange={(e) =>
+                                setEditData({ ...editData, description: e.target.value })
+                            }
+                            className="w-full mb-4 p-2 rounded bg-[#0F172A]"
+                            placeholder="Description"
+                        />
+
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => setIsEditOpen(false)}
+                                className="px-3 py-1 bg-gray-500 rounded"
+                            >
+                                Annuler
+                            </button>
+
+                            <button
+                                onClick={handleUpdate}
+                                className="px-3 py-1 bg-green-600 rounded"
+                            >
+                                Sauvegarder
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }
