@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate, useParams } from "react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { GetChaptersByManga } from "../api/chapter";
 
 export default function Layout() {
@@ -11,32 +11,26 @@ export default function Layout() {
 
     const [openSidebar, setOpenSidebar] = useState(false);
     const [chapters, setChapters] = useState(state.chapters || null);
-    const [currentIndex, setCurrentIndex] = useState(
-        state.currentIndex ?? null
-    );
     const [mangaId, setMangaId] = useState(state.mangaId || null);
     const [loading, setLoading] = useState(!state.chapters);
 
+    // bloque scroll quand sidebar ouverte
     useEffect(() => {
         document.body.style.overflow = openSidebar ? "hidden" : "auto";
     }, [openSidebar]);
 
+    //  fetch si besoin
     useEffect(() => {
-        if (chapters && currentIndex !== null) return;
+        if (chapters) return;
 
         async function fetchData() {
             try {
                 setLoading(true);
 
-
                 if (!mangaId) return;
 
                 const data = await GetChaptersByManga(mangaId);
-
                 setChapters(data);
-
-                const index = data.findIndex((c) => c.id == id);
-                setCurrentIndex(index !== -1 ? index : 0);
 
             } catch (err) {
                 console.error(err);
@@ -46,7 +40,18 @@ export default function Layout() {
         }
 
         fetchData();
-    }, [id, mangaId]);
+    }, [mangaId, chapters]);
+
+    //  CALCUL DYNAMIQUE 
+    const currentIndex = useMemo(() => {
+        if (!chapters) return 0;
+        const index = chapters.findIndex((c) => c.id == id);
+        return index !== -1 ? index : 0;
+    }, [chapters, id]);
+
+    const currentChapter = chapters?.[currentIndex];
+    const prevChapter = chapters?.[currentIndex - 1];
+    const nextChapter = chapters?.[currentIndex + 1];
 
     if (loading || !chapters) {
         return (
@@ -55,10 +60,6 @@ export default function Layout() {
             </div>
         );
     }
-
-    const currentChapter = chapters[currentIndex];
-    const prevChapter = chapters[currentIndex - 1];
-    const nextChapter = chapters[currentIndex + 1];
 
     return (
         <div className="bg-black min-h-screen text-white">
@@ -105,7 +106,7 @@ export default function Layout() {
                             disabled={!prevChapter}
                             onClick={() => {
                                 navigate(`/reader/${prevChapter.id}`, {
-                                    state: { mangaId, chapters, currentIndex: currentIndex - 1 }
+                                    state: { mangaId, chapters }
                                 });
                                 setOpenSidebar(false);
                             }}
@@ -117,7 +118,7 @@ export default function Layout() {
                             disabled={!nextChapter}
                             onClick={() => {
                                 navigate(`/reader/${nextChapter.id}`, {
-                                    state: { mangaId, chapters, currentIndex: currentIndex + 1 }
+                                    state: { mangaId, chapters }
                                 });
                                 setOpenSidebar(false);
                             }}
@@ -126,25 +127,29 @@ export default function Layout() {
                         </button>
                     </div>
 
-                    {/* LIST */}
+                    {/*  LIST */}
                     <div className="overflow-y-auto max-h-[70vh] space-y-2">
-                        {chapters.map((chap, i) => (
-                            <div
-                                key={chap.id}
-                                onClick={() => {
-                                    navigate(`/reader/${chap.id}`, {
-                                        state: { mangaId, chapters, currentIndex: i }
-                                    });
-                                    setOpenSidebar(false);
-                                }}
-                                className={`p-2 rounded cursor-pointer ${i === currentIndex
-                                    ? "bg-blue-500"
-                                    : "hover:bg-gray-700"
-                                    }`}
-                            >
-                                Chapitre {chap.chapter_number}
-                            </div>
-                        ))}
+                        {chapters.map((chap) => {
+                            const isActive = chap.id == id;
+
+                            return (
+                                <div
+                                    key={chap.id}
+                                    onClick={() => {
+                                        navigate(`/reader/${chap.id}`, {
+                                            state: { mangaId, chapters }
+                                        });
+                                        setOpenSidebar(false);
+                                    }}
+                                    className={`p-2 rounded cursor-pointer ${isActive
+                                            ? "bg-blue-500"
+                                            : "hover:bg-gray-700"
+                                        }`}
+                                >
+                                    Chapitre {chap.chapter_number}
+                                </div>
+                            );
+                        })}
                     </div>
 
                 </div>
