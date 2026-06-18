@@ -136,15 +136,25 @@ export default function CreatorDashboard() {
                                 <div
                                     key={manga.id}
                                     className={`p-4 rounded-xl transition ${selectedManga?.id === manga.id
-                                        ? "bg-blue-600"
-                                        : "bg-[#0F172A]"
+                                            ? "bg-blue-600"
+                                            : "bg-[#0F172A]"
                                         }`}
                                 >
                                     <div
                                         onClick={() => handleSelectManga(manga)}
-                                        className="cursor-pointer"
+                                        className="cursor-pointer flex gap-3 items-center"
                                     >
-                                        {manga.title}
+                                        {/* ✅ COVER */}
+                                        <img
+                                            src={`http://localhost:3000${manga.cover}`}
+                                            alt={manga.title}
+                                            className="w-12 h-16 object-cover rounded"
+                                        />
+
+                                        <div>
+                                            <p className="font-semibold">{manga.title}</p>
+                                            <p className="text-xs text-gray-400">{manga.status}</p>
+                                        </div>
                                     </div>
 
                                     {/* ACTIONS */}
@@ -155,7 +165,6 @@ export default function CreatorDashboard() {
                                         >
                                             ✏️
                                         </button>
-
 
                                         <button
                                             onClick={() => handleDelete(manga.id)}
