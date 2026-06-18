@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { getSelfMangaById } from "../api/selfmanga.js";
+import { getSelfMangaById, GetUsersSelfManga } from "../api/selfmanga.js";
 import { GetChaptersByManga } from "../api/chapter.js";
+
 
 export default function CreatorDashboard() {
     const navigate = useNavigate();
@@ -11,14 +12,13 @@ export default function CreatorDashboard() {
     const [chapters, setChapters] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // ✅ FETCH MANGAS
+    //  FETCH MANGAS
     useEffect(() => {
         async function fetchMangas() {
             try {
                 setLoading(true);
 
-                // ⚠️ adapte si t’as une route "getMyMangas"
-                const data = await getSelfMangaById();
+                const data = await GetUsersSelfManga();
                 setMangas(data || []);
 
             } catch (err) {
@@ -30,6 +30,7 @@ export default function CreatorDashboard() {
 
         fetchMangas();
     }, []);
+
 
     // ✅ CLICK MANGA
     const handleSelectManga = async (manga) => {
@@ -106,7 +107,7 @@ export default function CreatorDashboard() {
                             Liste des chapitres
                         </h2>
 
-                        {selectedManga && (
+                        {selectedManga && selectedManga.status === "approved" && (
                             <button
                                 onClick={() =>
                                     navigate(`/creator/${selectedManga.id}/create-chapter`)
@@ -116,6 +117,13 @@ export default function CreatorDashboard() {
                                 ➕
                             </button>
                         )}
+                        {selectedManga && selectedManga.status !== "approved" && (
+                            <p className="text-sm text-yellow-400">
+                                Ton manga doit être approuvé pour ajouter des chapitres
+                            </p>
+                        )}
+
+
                     </div>
 
                     {!selectedManga ? (

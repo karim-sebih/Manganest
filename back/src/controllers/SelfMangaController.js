@@ -32,9 +32,18 @@ async function CreateManga(req, res) {
 }
 
 
-async function GetAllSelfManga() {
+async function GetAllSelfManga(req, res) {
+    try {
+        const mangas = await Manga.findAll({
+            order: [["created_at", "DESC"]]
+        });
 
+        res.json(mangas);
+    } catch (error) {
+        res.status(500).json({ message: "Erreur fetch tous les mangas" });
+    }
 }
+
 
 async function GetUsersSelfManga(req, res) {
     try {
@@ -145,4 +154,4 @@ async function SubmitManga(req, res) {
     }
 }
 
-export { CreateManga, GetUsersSelfManga, UpdateSelfManga, DeleteSelfManga, GetSelfMangaById, SubmitManga };
+export { CreateManga, GetUsersSelfManga, UpdateSelfManga, DeleteSelfManga, GetSelfMangaById, SubmitManga, GetAllSelfManga };

@@ -1,6 +1,6 @@
 import instance from "./config.js";
 
-async function getAllSelfMangas() {
+async function GetUsersSelfManga() {
     try {
         const response = await instance.get("/selfmanga");
         return response.data;
@@ -9,6 +9,16 @@ async function getAllSelfMangas() {
         throw error;
     }
 
+}
+
+async function GetAllSelfManga() {
+    try {
+        const res = await instance.get("/selfmanga/public");
+        return res.json
+    } catch (error) {
+        console.error("Error fetching selfmanga:", error);
+        throw error;
+    }
 }
 
 async function getSelfMangaById(id) {
@@ -66,4 +76,4 @@ async function submitManga(id) {
     }
 }
 
-export { getAllSelfMangas, getSelfMangaById, createSelfManga, updateSelfManga, deleteSelfManga, submitManga }
+export { GetUsersSelfManga, getSelfMangaById, createSelfManga, updateSelfManga, deleteSelfManga, submitManga, GetAllSelfManga }
