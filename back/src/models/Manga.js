@@ -41,7 +41,7 @@ const Manga = sequelize.define(
 
     },
     {
-        tableName: "mangas",
+        tableName: "manga",
         timestamps: false,
     }
 );

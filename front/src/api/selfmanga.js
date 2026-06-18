@@ -24,7 +24,11 @@ async function getSelfMangaById(id) {
 
 async function createSelfManga(data) {
     try {
-        const response = await instance.post("/selfmanga", data);
+        const response = await instance.post("/selfmanga", data, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
         return response.data;
     } catch (error) {
         console.error("Error creating selfmanga :", error);

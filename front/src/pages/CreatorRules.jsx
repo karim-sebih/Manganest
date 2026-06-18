@@ -3,17 +3,26 @@ import { useNavigate } from "react-router";
 export default function CreatorRules() {
     const navigate = useNavigate();
 
+    function handleAccept() {
+        localStorage.setItem("acceptedRules", "true");
+        navigate("/creator/dashboard");
+    }
+
+
     return (
-        <div>
-            <h1>Règles</h1>
+        <div className="p-6 max-w-xl mx-auto">
+            <h1 className="text-2xl font-bold mb-4">Règles</h1>
 
-            <p>
-                - Pas de contenu illégal
-                - Pas de plagiat
-                - Respect des guidelines
-            </p>
+            <ul className="list-disc pl-6 space-y-2 mb-6">
+                <li>Pas de contenu illégal</li>
+                <li>Pas de plagiat</li>
+                <li>Respect des guidelines</li>
+            </ul>
 
-            <button onClick={() => navigate("/creator/create")}>
+            <button
+                onClick={handleAccept}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
                 J'accepte
             </button>
         </div>

@@ -4,19 +4,33 @@ import Chapter from "../models/Chapter.js";
 
 async function CreateManga(req, res) {
     try {
+        console.log("BODY:", req.body);
+        console.log("FILE:", req.file);
+        console.log("USER:", req.user);
+
         const { title, description } = req.body;
         const user_id = req.user.id;
+
+        let coverUrl = null;
+
+        if (req.file) {
+            coverUrl = `/uploads/${req.file.filename}`;
+        }
 
         const manga = await Manga.create({
             title,
             description,
             user_id,
+            cover: coverUrl,
         });
-        res.json(manga)
+
+        res.json(manga);
     } catch (err) {
-        res.status(500).json({ message: "Erreur lors de la création du Self-Manga" })
+        console.error("CREATE MANGA ERROR:", err);
+        res.status(500).json({ message: err.message });
     }
 }
+
 
 async function GetAllSelfManga() {
 

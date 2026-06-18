@@ -6,9 +6,10 @@ import upload from "../middlewares/upload.js";
 
 const router = express.Router();
 
-router.post("/:id/pages", AuthMiddleware, upload.array("pages", 100), CreatePages);
+router.post("/chapter/:id", AuthMiddleware, upload.array("pages", 100), CreatePages);
 router.get("/chapter/:chapter_id", GetPagesByChapter);
 router.put("/:id", AuthMiddleware, UpdatePage);
-router.delete("/:id", AuthMiddleware, DeletePage)
+router.delete("/:id", AuthMiddleware, DeletePage);
+
 
 export default router

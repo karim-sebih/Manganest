@@ -3,8 +3,13 @@ import instance from "./config";
 async function CreatePages(chapter_id, formData) {
     try {
         const response = await instance.post(
-            `/pages/${chapter_id}/pages`,
-            formData
+            `/pages/chapter/${chapter_id}`,
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }
         );
 
         return response.data;
@@ -13,6 +18,7 @@ async function CreatePages(chapter_id, formData) {
         throw error;
     }
 }
+
 
 
 

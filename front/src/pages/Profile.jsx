@@ -64,6 +64,10 @@ export default function Profile() {
     if (error) return <div className="text-center py-20 text-red-500">Erreur : {error.message}</div>;
     if (!user) return <div className="text-center py-20 text-gray-400">Profil non trouvé</div>;
 
+    function handleAccept() {
+        localStorage.setItem("acceptedRules", "true");
+        navigate("/creator/dashboard");
+    }
 
 
 
@@ -193,11 +197,21 @@ export default function Profile() {
                 )}
 
                 <button
-                    onClick={() => navigate("/creator")}
+                    onClick={() => {
+                        const hasAccepted = localStorage.getItem("acceptedRules") === "true";
+
+                        if (hasAccepted) {
+                            navigate("/creator/dashboard");
+                        } else {
+                            navigate("/creator/rules");
+                        }
+                    }}
                     className="bg-purple-500 px-5 py-3 my-3 rounded-xl"
                 >
                     Devenir créateur
                 </button>
+
+
 
             </div>
 
