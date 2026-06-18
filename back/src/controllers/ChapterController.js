@@ -1,6 +1,6 @@
 import Chapter from "../models/Chapter.js";
 import Manga from "../models/Manga.js";
-
+import Page from "../models/Page.js";
 
 async function CreateChapter(req, res) {
     try {
@@ -48,13 +48,21 @@ async function GetChapterById(req, res) {
     try {
         const { id } = req.params;
 
-        const chapter = await Chapter.findByPk(id)
+        const chapter = await Chapter.findByPk(id, {
+            include: [
+                {
+                    model: Page,
+                    attributes: ["id", "image_url", "page_number"],
+                    order: [["page_number", "ASC"]]
+                }
+            ]
+        });
 
         if (!chapter) {
             return res.status(404).json({ message: "Chapter not found" });
         }
 
-        return res.json(chapter)
+        res.json(chapter);
     } catch (error) {
         res.status(500).json({ message: "error fetching chapter" });
     }

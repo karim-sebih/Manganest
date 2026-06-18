@@ -20,7 +20,10 @@ import AccessDeniedPage from './pages/public/AccessDenied.jsx';
 import CreatorDashboard from './pages/CreatorDashboard.jsx';
 import CreatorRules from './pages/CreatorRules.jsx';
 import CreateManga from './pages/CreateManga.jsx';
-import ManageManga from './pages/ManageManga.jsx';
+import Reader from "./pages/public/Reader.jsx";
+import ReaderLayout from "./layouts/ReaderLayout.jsx"
+
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -48,7 +51,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/creator/rules" element={<CreatorRules />} />
             <Route path="/creator/dashboard" element={<CreatorDashboard />} />
             <Route path="/creator/create" element={<CreateManga />} />
-            <Route path="/creator/manga/:id" element={<ManageManga />} />
+
 
           </Route>
 
@@ -56,6 +59,9 @@ createRoot(document.getElementById('root')).render(
             <Route index element={<Chapter />} />
           </Route>
 
+          <Route path="/reader/:id" element={<ReaderLayout />}>
+            <Route index element={<Reader />} />
+          </Route>
 
 
         </Routes>

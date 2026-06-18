@@ -22,7 +22,6 @@ export default function CreatorManga() {
         try {
             setLoading(true);
 
-            // ✅ FORM DATA pour cover
             const formData = new FormData();
             formData.append("title", title);
             formData.append("description", description);
@@ -31,17 +30,15 @@ export default function CreatorManga() {
                 formData.append("cover", cover);
             }
 
-            // ✅ 1. CREATE MANGA
             const manga = await createSelfManga(formData);
 
-            // ✅ 2. CREATE CHAPTER
             const chapter = await CreateChapter({
                 manga_id: manga.id,
                 chapter_number: 1,
                 title: chapterTitle,
             });
 
-            //  3. UPLOAD PAGES
+            // UPLOAD PAGES
             if (pages.length > 0) {
                 const formData = new FormData();
 

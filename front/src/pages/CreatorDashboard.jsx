@@ -16,7 +16,7 @@ export default function CreatorDashboard() {
         title: "",
         description: ""
     });
-    //  FETCH MANGAS
+
     useEffect(() => {
         async function fetchMangas() {
             try {
@@ -110,7 +110,7 @@ export default function CreatorDashboard() {
 
             <div className="flex gap-10">
 
-                {/* COLONNE GAUCHE → MANGAS */}
+                {/* COLONNE GAUCHE / MANGAS */}
                 <div className="w-1/2 bg-[#1E293B] p-6 rounded-2xl">
 
                     <div className="flex justify-between items-center mb-6">
@@ -136,15 +136,14 @@ export default function CreatorDashboard() {
                                 <div
                                     key={manga.id}
                                     className={`p-4 rounded-xl transition ${selectedManga?.id === manga.id
-                                            ? "bg-blue-600"
-                                            : "bg-[#0F172A]"
+                                        ? "bg-blue-600"
+                                        : "bg-[#0F172A]"
                                         }`}
                                 >
                                     <div
                                         onClick={() => handleSelectManga(manga)}
                                         className="cursor-pointer flex gap-3 items-center"
                                     >
-                                        {/* ✅ COVER */}
                                         <img
                                             src={`http://localhost:3000${manga.cover}`}
                                             alt={manga.title}
@@ -157,7 +156,6 @@ export default function CreatorDashboard() {
                                         </div>
                                     </div>
 
-                                    {/* ACTIONS */}
                                     <div className="flex gap-2 mt-2">
                                         <button
                                             onClick={() => handleEdit(manga)}
@@ -180,7 +178,7 @@ export default function CreatorDashboard() {
                     )}
                 </div>
 
-                {/*  COLONNE DROITE → CHAPITRES */}
+                {/*  COLONNE DROITE CHAPITRES */}
                 <div className="w-1/2 bg-[#1E293B] p-6 rounded-2xl">
 
                     <div className="flex justify-between items-center mb-6">
@@ -220,7 +218,13 @@ export default function CreatorDashboard() {
                             {chapters.map((chapter) => (
                                 <div
                                     key={chapter.id}
-                                    className="p-4 bg-[#0F172A] rounded-xl"
+                                    onClick={() => navigate(`/reader/${chapter.id}`, {
+                                        state: {
+                                            mangaId: selectedManga.id,
+                                            chapters,
+                                        }
+                                    })}
+                                    className="p-4 bg-[#0F172A] rounded-xl cursor-pointer hover:bg-[#334155]"
                                 >
                                     <p className="font-semibold">
                                         Chapitre {chapter.chapter}
