@@ -23,6 +23,8 @@ import CreateManga from './pages/CreateManga.jsx';
 import Reader from "./pages/public/Reader.jsx";
 import ReaderLayout from "./layouts/ReaderLayout.jsx";
 import CreatorChapter from "./pages/CreateChapter.jsx";
+import SelfDetails from "./pages/public/SelfDetails.jsx";
+
 
 
 const queryClient = new QueryClient({
@@ -52,6 +54,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/creator/rules" element={<CreatorRules />} />
             <Route path="/creator/dashboard" element={<CreatorDashboard />} />
             <Route path="/creator/:mangaId/create-chapter" element={<CreatorChapter />} />
+            <Route path="/self/:id" element={<SelfDetails />} />
 
 
 

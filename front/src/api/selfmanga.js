@@ -14,7 +14,7 @@ async function GetUsersSelfManga() {
 async function GetAllSelfManga() {
     try {
         const res = await instance.get("/selfmanga/public");
-        return res.json
+        return res.data;
     } catch (error) {
         console.error("Error fetching selfmanga:", error);
         throw error;

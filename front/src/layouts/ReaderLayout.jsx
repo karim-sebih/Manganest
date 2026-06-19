@@ -67,7 +67,8 @@ export default function Layout() {
             {/*  NAVBAR */}
             <div className="fixed top-0 left-0 right-0 bg-[#0F172A] p-4 flex justify-between items-center z-30">
 
-                <button onClick={() => navigate(`/manga/${mangaId}`)}>
+                <button onClick={() => navigate(`/self/${mangaId}`)
+                }>
                     ← Retour
                 </button>
 
