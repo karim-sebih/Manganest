@@ -6,6 +6,7 @@ import { GetChaptersByManga } from "../api/chapter.js";
 
 export default function CreatorDashboard() {
     const navigate = useNavigate();
+    const username = localStorage.getItem("username");
 
     const [mangas, setMangas] = useState([]);
     const [selectedManga, setSelectedManga] = useState(null);
@@ -105,7 +106,7 @@ export default function CreatorDashboard() {
         <div className="min-h-screen bg-[#0F172A] text-white p-10">
 
             <h1 className="text-3xl font-bold mb-10 text-center">
-                Dashboard Creator
+                Dashboard Creator {username}
             </h1>
 
             <div className="flex gap-10">

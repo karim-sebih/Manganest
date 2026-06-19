@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams, useOutletContext, useNavigate } from "react-router";
 import { GetChapterById } from "../../api/chapter.js";
 import ReaderPagination from "../../components/ReaderPagination.jsx";
 
 export default function Reader() {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const context = useOutletContext() || {};
+
+    const { prevChapter, nextChapter } = context;
+
+
 
     const [chapter, setChapter] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -36,7 +42,6 @@ export default function Reader() {
         );
     }
 
-
     if (!chapter) {
         return <p className="text-white">Chapitre introuvable</p>;
     }
@@ -44,12 +49,11 @@ export default function Reader() {
     return (
         <div className="flex flex-col items-center bg-black min-h-screen">
 
-            {/* TITLE */}
             <h1 className="text-white text-lg my-6">
                 Chapitre {chapter.chapter_number} - {chapter.title}
             </h1>
 
-            {/*  INFINITE SCROLL */}
+            {/* ✅ SCROLL */}
             <div className="flex flex-col items-center gap-4">
                 {pages.map((page) => (
                     <img
@@ -62,8 +66,12 @@ export default function Reader() {
                 ))}
             </div>
 
+            <ReaderPagination
+                prevChapter={prevChapter}
+                nextChapter={nextChapter}
+                navigate={navigate}
+            />
 
-            <ReaderPagination />
 
         </div>
     );

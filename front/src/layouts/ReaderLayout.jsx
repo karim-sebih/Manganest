@@ -142,8 +142,8 @@ export default function Layout() {
                                         setOpenSidebar(false);
                                     }}
                                     className={`p-2 rounded cursor-pointer ${isActive
-                                            ? "bg-blue-500"
-                                            : "hover:bg-gray-700"
+                                        ? "bg-blue-500"
+                                        : "hover:bg-gray-700"
                                         }`}
                                 >
                                     Chapitre {chap.chapter_number}
@@ -156,7 +156,8 @@ export default function Layout() {
             </div>
 
             <div className="pt-16">
-                <Outlet />
+                <Outlet context={{ prevChapter, nextChapter, mangaId, chapters }} />
+
             </div>
         </div>
     );
