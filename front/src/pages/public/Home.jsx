@@ -5,6 +5,8 @@ import Pagination from "../../components/Pagination.jsx";
 import { useTranslation } from "react-i18next";
 import Carousel from "../../components/Carousel.jsx";
 import { getAllProgress } from "../../api/progress.js";
+import { GetAllSelfManga } from "../../api/selfmanga.js";
+import { GetChaptersByManga } from "../../api/chapter.js";
 
 
 
@@ -16,6 +18,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [progressList, setProgressList] = useState([]);
+  const [approvedMangas, setApprovedMangas] = useState([]);
 
 
 
@@ -62,14 +65,47 @@ export default function Home() {
           tags.excluded
         );
 
+        const selfMangaPromise = GetAllSelfManga().catch(() => []);
+
         // ✅ SAFE progress
         const progressPromise = getAllProgress().catch(() => []);
 
-        const [mangaData, chapterData, progressData] = await Promise.all([
+        const [mangaData, chapterData, progressData, selfMangaData] = await Promise.all([
           mangaPromise,
           chapterPromise,
-          progressPromise
+          progressPromise,
+          selfMangaPromise
         ]);
+
+        const approved = (selfMangaData || [])
+          .filter(m => m.status === "approved")
+          .slice(0, 10);
+
+        //  récupérer dernier chapitre pour chaque manga
+        const mangasWithChapters = await Promise.all(
+          approved.map(async (manga) => {
+            try {
+              const chapters = await GetChaptersByManga(manga.id);
+
+              const sorted = [...(chapters || [])].sort(
+                (a, b) => b.chapter_number - a.chapter_number
+              );
+
+              return {
+                ...manga,
+                lastChapter: sorted[0] || null
+              };
+            } catch (e) {
+              return {
+                ...manga,
+                lastChapter: null
+              };
+            }
+          })
+        );
+
+        setApprovedMangas(mangasWithChapters);
+
 
         setMangas(mangaData.mangas || []);
         setLatestChapters(chapterData.chapters || []);
@@ -112,6 +148,43 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0F172A] text-white pb-12">
       <div className="max-w-7xl mx-auto px-6 pt-8">
+        <Carousel
+          title="Self Published"
+          items={approvedMangas}
+          renderItem={(manga) => (
+            <div
+              onClick={() => {
+                if (manga.lastChapter) {
+                  navigate(`/reader/${manga.lastChapter.id}`, {
+                    state: { mangaId: manga.id }
+                  });
+                } else {
+                  navigate(`/self/${manga.id}`);
+                }
+              }} className="bg-[#1E293B] rounded-2xl p-4 hover:bg-[#25334b] transition-all cursor-pointer flex gap-4 w-[300px]"
+            >
+              <img
+                src={`http://localhost:3000${manga.cover}`}
+                alt={manga.title}
+                className="w-24 h-36 object-cover rounded-xl flex-shrink-0"
+                onError={(e) => {
+                  e.target.src = "https://picsum.photos/200/300";
+                }}
+              />
+              <div className="flex-1 min-w-0">
+                <p className="mt-2 text-sm font-semibold line-clamp-2">
+                  {manga.title}
+                </p>
+
+                {manga.lastChapter && (
+                  <p className="text-blue-400 text-sm mt-1">
+                    Chapitre {manga.lastChapter.chapter_number}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        />
 
         <Carousel
           title="Continuer la lecture"
