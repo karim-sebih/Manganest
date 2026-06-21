@@ -2,7 +2,7 @@ import instance from "./config";
 
 async function getAllUsers() {
     try {
-        const reponse = await instance.get('/adminuser');
+        const response = await instance.get('/adminuser');
         return response.data;
     } catch (error) {
         console.error({ message: "Error fetching all user" })

@@ -30,4 +30,14 @@ async function RejectManga(id) {
     }
 }
 
-export { GetPendingManga, ApproveManga, RejectManga }
+async function GetApprovedManga() {
+    try {
+        const response = await instance.get('/adminmanga/approved');
+        return response.data;
+    } catch (error) {
+        console.error
+        throw error
+    }
+}
+
+export { GetPendingManga, ApproveManga, RejectManga, GetApprovedManga }

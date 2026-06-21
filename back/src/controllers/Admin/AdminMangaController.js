@@ -13,6 +13,19 @@ async function GetPendingManga(req, res) {
     }
 }
 
+async function GetApprovedManga(req, res) {
+    try {
+        const mangas = await Manga.findAll({
+            where: { status: "APPROVED" }
+        });
+
+        res.json(mangas);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error fetching approved manga" });
+    }
+};
+
 async function ApproveManga(req, res) {
     try {
         const { id } = req.params;
@@ -49,4 +62,4 @@ async function RejectManga(req, res) {
     }
 }
 
-export { GetPendingManga, ApproveManga, RejectManga };
+export { GetPendingManga, ApproveManga, RejectManga, GetApprovedManga };
