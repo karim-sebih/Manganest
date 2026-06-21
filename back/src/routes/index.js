@@ -12,6 +12,8 @@ import ProgressRouter from "./Progress.route.js";
 import SelfMangarouter from "./selfmanga.route.js";
 import Chapterrouter from "./chapter.route.js";
 import Pagerouter from "./page.route.js"
+import AdminMangarouter from "../routes/AdminManga.route.js";
+import AdminUser from "../routes/AdminUser.route.js"
 
 
 const router = express.Router();
@@ -31,5 +33,7 @@ router.use("/progress", ProgressRouter);
 router.use("/selfmanga", SelfMangarouter);
 router.use("/chapitre", Chapterrouter);
 router.use("/pages", Pagerouter);
+router.use("/adminmanga", AdminMangarouter);
+router.use("/adminuser", AdminUser)
 
 export default router;

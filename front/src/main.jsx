@@ -24,7 +24,9 @@ import Reader from "./pages/public/Reader.jsx";
 import ReaderLayout from "./layouts/ReaderLayout.jsx";
 import CreatorChapter from "./pages/CreateChapter.jsx";
 import SelfDetails from "./pages/public/SelfDetails.jsx";
-
+import AdminLayout from "./layouts/AdminLayout.jsx";
+import AdminDashboard from "./pages/Admin/AdminDashboard.jsx";
+import { RoleGuard } from "./middleware/RoleGuard.jsx";
 
 
 const queryClient = new QueryClient({
@@ -68,6 +70,17 @@ createRoot(document.getElementById('root')).render(
             <Route index element={<Reader />} />
           </Route>
 
+          <Route
+            path="admin"
+            element={
+              <RoleGuard allowedRoles={["ADMIN"]}>
+                <AdminLayout />
+              </RoleGuard>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+
+          </Route>
 
         </Routes>
       </QueryClientProvider>
