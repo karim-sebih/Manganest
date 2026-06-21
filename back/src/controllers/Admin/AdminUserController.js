@@ -16,6 +16,15 @@ async function createUserByAdmin(req, res) {
     try {
         const { username, email, password, role } = req.body;
 
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: "Tous les champs sont requis" });
+        }
+
+        const existing = await User.findOne({ where: { email } });
+        if (existing) {
+            return res.status(400).json({ message: "Email déjà utilisé" });
+        }
+
         const hash = await hashPassword(password);
 
         const user = await User.create({
@@ -25,11 +34,17 @@ async function createUserByAdmin(req, res) {
             role: role || "VIEWER"
         });
 
-        res.json(user);
+        const { password: _, ...safeUser } = user.dataValues;
+
+        res.status(201).json(safeUser);
+
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Erreur création user" });
     }
+
 }
+
 
 async function updateUserByAdmin(req, res) {
     try {
@@ -52,7 +67,7 @@ async function updateUserByAdmin(req, res) {
 
         await user.save();
 
-        res.json({ message: "User updated ✅", user });
+        res.json({ message: "User updated ", user });
     } catch (err) {
         res.status(500).json({ message: "Erreur update user" });
     }
@@ -64,7 +79,7 @@ async function deleteUserByAdmin(req, res) {
 
         await User.destroy({ where: { id } });
 
-        res.json({ message: "User supprimé ✅" });
+        res.json({ message: "User supprimé " });
     } catch (err) {
         res.status(500).json({ message: "Erreur delete user" });
     }

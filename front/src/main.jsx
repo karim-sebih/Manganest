@@ -27,6 +27,9 @@ import SelfDetails from "./pages/public/SelfDetails.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
 import AdminDashboard from "./pages/Admin/AdminDashboard.jsx";
 import { RoleGuard } from "./middleware/RoleGuard.jsx";
+import AdminManga from "./pages/Admin/AdminManga.jsx"
+import AdminUser from "./pages/Admin/AdminUser.jsx";
+import Cms from "./pages/Admin/Cms.jsx";
 
 
 const queryClient = new QueryClient({
@@ -79,7 +82,9 @@ createRoot(document.getElementById('root')).render(
             }
           >
             <Route index element={<AdminDashboard />} />
-
+            <Route path="mangas" element={<AdminManga />} />
+            <Route path="users" element={<AdminUser />} />
+            <Route path="cms" element={<Cms />} />
           </Route>
 
         </Routes>

@@ -38,7 +38,7 @@ async function ApproveManga(req, res) {
 
         await manga.update({ status: "approved" });
 
-        res.json({ message: "Manga approuvé ✅" });
+        res.json({ message: "Manga approuvé " });
     } catch (err) {
         res.status(500).json({ message: "Erreur approve" });
     }
@@ -56,10 +56,29 @@ async function RejectManga(req, res) {
 
         await manga.update({ status: "rejected" });
 
-        res.json({ message: "Manga rejeté ❌" });
+        res.json({ message: "Manga rejeté " });
     } catch (err) {
         res.status(500).json({ message: "Erreur reject" });
     }
 }
 
-export { GetPendingManga, ApproveManga, RejectManga, GetApprovedManga };
+async function DeleteManga(req, res) {
+    try {
+        const { id } = req.params;
+
+        const manga = await Manga.findByPk(id);
+
+        if (!manga) {
+            return res.status(404).json({ message: "Not found" });
+        }
+
+        await manga.destroy();
+
+        res.json({ message: "Manga supprimé " });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Erreur delete manga" });
+    }
+}
+
+export { GetPendingManga, ApproveManga, RejectManga, GetApprovedManga, DeleteManga };

@@ -40,4 +40,14 @@ async function GetApprovedManga() {
     }
 }
 
-export { GetPendingManga, ApproveManga, RejectManga, GetApprovedManga }
+async function DeleteManga(id) {
+    try {
+        const response = await instance.delete(`/adminmanga/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting selfmanga :", error);
+        throw error;
+    }
+}
+
+export { GetPendingManga, ApproveManga, RejectManga, GetApprovedManga, DeleteManga }
