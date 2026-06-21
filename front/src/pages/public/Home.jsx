@@ -262,9 +262,14 @@ export default function Home() {
                 </p>
 
                 <p className="text-blue-400 mt-2 text-sm">
+                  Chapitre {item.chapter}
+                </p>
+
+                <p className="text-gray-400 text-sm">
                   Page {item.page}
                 </p>
               </div>
+
             </div>
           )}
 
