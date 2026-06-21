@@ -4,6 +4,9 @@ import Ratings from "./Ratings.js";
 import Comments from "./Comments.js";
 import Progress from "./Progress.js";
 import Likes from "./Likes.js";
+import Manga from "./Manga.js";
+import Chapter from "./Chapter.js";
+import Page from "./Page.js"
 
 export function setupassociations() {
 
@@ -22,5 +25,12 @@ export function setupassociations() {
     User.hasMany(Likes, { foreignKey: "user_id" });
     Likes.belongsTo(User, { foreignKey: "user_id" });
 
+    User.hasMany(Manga, { foreignKey: "user_id" });
+    Manga.belongsTo(User, { foreignKey: "user_id" });
 
+    Manga.hasMany(Chapter, { foreignKey: "manga_id" });
+    Chapter.belongsTo(Manga, { foreignKey: "manga_id" });
+
+    Chapter.hasMany(Page, { foreignKey: "chapter_id" });
+    Page.belongsTo(Chapter, { foreignKey: "chapter_id" });
 }

@@ -17,6 +17,15 @@ import Profile from './pages/Profile.jsx';
 import Chapter from './pages/public/Chapter.jsx';
 import ChapterLayout from './layouts/ChapterLayout.jsx'
 import AccessDeniedPage from './pages/public/AccessDenied.jsx';
+import CreatorDashboard from './pages/CreatorDashboard.jsx';
+import CreatorRules from './pages/CreatorRules.jsx';
+import CreateManga from './pages/CreateManga.jsx';
+import Reader from "./pages/public/Reader.jsx";
+import ReaderLayout from "./layouts/ReaderLayout.jsx";
+import CreatorChapter from "./pages/CreateChapter.jsx";
+import SelfDetails from "./pages/public/SelfDetails.jsx";
+
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,14 +49,24 @@ createRoot(document.getElementById('root')).render(
             <Route path="/profile/:id" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/library" element={<Library />} />
-            <Route path="/profile" element={<Profile />} />
             <Route path="/access-denied" element={<AccessDeniedPage />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/creator/rules" element={<CreatorRules />} />
+            <Route path="/creator/dashboard" element={<CreatorDashboard />} />
+            <Route path="/creator/:mangaId/create-chapter" element={<CreatorChapter />} />
+            <Route path="/self/:id" element={<SelfDetails />} />
+
+
+
           </Route>
 
           <Route path='/chapter/:id' element={<ChapterLayout />} >
             <Route index element={<Chapter />} />
           </Route>
 
+          <Route path="/reader/:id" element={<ReaderLayout />}>
+            <Route index element={<Reader />} />
+          </Route>
 
 
         </Routes>
