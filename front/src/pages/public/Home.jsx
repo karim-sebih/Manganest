@@ -7,6 +7,7 @@ import Carousel from "../../components/Carousel.jsx";
 import { getAllProgress } from "../../api/progress.js";
 import { GetAllSelfManga } from "../../api/selfmanga.js";
 import { GetChaptersByManga } from "../../api/chapter.js";
+import { getLibraryWithLatest } from "../../api/library";
 
 
 
@@ -19,6 +20,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [progressList, setProgressList] = useState([]);
   const [approvedMangas, setApprovedMangas] = useState([]);
+  const [libraryLatest, setLibraryLatest] = useState([]);
 
 
 
@@ -67,15 +69,18 @@ export default function Home() {
 
         const selfMangaPromise = GetAllSelfManga().catch(() => []);
 
-        // ✅ SAFE progress
         const progressPromise = getAllProgress().catch(() => []);
 
-        const [mangaData, chapterData, progressData, selfMangaData] = await Promise.all([
+        const libraryPromise = getLibraryWithLatest().catch(() => []);
+
+        const [mangaData, chapterData, progressData, selfMangaData, libraryData] = await Promise.all([
           mangaPromise,
           chapterPromise,
           progressPromise,
-          selfMangaPromise
+          selfMangaPromise,
+          libraryPromise
         ]);
+
 
         const approved = (selfMangaData || [])
           .filter(m => m.status === "approved")
@@ -106,7 +111,7 @@ export default function Home() {
 
         setApprovedMangas(mangasWithChapters);
 
-
+        setLibraryLatest(libraryData || []);
         setMangas(mangaData.mangas || []);
         setLatestChapters(chapterData.chapters || []);
         setProgressList(progressData || []);
@@ -148,6 +153,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0F172A] text-white pb-12">
       <div className="max-w-7xl mx-auto px-6 pt-8">
+
+
         <Carousel
           title="Self Published"
           items={approvedMangas}
@@ -185,6 +192,47 @@ export default function Home() {
             </div>
           )}
         />
+
+        <Carousel
+          title="Ma bibliothèque"
+          items={libraryLatest}
+          renderItem={(manga) => (
+            <div
+              onClick={() => {
+                if (manga.chapterId) {
+                  navigate(`/chapter/${manga.chapterId}`, {
+                    state: { mangaId: manga.mangadex_id }
+                  });
+                } else {
+                  navigate(`/manga/${manga.mangadex_id}`);
+                }
+              }}
+              className="bg-[#1E293B] rounded-2xl p-4 hover:bg-[#25334b] transition-all cursor-pointer flex gap-4 w-[300px]"
+            >
+              <img
+                src={manga.cover}
+                alt={manga.title}
+                className="w-24 h-36 object-cover rounded-xl"
+                onError={(e) => {
+                  e.target.src = "https://picsum.photos/200/300";
+                }}
+              />
+
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold line-clamp-2">
+                  {manga.title}
+                </p>
+
+                {manga.lastChapter && (
+                  <p className="text-blue-400 mt-2 text-sm">
+                    Chapitre {manga.lastChapter}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        />
+
 
         <Carousel
           title="Continuer la lecture"

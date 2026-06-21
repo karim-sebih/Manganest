@@ -27,6 +27,16 @@ async function deleteEntry(mangadexId) {
     }
 }
 
+async function getLibraryWithLatest() {
+    try {
+        const res = await instance.get('/library/with-latest');
+        return res.data;
+    } catch (error) {
+        console.error("Error fetching latest chapter by manga", error);
+        return [];
+    }
+}
 
 
-export { addOrUpdateEntry, deleteEntry, getUserLibrary };
+
+export { addOrUpdateEntry, deleteEntry, getUserLibrary, getLibraryWithLatest };

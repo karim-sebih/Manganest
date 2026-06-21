@@ -99,4 +99,66 @@ async function getUserLibrary(req, res) {
     }
 }
 
-export { addOrUpdateEntry, deleteEntry, getUserLibrary };
+async function getLibraryWithLatestChapter(req, res) {
+    try {
+        const user_id = req.user.id;
+
+        const library = await Library.findAll({
+            where: { user_id }
+        });
+
+        if (!library.length) {
+            return res.json([]);
+        }
+
+        const ids = library.map(item => item.mangadex_id);
+
+        // ✅ mangas
+        const mangas = await mangadexService.getMangasByIds(ids);
+
+        const mangaMap = new Map(mangas.map(m => [m.id, m]));
+
+        // ✅ récupérer dernier chapitre POUR CHAQUE MANGA
+        const results = await Promise.all(
+            ids.map(async (id) => {
+                try {
+                    const chapters = await mangadexService.getMangaChapters(id, ["fr", "en"]);
+
+                    const latest = chapters?.[0];
+
+                    const manga = mangaMap.get(id);
+
+                    const title = manga?.attributes?.title
+                        ? Object.values(manga.attributes.title)[0]
+                        : "Titre inconnu";
+
+                    const coverRel = manga?.relationships?.find(r => r.type === "cover_art");
+
+                    const cover = coverRel?.attributes?.fileName
+                        ? `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes.fileName}`
+                        : null;
+
+                    return {
+                        mangadex_id: id,
+                        title,
+                        cover,
+                        lastChapter: latest?.attributes?.chapter || "??",
+                        chapterId: latest?.id || null
+                    };
+
+                } catch (e) {
+                    return null;
+                }
+            })
+        );
+
+        res.json(results.filter(Boolean));
+
+    } catch (error) {
+        console.error("getLibraryWithLatestChapter:", error);
+        res.status(500).json({ error: "Error" });
+    }
+}
+
+
+export { addOrUpdateEntry, deleteEntry, getUserLibrary, getLibraryWithLatestChapter };
