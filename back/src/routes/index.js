@@ -23,7 +23,7 @@ router.use("/uploads", express.static("uploads"));
 router.use('/auth', authRouter);
 router.use('/api/manga', MangaRouter);
 router.use("/translations", traductionRouter);
-router.use('/user', userRouter)
+router.use('/users', userRouter)
 router.use('/profile', profileRouter);
 router.use('/comments', commentRouter);
 router.use('/likes', likeRouter);

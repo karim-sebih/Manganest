@@ -35,12 +35,24 @@ function createUser(req, res) {
 }
 
 async function deleteUser(req, res) {
-  const id = req.user.id;
-  await Evaluation.destroy({ where: { user_id: id } });
-  User.destroy({ where: { id } }).then(() => {
-    res.status(204).json({ message: "Utilisateur supprimé" });
-  });
+  try {
+    const id = req.user.id;
+
+    const deleted = await User.destroy({
+      where: { id }
+    });
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+    res.json({ message: "Compte supprimé avec succès" });
+
+  } catch (error) {
+    res.status(500).json({ error: "Erreur suppression utilisateur" });
+  }
 }
+
 
 async function updateUser(req, res) {
   const id = req.user.id;

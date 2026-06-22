@@ -14,6 +14,8 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState([]);
   const [showNotif, setShowNotif] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
 
 
 
@@ -97,14 +99,18 @@ export default function Navbar() {
     <nav className="bg-[#0F172A]/90 backdrop-blur-md text-white sticky top-0 z-50 border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
+          <div className="flex items-center gap-3">
 
-          {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img src={ManganestLogo} alt="Manganest" className="h-10 hover:scale-105 transition" />
-          </Link>
+            <Link to="/" className="flex items-center">
+              <img src={ManganestLogo} alt="Manganest" className="h-10" />
+            </Link>
+
+
+          </div>
 
           {/* Search */}
-          <div className="flex-1 max-w-md mx-6 relative" ref={dropdownRef}>
+          <div className="hidden md:flex flex-1 max-w-md mx-6 relative" ref={dropdownRef}>
+
             <div className="relative group">
               <div className="flex items-center h-10 bg-[#1E293B] rounded-xl px-4 border border-gray-700 group-focus-within:border-blue-500 transition">
 
@@ -180,11 +186,11 @@ export default function Navbar() {
           {/* Les Icons */}
           <div className="flex gap-4 text-gray-300">
             <Menu
-              className="cursor-pointer hover:text-white"
-              size={22}
-              id="MenuDropdown"
+              className="md:hidden cursor-pointer"
+              size={24}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             />
-            <Sun className="cursor-pointer hover:text-white" size={22} />
+
             <div className="relative">
               <Bell
                 className="cursor-pointer hover:text-white"
@@ -291,6 +297,46 @@ export default function Navbar() {
 
         </div>
       </div>
+      {isMobileMenuOpen && (
+        <div className="md:hidden px-4 pb-4 space-y-4 animate-fadeIn">
+
+          {/* SEARCH MOBILE */}
+          <div className="relative" ref={dropdownRef}>
+            <div className="flex items-center h-10 bg-[#1E293B] rounded-xl px-4 border border-gray-700">
+              <Search size={18} className="text-gray-400" />
+
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Rechercher..."
+                className="flex-1 bg-transparent outline-none px-3 text-sm"
+              />
+            </div>
+
+            {showDropdown && (
+              <div className="absolute mt-2 w-full bg-[#0F172A] border border-gray-800 rounded-xl shadow-xl z-50">
+                {results.map((manga) => (
+                  <div
+                    key={manga.id}
+                    onClick={() => {
+                      handleSelect(manga);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="p-3 hover:bg-[#1E293B] cursor-pointer"
+                  >
+                    {manga.title}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+
+
+        </div>
+      )}
+
     </nav>
 
   );
