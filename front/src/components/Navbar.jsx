@@ -3,12 +3,20 @@ import { Link, useNavigate } from "react-router";
 import { Search, Menu, Sun, Bell, User } from "lucide-react";
 import { searchManga } from "../api/manga";
 import ManganestLogo from "../assets/Manganest-removebg-preview.png";
+import { getLibraryWithLatest } from "../api/library";
+
 
 export default function Navbar() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotif, setShowNotif] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+
+
 
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -56,103 +64,120 @@ export default function Navbar() {
     navigate(`/manga/${manga.id}`);
   };
 
+  /*Notif */
+  useEffect(() => {
+    async function checkNewChapters() {
+      try {
+        const data = await getLibraryWithLatest();
+
+        const previous = JSON.parse(localStorage.getItem("libraryLatest")) || [];
+
+        const newNotifs = data.filter((manga) => {
+          const old = previous.find(
+            (m) => m.mangadex_id === manga.mangadex_id
+          );
+
+          return old && old.lastChapter !== manga.lastChapter;
+        });
+
+        if (newNotifs.length > 0) {
+          setNotifications(newNotifs);
+        }
+
+        localStorage.setItem("libraryLatest", JSON.stringify(data));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    checkNewChapters();
+  }, []);
+
   return (
-    <nav className="bg-[#1E293B] text-white sticky top-0 z-50">
+    <nav className="bg-[#0F172A]/90 backdrop-blur-md text-white sticky top-0 z-50 border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
+
           {/* Logo */}
-          <Link to="/">
-            <img src={ManganestLogo} alt="Manganest" className="h-13" />
+          <Link to="/" className="flex items-center">
+            <img src={ManganestLogo} alt="Manganest" className="h-10 hover:scale-105 transition" />
           </Link>
 
-          {/* Search Bar */}
-          <div className="flex-1 max-w-md mx-8 relative" ref={dropdownRef}>
-            <div className="relative">
-              <div className="flex items-center h-10 bg-[#334155] rounded-lg px-4 text-white border border-transparent focus-within:border-blue-500 transition-all">
-                <Search size={20} className="text-gray-400" />
+          {/* Search */}
+          <div className="flex-1 max-w-md mx-6 relative" ref={dropdownRef}>
+            <div className="relative group">
+              <div className="flex items-center h-10 bg-[#1E293B] rounded-xl px-4 border border-gray-700 group-focus-within:border-blue-500 transition">
+
+                <Search size={18} className="text-gray-400" />
+
                 <input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Rechercher un manga, manhwa..."
+                  placeholder="Rechercher..."
                   className="flex-1 bg-transparent outline-none px-3 text-sm placeholder-gray-400"
                 />
+
                 {query && (
                   <button
                     onClick={() => setQuery("")}
-                    className="text-gray-400 hover:text-white text-xl leading-none"
+                    className="text-gray-400 hover:text-white text-sm"
                   >
                     ✕
                   </button>
                 )}
+
                 <Link to="search">
-                  <div className="bg-[#1E293B] ml-1 px-3 py-1 text-xs rounded-sm">
-                    search
+                  <div className="ml-2 px-2 py-1 text-xs bg-blue-500/20 text-blue-400 rounded-md hover:bg-blue-500/30 transition">
+                    Go
                   </div>
                 </Link>
               </div>
             </div>
 
-            {/* Dropdown Results */}
+
             {showDropdown && (
-              <div className="absolute mt-2 w-full bg-[#1E293B] rounded-lg shadow-2xl border border-gray-700 overflow-hidden z-50 max-h-[420px] overflow-y-auto">
+              <div className="absolute mt-2 w-full bg-[#0F172A] border border-gray-800 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[420px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700">
+
                 {loading ? (
-                  <div className="p-6 text-center text-gray-400">
-                    Chargement...
-                  </div>
+                  <div className="p-5 text-center text-gray-400">Chargement...</div>
                 ) : results.length > 0 ? (
                   results.map((manga) => (
                     <div
                       key={manga.id}
                       onClick={() => handleSelect(manga)}
-                      className="flex gap-4 p-3 hover:bg-[#334155] cursor-pointer border-b border-gray-700 last:border-none"
+                      className="flex gap-3 p-3 hover:bg-[#1E293B] transition cursor-pointer"
                     >
-                      {/* Cover */}
                       <img
                         src={manga.cover || "/placeholder-cover.jpg"}
                         alt={manga.title}
-                        className="w-12 h-16 object-cover rounded-md flex-shrink-0 bg-gray-700"
-                        onError={(e) => {
-                          e.target.src = "/placeholder-cover.jpg";
-                        }}
+                        className="w-12 h-16 object-cover rounded-md flex-shrink-0"
                       />
 
-                      {/* Infos */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-white truncate">
+                        <p className="text-sm font-semibold truncate">
                           {manga.title}
                         </p>
+
                         {manga.description && (
                           <p className="text-xs text-gray-400 line-clamp-2 mt-1">
                             {manga.description}
                           </p>
                         )}
-                        {manga.tags?.length > 0 && (
-                          <div className="flex gap-1 mt-2 flex-wrap">
-                            {manga.tags.slice(0, 3).map((tag, i) => (
-                              <span
-                                key={i}
-                                className="text-[10px] bg-gray-700 px-2 py-0.5 rounded"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="p-6 text-center text-gray-400">
-                    Aucun résultat pour "
-                    <span className="text-white">{query}</span>"
+                  <div className="p-5 text-center text-gray-400">
+                    Aucun résultat pour <span className="text-white">{query}</span>
                   </div>
                 )}
               </div>
             )}
           </div>
 
-          {/* Les Icons a gauche */}
+
+          {/* Les Icons */}
           <div className="flex gap-4 text-gray-300">
             <Menu
               className="cursor-pointer hover:text-white"
@@ -160,11 +185,113 @@ export default function Navbar() {
               id="MenuDropdown"
             />
             <Sun className="cursor-pointer hover:text-white" size={22} />
-            <Bell className="cursor-pointer hover:text-white" size={22} />
-            <User className="cursor-pointer hover:text-white" size={22} />
+            <div className="relative">
+              <Bell
+                className="cursor-pointer hover:text-white"
+                size={22}
+                onClick={() => setShowNotif(!showNotif)}
+              />
+
+              {notifications.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-xs px-1.5 rounded-full">
+                  {notifications.length}
+                </span>
+              )}
+
+              {showNotif && (
+                <div className="absolute right-0 mt-3 w-80 bg-[#1E293B] border border-gray-700 rounded-xl shadow-xl z-50">
+
+                  {notifications.length === 0 ? (
+                    <p className="p-4 text-gray-400 text-sm">
+                      Aucune notification
+                    </p>
+                  ) : (
+                    notifications.map((manga) => (
+                      <div
+                        key={manga.mangadex_id}
+                        onClick={() => {
+                          navigate(`/chapter/${manga.chapterId}`, {
+                            state: { mangaId: manga.mangadex_id }
+                          });
+                          setShowNotif(false);
+                        }}
+                        className="flex gap-3 p-3 hover:bg-[#334155] transition cursor-pointer"
+                      >
+                        <img
+                          src={manga.cover}
+                          alt={manga.title}
+                          className="w-16 h-24 object-cover rounded-lg"
+                        />
+
+                        <div className="flex flex-col justify-center min-w-0">
+                          <p className="text-sm font-semibold truncate">
+                            {manga.title}
+                          </p>
+
+                          <p className="text-blue-400 text-xs mt-1">
+                            Chapitre {manga.lastChapter}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+
+            <div className="relative">
+              <User
+                className="cursor-pointer hover:text-white transition"
+                size={22}
+                onClick={() => setShowUserMenu(!showUserMenu)}
+              />
+
+              {showUserMenu && (
+                <div className="absolute right-0 top-full mt-2 w-52 bg-[#1E293B] border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
+
+                  <div className="px-4 py-3 border-b border-gray-700 text-sm font-semibold">
+                    Mon compte
+                  </div>
+
+                  <div className="flex flex-col text-sm">
+
+                    <Link
+                      to="/profile/123"
+                      className="px-4 py-2 hover:bg-[#334155] transition"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      Profil
+                    </Link>
+
+                    <Link
+                      to="/library"
+                      className="px-4 py-2 hover:bg-[#334155] transition"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      Bibliothèque
+                    </Link>
+
+                    <Link
+                      to="/settings"
+                      className="px-4 py-2 hover:bg-[#334155] transition"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      Paramètres
+                    </Link>
+
+                  </div>
+                </div>
+              )}
+            </div>
+
           </div>
+
+
+
         </div>
       </div>
     </nav>
+
   );
 }

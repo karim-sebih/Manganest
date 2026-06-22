@@ -55,7 +55,6 @@ createRoot(document.getElementById('root')).render(
             <Route path="/settings" element={<Settings />} />
             <Route path="/library" element={<Library />} />
             <Route path="/access-denied" element={<AccessDeniedPage />} />
-            <Route path="/profile" element={<Profile />} />
             <Route path="/creator/rules" element={<CreatorRules />} />
             <Route path="/creator/dashboard" element={<CreatorDashboard />} />
             <Route path="/creator/:mangaId/create-chapter" element={<CreatorChapter />} />
