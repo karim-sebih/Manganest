@@ -45,8 +45,13 @@ export default function Carousel({ title, items, renderItem }) {
             {/* Carousel */}
             <div
                 ref={scrollRef}
-                className="flex gap-4 overflow-x-auto scroll-smooth no-scrollbar"
+                className="
+        flex gap-4 overflow-x-auto scroll-smooth
+        custom-scrollbar
+        pb-2
+    "
             >
+
                 {items.length === 0 ? (
                     <p className="text-gray-400">Aucun contenu</p>
                 ) : (
