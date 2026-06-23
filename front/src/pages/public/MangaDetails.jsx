@@ -298,9 +298,11 @@ export default function MangaDetails() {
     // Visuel
     return (
         <div className="min-h-screen bg-[#0F172A] text-white">
-            <div className="max-w-6xl mx-auto px-6 py-10">
+            <div className="max-w-6xl mx-auto px-4 md:px-6 py-10">
 
-                <div className="flex flex-col md:flex-row gap-10">
+
+                <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+
 
                     <div className="flex flex-col">
                         <img
@@ -330,7 +332,7 @@ export default function MangaDetails() {
 
                     </div>
                     <div className="flex-1">
-                        <h1 className="text-4xl font-bold mb-4">
+                        <h1 className="text-3xl md:text-4xl font-bold mb-3 leading-tight">
                             {manga.title}
                         </h1>
                         <div className="mt-2">
@@ -369,18 +371,26 @@ export default function MangaDetails() {
                             {manga.tags?.map((tag) => (
                                 <span
                                     key={tag}
-                                    className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full"
+                                    className="
+        bg-blue-500/10
+        border border-blue-500/20
+        text-blue-400
+        px-3 py-1
+        rounded-full
+        text-sm
+    "
                                 >
+
                                     {tag}
                                 </span>
                             ))}
                         </div>
 
-                        <p className="text-gray-300 leading-7">
+                        <p className="text-gray-300 leading-relaxed mt-4">
                             {manga.description}
                         </p>
 
-                        <div className="mt-8 space-y-2 text-gray-400">
+                        <div className="mt-6 space-y-2 text-gray-400 text-sm">
                             <p>
                                 <span className="text-white font-semibold">
                                     {t('mangaDetails.author')}

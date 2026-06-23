@@ -300,16 +300,26 @@ export default function Chapter() {
     }
 
     return (
-        <div className="min-h-screen bg-black flex flex-col items-center">
+        <div className="min-h-screen bg-[#020617] flex flex-col items-center">
+
 
             {pages.map((page, index) => (
                 <img
                     key={index}
                     src={page}
                     alt={`Page ${index + 1}`}
-                    className="w-full max-w-5xl"
                     loading="lazy"
+                    className="
+        w-full
+        max-w-3xl
+        mx-auto
+        h-auto
+        object-contain
+        bg-black
+    "
+
                 />
+
             ))}
 
             <div className="w-full max-w-5xl flex justify-between items-center py-10">
@@ -355,11 +365,18 @@ export default function Chapter() {
 
                 <button
                     onClick={handleLike}
-                    className={`px-4 py-2 rounded-lg flex items-center gap-2 ${liked ? "bg-red-600" : "bg-gray-800"
-                        }`}
+                    className={`
+        flex items-center gap-2 px-4 py-2 rounded-full
+        transition-all duration-200
+        ${liked
+                            ? "bg-red-600 shadow-lg shadow-red-900/40 scale-105"
+                            : "bg-gray-800 hover:bg-gray-700"
+                        }
+    `}
                 >
-                    ❤️ {likesCount}
+                    ❤️ <span className="font-medium">{likesCount}</span>
                 </button>
+
 
                 {!username && (
                     <p className="text-gray-400 text-sm">
