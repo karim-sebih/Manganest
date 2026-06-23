@@ -2,8 +2,8 @@ import axios from "axios";
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
-  timeout: 10000,
- headers: {
+  timeout: 50000,
+  headers: {
     'Content-Type': 'application/json',          // ← ajoute ça si absent
     'ngrok-skip-browser-warning': 'true'
   }

@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router";
-import { Search, Menu, Sun, Bell, User } from "lucide-react";
+import { Search, Menu, Sun, Bell, User, Shield } from "lucide-react";
 import { searchManga } from "../api/manga";
 import ManganestLogo from "../assets/Manganest-removebg-preview.png";
 import { getLibraryWithLatest } from "../api/library";
+
 
 
 export default function Navbar() {
@@ -15,6 +16,8 @@ export default function Navbar() {
   const [showNotif, setShowNotif] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const role = localStorage.getItem("role");
+  const isAdmin = role === "ADMIN";
 
 
 
@@ -64,6 +67,18 @@ export default function Navbar() {
     setQuery("");
     setShowDropdown(false);
     navigate(`/manga/${manga.id}`);
+  };
+
+
+  const handleUserClick = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/auth/login");
+      return;
+    }
+
+    setShowUserMenu(!showUserMenu);
   };
 
   /*Notif */
@@ -191,6 +206,15 @@ export default function Navbar() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             />
 
+            {isAdmin && (
+              <Link to="/admin">
+                <Shield
+                  className="cursor-pointer hover:text-red-400 transition"
+                  size={22}
+                />
+              </Link>
+            )}
+
             <div className="relative">
               <Bell
                 className="cursor-pointer hover:text-white"
@@ -250,8 +274,9 @@ export default function Navbar() {
               <User
                 className="cursor-pointer hover:text-white transition"
                 size={22}
-                onClick={() => setShowUserMenu(!showUserMenu)}
+                onClick={handleUserClick}
               />
+
 
               {showUserMenu && (
                 <div className="absolute right-0 top-full mt-2 w-52 bg-[#1E293B] border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">

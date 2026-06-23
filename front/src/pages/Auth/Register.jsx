@@ -59,42 +59,73 @@ export default function Register() {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md mx-auto">
-            <input
-                placeholder={t('auth.register.username')}
-                {...formRegister("username")}
-                className="border p-2 mb-2 w-full"
-                type="text"
-                autoComplete="given-username"
-            />
-            <input
-                placeholder={t('auth.register.email')}
-                {...formRegister("email")}
-                className="border p-2 mb-2 w-full"
-                type="email"
-                autoComplete="email"
-            />
-            <input
-                placeholder={t('auth.register.password')}
-                {...formRegister("password")}
-                className="border p-2 mb-2 w-full"
-                type="password"
-                autoComplete="new-password"
-            />
-            <input
-                placeholder={t('auth.register.confirmPassword')}
-                {...formRegister("confirmPassword")}
-                className="border p-2 mb-2 w-full"
-                type="password"
-                autoComplete="new-password"
-            />
-            <button
-                type="submit"
-                className="bg-blue-500 text-white p-2 w-full"
-                disabled={registerMutation.isPending}
+        <div className="min-h-screen flex items-center justify-center bg-[#0B1220] px-4">
+
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="w-full max-w-md bg-[#0F172A] border border-gray-800 rounded-2xl p-8 shadow-2xl space-y-5"
             >
-                {registerMutation.isPending ? t('auth.login.loggingIn') : t('auth.register.registerButton')}
-            </button>
-        </form>
+
+                <h2 className="text-3xl font-bold text-white text-center mb-2">
+                    {t('auth.register.title')}
+                </h2>
+
+                {/* USERNAME */}
+                <input
+                    placeholder={t('auth.register.username')}
+                    {...formRegister("username")}
+                    className="w-full px-4 py-3 rounded-xl bg-[#1E293B] border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                    type="text"
+                />
+
+                {/* EMAIL */}
+                <input
+                    placeholder={t('auth.register.email')}
+                    {...formRegister("email")}
+                    className="w-full px-4 py-3 rounded-xl bg-[#1E293B] border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                    type="email"
+                />
+
+                {/* PASSWORD */}
+                <input
+                    placeholder={t('auth.register.password')}
+                    {...formRegister("password")}
+                    className="w-full px-4 py-3 rounded-xl bg-[#1E293B] border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                    type="password"
+                />
+
+                {/* CONFIRM PASSWORD */}
+                <input
+                    placeholder={t('auth.register.confirmPassword')}
+                    {...formRegister("confirmPassword")}
+                    className="w-full px-4 py-3 rounded-xl bg-[#1E293B] border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                    type="password"
+                />
+
+                {/* BUTTON */}
+                <button
+                    type="submit"
+                    disabled={registerMutation.isPending}
+                    className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 transition text-white py-3 rounded-xl font-semibold shadow-lg shadow-blue-500/20"
+                >
+                    {registerMutation.isPending
+                        ? t('auth.login.loggingIn')
+                        : t('auth.register.registerButton')}
+                </button>
+
+                {/* LINK LOGIN */}
+                <p className="text-sm text-gray-400 text-center">
+                    {t('auth.register.haveAccount')}{" "}
+                    <Link
+                        to="/auth/login"
+                        className="text-blue-400 hover:underline"
+                    >
+                        {t('auth.register.login')}
+                    </Link>
+                </p>
+
+            </form>
+        </div>
     );
+
 }
