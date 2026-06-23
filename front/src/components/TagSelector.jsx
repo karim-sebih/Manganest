@@ -44,11 +44,12 @@ export default function TagsModal({ isOpen, onClose }) {
     };
     const save = () => {
         localStorage.setItem("tags", JSON.stringify(tags));
-        onClose();
 
-        window.dispatchEvent(new Event("tagsUpdated"));
-        window.reload();
+        window.dispatchEvent(new Event("tagsUpdated")); // ✅ trigger update
+
+        onClose();
     };
+
 
     if (!isOpen) return null;
 

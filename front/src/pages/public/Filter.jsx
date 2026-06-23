@@ -27,42 +27,58 @@ export default function SearchPage() {
 
     useEffect(() => {
         localStorage.setItem("tags", JSON.stringify(tags));
-    }, [tags]);
 
+    }, [tags]);
 
     useEffect(() => {
         const handleTagsUpdated = () => {
-            if (query.trim().length >= 2) {
-                setPage(1);
-            }
+            const newTags =
+                JSON.parse(localStorage.getItem("tags")) || {
+                    included: [],
+                    excluded: [],
+                };
+
+            setPage(1);
+            setTags(newTags);
         };
 
         window.addEventListener("tagsUpdated", handleTagsUpdated);
-        return () => window.removeEventListener("tagsUpdated", handleTagsUpdated);
-    }, [query]);
+
+        return () =>
+            window.removeEventListener("tagsUpdated", handleTagsUpdated);
+    }, []);
 
     useEffect(() => {
         async function fetchLatestChapters() {
             try {
+                setLoading(true);
+
                 const chapterData = await getLatestChapters(
                     20,
-                    0,
+                    (page - 1) * 20,
                     localStorage.getItem("chapterLanguage") || "fr",
                     JSON.parse(localStorage.getItem("contentFilters")) || ["safe", "suggestive"],
                     tags.included,
                     tags.excluded
                 );
+
                 setLatestChapters(chapterData.chapters || []);
             } catch (error) {
                 console.error("Error fetching latest chapters:", error);
+            } finally {
+                setLoading(false);
             }
         }
 
         if (query.trim().length === 0) {
             fetchLatestChapters();
         }
-    }, [query, tags]);
+    }, [query, tags, page]);
 
+
+    useEffect(() => {
+        setPage(1);
+    }, [query]);
 
     useEffect(() => {
         if (query.trim().length < 2) {
@@ -95,7 +111,7 @@ export default function SearchPage() {
             } finally {
                 setLoading(false);
             }
-        }, 400);
+        }, 200);
 
         return () => clearTimeout(timeoutId);
     }, [query, page, tags]);
@@ -181,6 +197,7 @@ export default function SearchPage() {
                                     <div className="mb-4 h-48 flex items-center justify-center bg-gray-800 rounded-xl">
                                         {item.cover ? (
                                             <img
+                                                loading="lazy"
                                                 src={item.cover}
                                                 alt={item.mangaTitle || item.title}
                                                 className="w-full h-full object-cover rounded-xl"
@@ -250,9 +267,14 @@ export default function SearchPage() {
                             <Pagination
                                 page={page}
                                 setPage={setPage}
-                                hasNextPage={displayResults.length >= 20}
+                                hasNextPage={
+                                    isSearching
+                                        ? page * 20 < totalResults
+                                        : latestChapters.length === 20
+                                }
                                 hasPrevPage={page > 1}
                             />
+
                         ) : null}
                     </>
                 ) : (
