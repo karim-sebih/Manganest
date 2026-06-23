@@ -54,72 +54,90 @@ export default function TagsModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-            <div className="bg-[#1E293B] w-[700px] max-h-[80vh] overflow-y-auto rounded-2xl p-6">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 px-4">
 
-                <h2 className="text-2xl font-bold mb-6">
-                    Manage Tags
-                </h2>
+            <div className="bg-[#1E293B] w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl shadow-xl flex flex-col">
 
-                <div className="grid grid-cols-2 gap-6">
+                {/* HEADER */}
+                <div className="flex items-center justify-between p-4 border-b border-gray-700">
+                    <h2 className="text-lg md:text-xl font-semibold text-white">
+                        Manage Tags
+                    </h2>
 
-                    {/* INCLUDED */}
-                    <div>
-                        <h3 className="text-green-400 mb-3 font-semibold">
-                            Included
-                        </h3>
-
-                        <div className="space-y-2">
-                            {availableTags.map((tag) => (
-                                <button
-                                    key={tag.id}
-                                    onClick={() => toggleTag("included", tag.id)}
-                                    className={`w-full p-2 rounded-lg text-sm transition ${tags.included.includes(tag.id)
-                                        ? "bg-green-600"
-                                        : "bg-[#0F172A]"
-                                        }`}
-                                >
-                                    {tag.attributes?.name?.en}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* EXCLUDED */}
-                    <div>
-                        <h3 className="text-red-400 mb-3 font-semibold">
-                            Excluded
-                        </h3>
-
-                        <div className="space-y-2">
-                            {availableTags.map((tag) => (
-                                <button
-                                    key={tag.id}
-                                    onClick={() => toggleTag("excluded", tag.id)}
-                                    className={`w-full p-2 rounded-lg text-sm transition ${tags.excluded.includes(tag.id)
-                                        ? "bg-red-600"
-                                        : "bg-[#0F172A]"
-                                        }`}
-                                >
-                                    {tag.attributes?.name?.en}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                </div>
-
-                <div className="flex justify-between mt-6">
                     <button
                         onClick={onClose}
-                        className="bg-gray-600 px-4 py-2 rounded-xl"
+                        className="text-gray-400 hover:text-white transition"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                {/* CONTENT */}
+                <div className="flex-1 overflow-y-auto p-4">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        {/* INCLUDED */}
+                        <div>
+                            <h3 className="text-green-400 mb-3 font-semibold text-sm uppercase tracking-wide">
+                                Included
+                            </h3>
+
+                            <div className="flex flex-wrap gap-2">
+                                {availableTags.map((tag) => (
+                                    <button
+                                        key={tag.id}
+                                        onClick={() => toggleTag("included", tag.id)}
+                                        className={`px-3 py-1.5 rounded-full text-xs md:text-sm transition-all border
+                                    ${tags.included.includes(tag.id)
+                                                ? "bg-green-600 border-green-500 text-white"
+                                                : "bg-[#0F172A] border-gray-700 text-gray-300 hover:bg-gray-800"
+                                            }`}
+                                    >
+                                        {tag.attributes?.name?.en}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* EXCLUDED */}
+                        <div>
+                            <h3 className="text-red-400 mb-3 font-semibold text-sm uppercase tracking-wide">
+                                Excluded
+                            </h3>
+
+                            <div className="flex flex-wrap gap-2">
+                                {availableTags.map((tag) => (
+                                    <button
+                                        key={tag.id}
+                                        onClick={() => toggleTag("excluded", tag.id)}
+                                        className={`px-3 py-1.5 rounded-full text-xs md:text-sm transition-all border
+                                    ${tags.excluded.includes(tag.id)
+                                                ? "bg-red-600 border-red-500 text-white"
+                                                : "bg-[#0F172A] border-gray-700 text-gray-300 hover:bg-gray-800"
+                                            }`}
+                                    >
+                                        {tag.attributes?.name?.en}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                {/* FOOTER */}
+                <div className="flex justify-end gap-3 p-4 border-t border-gray-700">
+                    <button
+                        onClick={onClose}
+                        className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition text-sm"
                     >
                         Close
                     </button>
 
                     <button
                         onClick={save}
-                        className="bg-blue-600 px-4 py-2 rounded-xl"
+                        className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition text-sm font-medium"
                     >
                         Save
                     </button>
@@ -128,4 +146,5 @@ export default function TagsModal({ isOpen, onClose }) {
             </div>
         </div>
     );
+
 }

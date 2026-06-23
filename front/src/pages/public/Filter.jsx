@@ -140,34 +140,52 @@ export default function SearchPage() {
         <div className="min-h-screen bg-[#0F172A] text-white pb-12">
             <div className="max-w-7xl mx-auto px-6 pt-8">
                 {/* Barre de recherche avec bouton de tags */}
-                <div className="mb-8 flex gap-4 items-center">
-                    <form onSubmit={handleSearch} className="flex-1 flex gap-4">
+                <div className="mb-8 flex flex-col md:flex-row gap-4 md:items-center">
+
+                    {/* SEARCH BAR */}
+                    <form
+                        onSubmit={handleSearch}
+                        className="flex-1 flex items-center gap-2 bg-[#1E293B] border border-gray-700 rounded-xl px-3 py-2 focus-within:border-blue-500 transition-all"
+                    >
                         <input
                             type="text"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder={t('search.placeholder')}
-                            className="flex-1 bg-[#1E293B] border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                            className="flex-1 bg-transparent text-white placeholder-gray-400 focus:outline-none px-2"
                         />
+
                         <button
                             type="submit"
-                            className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg transition-colors"
+                            className="bg-blue-600 hover:bg-blue-700 active:scale-95 px-4 py-2 rounded-lg text-sm font-medium transition-all"
                         >
                             {t('search.search')}
                         </button>
                     </form>
 
-                    {/* Bouton pour ouvrir le modal des tags */}
+                    {/* TAG BUTTON */}
                     <button
                         onClick={() => setIsTagsModalOpen(true)}
-                        className="bg-gray-700 hover:bg-gray-600 px-4 py-3 rounded-lg transition-colors flex items-center gap-2"
+                        className="flex items-center justify-center gap-2 bg-[#1E293B] border border-gray-700 hover:bg-[#25334b] px-4 py-2.5 rounded-xl transition-all active:scale-95"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-gray-300"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                        >
+                            <path
+                                fillRule="evenodd"
+                                d="M3 3a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                clipRule="evenodd"
+                            />
                         </svg>
-                        Tags
+                        <span className="text-sm text-gray-200 font-medium">
+                            Tags
+                        </span>
                     </button>
                 </div>
+
 
                 {/* Titre des résultats */}
                 {isSearching ? (
