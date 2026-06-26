@@ -192,7 +192,7 @@ const mangadexService = {
 
         const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-        // ✅ FIX PAGINATION
+        // Pagination — on fetch plus large pour compenser les mangas sans chapitre
         const FETCH_MULTIPLIER = 4;
         const FETCH_SIZE = limit * FETCH_MULTIPLIER;
 
