@@ -18,6 +18,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const role = localStorage.getItem("role");
   const isAdmin = role === "ADMIN";
+  const storedNotifs = JSON.parse(localStorage.getItem("notifications")) || [];
 
 
 
@@ -25,6 +26,13 @@ export default function Navbar() {
 
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("notifications")) || [];
+    setNotifications(stored);
+  }, []);
+
+
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -88,27 +96,51 @@ export default function Navbar() {
         const data = await getLibraryWithLatest();
 
         const previous = JSON.parse(localStorage.getItem("libraryLatest")) || [];
+        const storedNotifs = JSON.parse(localStorage.getItem("notifications")) || [];
+
+        // première visite -> init
+        if (previous.length === 0) {
+          localStorage.setItem("libraryLatest", JSON.stringify(data));
+          return;
+        }
 
         const newNotifs = data.filter((manga) => {
           const old = previous.find(
             (m) => m.mangadex_id === manga.mangadex_id
           );
 
-          return old && old.lastChapter !== manga.lastChapter;
+          if (!old) return false;
+
+          return Number(manga.lastChapter) > Number(old.lastChapter);
         });
 
-        if (newNotifs.length > 0) {
-          setNotifications(newNotifs);
-        }
+        console.log("PREVIOUS:", previous);
+        console.log("NEW DATA:", data);
+        console.log("NEW NOTIFS:", newNotifs);
 
+        //  merge + anti doublons
+        const updatedNotifs = [...storedNotifs, ...newNotifs].filter(
+          (item, index, self) =>
+            index === self.findIndex((m) => m.chapterId === item.chapterId)
+        );
+
+        setNotifications(updatedNotifs);
+
+        //  save
+        localStorage.setItem("notifications", JSON.stringify(updatedNotifs));
         localStorage.setItem("libraryLatest", JSON.stringify(data));
+
       } catch (e) {
         console.error(e);
       }
     }
 
     checkNewChapters();
+    const interval = setInterval(checkNewChapters, 60000);
+
+    return () => clearInterval(interval);
   }, []);
+
 
   return (
     <nav className="bg-[#0F172A]/90 backdrop-blur-md text-white sticky top-0 z-50 border-b border-gray-800">
@@ -243,6 +275,13 @@ export default function Navbar() {
                           navigate(`/chapter/${manga.chapterId}`, {
                             state: { mangaId: manga.mangadex_id }
                           });
+
+                          setNotifications(prev => {
+                            const filtered = prev.filter(n => n.chapterId !== manga.chapterId);
+                            localStorage.setItem("notifications", JSON.stringify(filtered));
+                            return filtered;
+                          });
+
                           setShowNotif(false);
                         }}
                         className="flex gap-3 p-3 hover:bg-[#334155] transition cursor-pointer"
