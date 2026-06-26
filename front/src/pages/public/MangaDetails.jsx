@@ -57,6 +57,8 @@ export default function MangaDetails() {
         }
 
         fetchManga();
+        window.scrollTo(0, 0);
+
     }, [id]);
 
     //  FETCH COMMENTS
