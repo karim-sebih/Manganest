@@ -127,45 +127,35 @@ const mangadexService = {
         contentFilters = ["safe", "suggestive"],
         includedTags = [],
         excludedTags = []
-
     ) => {
         try {
+            const params = new URLSearchParams({
+                limit,
+                offset,
+                "order[latestUploadedChapter]": "desc",
+            });
 
-            const contentQuery = contentFilters
-                .map((filter) => `contentRating[]=${filter}`)
-                .join("&");
+            contentFilters.forEach(f => params.append("contentRating[]", f));
+            includedTags.forEach(t => params.append("includedTags[]", t));
+            excludedTags.forEach(t => params.append("excludedTags[]", t));
 
-            console.log(contentQuery);
+            params.append("includes[]", "cover_art");
+            params.append("availableTranslatedLanguage[]", "fr");
+            params.append("availableTranslatedLanguage[]", "en");
 
+            const res = await fetch(`${BASE_URL}/manga?${params}`);
 
-            const includedQuery = includedTags.length
-                ? includedTags.map(tag => `includedTags[]=${tag}`).join("&")
-                : "";
-
-            const excludedQuery = excludedTags.length
-                ? excludedTags.map(tag => `excludedTags[]=${tag}`).join("&")
-                : "";
-
-            console.log(includedQuery);
-            console.log(excludedQuery);
-
-            const res = await fetch(
-                `${BASE_URL}/manga?limit=${limit}&offset=${offset}&${contentQuery}&${includedQuery}&${excludedQuery}&includes[]=cover_art&availableTranslatedLanguage[]=fr&availableTranslatedLanguage[]=en&order[latestUploadedChapter]=desc`
-            );
-
-            if (!res.ok) {
-                throw new Error(`MangaDex API Error: ${res.status}`);
-            }
+            if (!res.ok) throw new Error(`MangaDex API Error: ${res.status}`);
 
             const data = await res.json();
-
             return data.data || [];
 
         } catch (error) {
-            console.error("FULL ERROR:", error);
+            console.error("getAllManga:", error);
             throw error;
         }
     },
+
 
     // Derniers chapitres
     getLatestChapters: async (
@@ -176,159 +166,88 @@ const mangadexService = {
         includedTags = [],
         excludedTags = []
     ) => {
-        const timeoutMs = 50000;
+        const FETCH_SIZE = limit * 4;
+        const adjustedOffset = offset * 4;
 
-        const fetchWithTimeout = async (url) => {
-            const ctrl = new AbortController();
-            const t = setTimeout(() => ctrl.abort(), timeoutMs);
+        const params = new URLSearchParams({
+            limit: FETCH_SIZE,
+            offset: adjustedOffset,
+            "order[latestUploadedChapter]": "desc",
+        });
 
-            try {
-                const res = await fetch(url, { signal: ctrl.signal });
-                return res;
-            } finally {
-                clearTimeout(t);
-            }
-        };
+        contentFilters.forEach(f => params.append("contentRating[]", f));
+        includedTags.forEach(t => params.append("includedTags[]", t));
+        excludedTags.forEach(t => params.append("excludedTags[]", t));
 
-        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-        // Pagination — on fetch plus large pour compenser les mangas sans chapitre
-        const FETCH_MULTIPLIER = 4;
-        const FETCH_SIZE = limit * FETCH_MULTIPLIER;
-
-        // 🔥 correction ici
-        const adjustedOffset = offset * FETCH_MULTIPLIER;
-
-        const params = new URLSearchParams();
-        params.append("limit", FETCH_SIZE);
-        params.append("offset", adjustedOffset);
         params.append("includes[]", "cover_art");
-        params.append("order[latestUploadedChapter]", "desc");
-
-        contentFilters.forEach((f) => params.append("contentRating[]", f));
-        includedTags.forEach((tag) => params.append("includedTags[]", tag));
-        excludedTags.forEach((tag) => params.append("excludedTags[]", tag));
-
         params.append("availableTranslatedLanguage[]", "fr");
         params.append("availableTranslatedLanguage[]", "en");
 
         const mangaRes = await fetch(`${BASE_URL}/manga?${params}`);
-        if (!mangaRes.ok) throw new Error(`MangaDex manga error: ${mangaRes.status}`);
+        if (!mangaRes.ok) throw new Error("Manga error");
 
-        const mangaData = await mangaRes.json();
-        const mangas = mangaData.data || [];
-
+        const mangas = (await mangaRes.json()).data || [];
         if (!mangas.length) return [];
 
-        const mangaIds = mangas.map((m) => m.id);
+        const mangaMap = new Map(mangas.map(m => [m.id, m]));
 
-        const perMangaLimit = 3;
-        const concurrency = 6;
-        const allResults = [];
-
-        for (let i = 0; i < mangaIds.length; i += concurrency) {
-            const slice = mangaIds.slice(i, i + concurrency);
-
-            const batch = await Promise.all(
-                slice.map(async (id) => {
-                    const url =
-                        `${BASE_URL}/chapter?manga=${id}` +
-                        `&translatedLanguage[]=${language}` +
-                        `&order[readableAt]=desc` +
-                        `&limit=${perMangaLimit}`;
-
-                    for (let attempt = 0; attempt < 2; attempt++) {
-                        try {
-                            const res = await fetchWithTimeout(url);
-
-                            if (!res.ok) {
-                                if (res.status === 429 || res.status >= 500) {
-                                    await sleep(400 * (attempt + 1));
-                                    continue;
-                                }
-                                return [];
-                            }
-
-                            const json = await res.json();
-                            return json.data || [];
-
-                        } catch (e) {
-                            if (attempt === 1) return [];
-                            await sleep(400 * (attempt + 1));
-                        }
-                    }
-
+        // ✅ fetch chapitres (simplifié)
+        const results = await Promise.all(
+            mangas.map(async (m) => {
+                try {
+                    const res = await fetch(
+                        `${BASE_URL}/chapter?manga=${m.id}&translatedLanguage[]=${language}&order[readableAt]=desc&limit=3`
+                    );
+                    if (!res.ok) return [];
+                    return (await res.json()).data || [];
+                } catch {
                     return [];
-                })
-            );
+                }
+            })
+        );
 
-            allResults.push(...batch);
-        }
+        let chapters = results.flat();
 
-        let chapters = allResults.flatMap((r) => r || []);
-
-        // ✅ TRI GLOBAL
+        // ✅ tri
         chapters.sort(
             (a, b) =>
                 new Date(b.attributes.readableAt) - new Date(a.attributes.readableAt)
         );
 
-        // ✅ UNIQUE MANGA
-        const uniqueManga = new Map();
-
-        for (const chapter of chapters) {
-            const mangaRel = chapter.relationships.find(r => r.type === "manga");
-            const mangaId = mangaRel?.id;
-
-            if (!mangaId) continue;
-
-            if (!uniqueManga.has(mangaId)) {
-                uniqueManga.set(mangaId, chapter);
-            }
-        }
-
-        chapters = Array.from(uniqueManga.values());
-
-        // ✅ FILTRE DATE
-        const MAX_DAYS = 30;
-        const now = new Date();
-
-        let filtered = chapters.filter(ch => {
-            const date = new Date(ch.attributes.readableAt);
-            const diff = (now - date) / (1000 * 60 * 60 * 24);
-            return diff <= MAX_DAYS;
+        // ✅ unique manga
+        const seen = new Set();
+        chapters = chapters.filter(ch => {
+            const id = ch.relationships.find(r => r.type === "manga")?.id;
+            if (!id || seen.has(id)) return false;
+            seen.add(id);
+            return true;
         });
 
-        if (filtered.length < limit) {
-            filtered = chapters;
-        }
+        // ✅ limite
+        chapters = chapters.slice(0, limit);
 
-        filtered = filtered.slice(0, limit);
+        // ✅ format final
+        return chapters.map(ch => {
+            const mangaId = ch.relationships.find(r => r.type === "manga")?.id;
+            const manga = mangaMap.get(mangaId);
 
-        return filtered.map((chapter) => {
-            const mangaRel = chapter.relationships.find((r) => r.type === "manga");
-            const manga = mangas.find((m) => m.id === mangaRel?.id);
-
-            const title = manga?.attributes?.title
-                ? Object.values(manga.attributes.title)[0]
-                : "Titre inconnu";
-
-            const coverRel = manga?.relationships?.find((r) => r.type === "cover_art");
-
-            const cover = coverRel?.attributes?.fileName
-                ? `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes.fileName}`
-                : null;
+            const coverRel = manga?.relationships?.find(r => r.type === "cover_art");
 
             return {
-                id: manga?.id,
-                chapterId: chapter.id,
-                mangaTitle: title,
-                lastChapter: chapter.attributes.chapter || "??",
-                publishAt: chapter.attributes.readableAt,
-                cover,
+                id: mangaId,
+                chapterId: ch.id,
+                mangaTitle: manga?.attributes?.title
+                    ? Object.values(manga.attributes.title)[0]
+                    : "Titre inconnu",
+                lastChapter: ch.attributes.chapter || "??",
+                publishAt: ch.attributes.readableAt,
+                cover: coverRel?.attributes?.fileName
+                    ? `https://uploads.mangadex.org/covers/${mangaId}/${coverRel.attributes.fileName}`
+                    : null,
             };
         });
     },
+
 
 
 

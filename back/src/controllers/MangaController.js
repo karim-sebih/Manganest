@@ -205,110 +205,71 @@ async function getMangaById(req, res) {
 
 async function getAllManga(req, res) {
   try {
-
-    const contentFilters = req.query.filters
-      ? req.query.filters.split(",")
-      : ["safe", "suggestive"];
-
-    const included = req.query.included
-      ? req.query.included.split(",")
-      : [];
-
-    const excluded = req.query.excluded
-      ? req.query.excluded.split(",")
-      : [];
-
-    const { limit = 20, offset = 0 } = req.query;
-    const lang = req.query.lang || "fr";
-
-    const mangaList = await mangadexService.getAllManga(
-      parseInt(limit, 10),
-      parseInt(offset, 10),
-      contentFilters,
+    const {
+      limit = 20,
+      offset = 0,
+      lang = "fr",
+      filters,
       included,
       excluded
+    } = req.query;
+
+    const mangas = await mangadexService.getAllManga(
+      +limit,
+      +offset,
+      filters ? filters.split(",") : ["safe", "suggestive"],
+      included ? included.split(",") : [],
+      excluded ? excluded.split(",") : []
     );
 
     res.json({
       success: true,
-
-      mangas: mangaList.map((manga) => ({
-
-        id: manga.id,
-
-        title: getTitle(manga, lang),
-
-        description:
-          typeof getDescription(manga, lang) === "string"
-            ? getDescription(manga, lang).substring(0, 150) + "..."
-            : null,
-
-        cover: buildCoverUrl(manga),
-
-        tags:
-          manga.attributes?.tags?.map(
-            (tag) => tag.attributes?.name?.en
-          ) || [],
-
-        year: manga.attributes?.year,
-
-        status: manga.attributes?.status,
+      mangas: mangas.map(m => ({
+        id: m.id,
+        title: getTitle(m, lang),
+        description: getDescription(m, lang)?.slice(0, 150) + "..." || null,
+        cover: buildCoverUrl(m),
+        tags: m.attributes?.tags?.map(t => t.attributes?.name?.en) || [],
+        year: m.attributes?.year,
+        status: m.attributes?.status,
       })),
     });
 
-  } catch (error) {
-
-    console.error("Erreur getAllManga:", error.message);
-
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
+  } catch (e) {
+    console.error("getAllManga:", e.message);
+    res.status(500).json({ success: false, error: e.message });
   }
 }
+
 
 async function getLatestChapters(req, res) {
   try {
+    const {
+      limit = 12,
+      offset = 0,
+      language = "fr",
+      filters,
+      included,
+      excluded
+    } = req.query;
 
-    const contentFilters = req.query.filters
-      ? req.query.filters.split(",")
-      : ["safe", "suggestive"];
-    const limit = parseInt(req.query.limit, 10) || 12;
-    const offset = parseInt(req.query.offset, 10) || 0;
+    const chapters = await mangadexService.getLatestChapters(
+      +limit,
+      +offset,
+      language,
+      filters ? filters.split(",") : ["safe", "suggestive"],
+      included ? included.split(",") : [],
+      excluded ? excluded.split(",") : []
+    );
 
-    const language = req.query.language || "fr";
+    res.json({ success: true, chapters });
 
-    const included = req.query.included
-      ? req.query.included.split(",")
-      : [];
-
-    const excluded = req.query.excluded
-      ? req.query.excluded.split(",")
-      : [];
-    const data =
-      await mangadexService.getLatestChapters(
-        limit,
-        offset,
-        language,
-        contentFilters,
-        included,
-        excluded
-      );
-    res.json({
-      success: true,
-      chapters: data,
-    });
-
-  } catch (error) {
-
-    console.error("Erreur getLatestChapters:", error.message);
-
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
+  } catch (e) {
+    console.error("getLatestChapters:", e.message);
+    res.status(500).json({ success: false, error: e.message });
   }
 }
+
 
 async function getMangaCover(req, res) {
   try {

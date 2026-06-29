@@ -59,6 +59,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/creator/dashboard" element={<CreatorDashboard />} />
             <Route path="/creator/:mangaId/create-chapter" element={<CreatorChapter />} />
             <Route path="/self/:id" element={<SelfDetails />} />
+            <Route path="/creator/create" element={<CreateManga />} />
 
 
 
