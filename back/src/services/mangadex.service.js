@@ -191,7 +191,7 @@ const mangadexService = {
 
         const mangaMap = new Map(mangas.map(m => [m.id, m]));
 
-        // ✅ fetch chapitres (simplifié)
+
         const results = await Promise.all(
             mangas.map(async (m) => {
                 try {
@@ -208,13 +208,13 @@ const mangadexService = {
 
         let chapters = results.flat();
 
-        // ✅ tri
+        //  tri
         chapters.sort(
             (a, b) =>
                 new Date(b.attributes.readableAt) - new Date(a.attributes.readableAt)
         );
 
-        // ✅ unique manga
+        //  unique manga
         const seen = new Set();
         chapters = chapters.filter(ch => {
             const id = ch.relationships.find(r => r.type === "manga")?.id;
@@ -223,10 +223,10 @@ const mangadexService = {
             return true;
         });
 
-        // ✅ limite
+        //  limite
         chapters = chapters.slice(0, limit);
 
-        // ✅ format final
+        //  format final
         return chapters.map(ch => {
             const mangaId = ch.relationships.find(r => r.type === "manga")?.id;
             const manga = mangaMap.get(mangaId);
