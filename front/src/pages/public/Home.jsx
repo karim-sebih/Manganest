@@ -46,75 +46,49 @@ export default function Home() {
 
 
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () => {
       try {
         setLoading(true);
 
-        const mangaPromise = getAllManga(
-          LIMIT,
-          (page - 1) * LIMIT,
-          contentFilters,
-          tags.included,
-          tags.excluded
-        );
-
-        const chapterPromise = getLatestChapters(
-          LIMIT,
-          (page - 1) * LIMIT,
-          chapterLanguage,
-          contentFilters,
-          tags.included,
-          tags.excluded
-        );
-
-        const selfMangaPromise = GetAllSelfManga().catch(() => []);
-
-        const progressPromise = getAllProgress().catch(() => []);
-
-        const libraryPromise = getLibraryWithLatest().catch(() => []);
-
-        const [mangaData, chapterData, progressData, selfMangaData, libraryData] = await Promise.all([
-          mangaPromise,
-          chapterPromise,
-          progressPromise,
-          selfMangaPromise,
-          libraryPromise
+        const [
+          mangaData,
+          chapterData,
+          progressData,
+          selfMangaData,
+          libraryData
+        ] = await Promise.all([
+          getAllManga(LIMIT, (page - 1) * LIMIT, contentFilters, tags.included, tags.excluded),
+          getLatestChapters(LIMIT, (page - 1) * LIMIT, chapterLanguage, contentFilters, tags.included, tags.excluded),
+          getAllProgress().catch(() => []),
+          GetAllSelfManga().catch(() => []),
+          getLibraryWithLatest().catch(() => [])
         ]);
 
-
+        // ✅ mangas approuvés
         const approved = (selfMangaData || [])
           .filter(m => m.status === "approved")
           .slice(0, 10);
 
-        //  récupérer dernier chapitre pour chaque manga
+        // ✅ last chapter (optimisé)
         const mangasWithChapters = await Promise.all(
-          approved.map(async (manga) => {
+          approved.map(async (m) => {
             try {
-              const chapters = await GetChaptersByManga(manga.id);
+              const chapters = await GetChaptersByManga(m.id);
+              const last = chapters?.sort((a, b) => b.chapter_number - a.chapter_number)[0];
 
-              const sorted = [...(chapters || [])].sort(
-                (a, b) => b.chapter_number - a.chapter_number
-              );
-
-              return {
-                ...manga,
-                lastChapter: sorted[0] || null
-              };
-            } catch (e) {
-              return {
-                ...manga,
-                lastChapter: null
-              };
+              return { ...m, lastChapter: last || null };
+            } catch {
+              return { ...m, lastChapter: null };
             }
           })
         );
 
+        // ✅ set states
         setApprovedMangas(mangasWithChapters);
-
-        setLibraryLatest(libraryData || []);
-        setMangas(mangaData.mangas || []);
-        setLatestChapters(chapterData.chapters || []);
-        setProgressList(progressData || []);
+        setLibraryLatest(libraryData);
+        setMangas(mangaData?.mangas || []);
+        setLatestChapters(chapterData?.chapters || []);
+        setProgressList(progressData);
 
       } catch (err) {
         console.error(err);
@@ -122,10 +96,11 @@ export default function Home() {
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchData();
   }, [page]);
+
 
 
   const handleMangaClick = (id) => {
