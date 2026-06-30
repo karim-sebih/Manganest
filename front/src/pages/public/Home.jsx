@@ -64,12 +64,11 @@ export default function Home() {
           getLibraryWithLatest().catch(() => [])
         ]);
 
-        // ✅ mangas approuvés
         const approved = (selfMangaData || [])
           .filter(m => m.status === "approved")
           .slice(0, 10);
 
-        // ✅ last chapter (optimisé)
+        //  last chapter 
         const mangasWithChapters = await Promise.all(
           approved.map(async (m) => {
             try {
@@ -83,7 +82,6 @@ export default function Home() {
           })
         );
 
-        // ✅ set states
         setApprovedMangas(mangasWithChapters);
         setLibraryLatest(libraryData);
         setMangas(mangaData?.mangas || []);
