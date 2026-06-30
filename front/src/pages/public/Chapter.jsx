@@ -246,7 +246,7 @@ export default function Chapter() {
                 mangadex_chapter_id: id,
                 page: currentPage
             });
-        }, 1000); // évite spam API
+        }, 1000);
 
         return () => clearTimeout(timeout);
     }, [currentPage]);
@@ -260,7 +260,7 @@ export default function Chapter() {
 
         if (images[savedPage]) {
             images[savedPage].scrollIntoView({
-                behavior: "auto", // évite l'effet bizarre au reload
+                behavior: "auto",
                 block: "start"
             });
         }

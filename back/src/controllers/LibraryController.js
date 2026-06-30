@@ -118,7 +118,7 @@ async function getLibraryWithLatestChapter(req, res) {
 
         const mangaMap = new Map(mangas.map(m => [m.id, m]));
 
-        // ✅ récupérer dernier chapitre POUR CHAQUE MANGA
+        //  récupére dernier chapitre POUR CHAQUE MANGA
         const results = await Promise.all(
             ids.map(async (id) => {
                 try {
