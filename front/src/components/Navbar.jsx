@@ -182,7 +182,7 @@ export default function Navbar() {
 
                 <Link to="search">
                   <div className="ml-2 px-2 py-1 text-xs bg-blue-500/20 text-blue-400 rounded-md hover:bg-blue-500/30 transition">
-                    Go
+                    Advanced search
                   </div>
                 </Link>
               </div>
@@ -327,7 +327,7 @@ export default function Navbar() {
                   <div className="flex flex-col text-sm">
 
                     <Link
-                      to="/profile/123"
+                      to="/profile/:id"
                       className="px-4 py-2 hover:bg-[#334155] transition"
                       onClick={() => setShowUserMenu(false)}
                     >

@@ -57,7 +57,7 @@ async function getAllProgress(req, res) {
         const mangas = await mangadexService.getMangasByIds(ids);
         const mangaMap = new Map(mangas.map(m => [m.id, m]));
 
-        // ✅ NOUVEAU : récupérer les chapitres
+        // récupérer les chapitres
         const chapterPromises = progressList.map(async (item) => {
             if (!item.mangadex_chapter_id) return null;
 
@@ -108,7 +108,7 @@ async function getAllProgress(req, res) {
                 title: title || "Titre inconnu",
                 cover: cover || "https://picsum.photos/300/420",
 
-                // ✅ IMPORTANT
+
                 chapter: chapterMap.get(item.mangadex_chapter_id) || "?"
             };
         });

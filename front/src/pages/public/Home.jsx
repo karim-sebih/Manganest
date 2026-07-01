@@ -146,6 +146,8 @@ export default function Home() {
               <img
                 src={`http://localhost:3000${manga.cover}`}
                 alt={manga.title}
+                loading="lazy"
+
                 className="w-24 h-36 object-cover rounded-xl flex-shrink-0"
                 onError={(e) => {
                   e.target.src = "https://picsum.photos/200/300";

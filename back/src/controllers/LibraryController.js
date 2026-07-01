@@ -104,7 +104,8 @@ async function getLibraryWithLatestChapter(req, res) {
         const user_id = req.user.id;
 
         const library = await Library.findAll({
-            where: { user_id }
+            where: { user_id },
+            limit: 10
         });
 
         if (!library.length) {
@@ -113,7 +114,6 @@ async function getLibraryWithLatestChapter(req, res) {
 
         const ids = library.map(item => item.mangadex_id);
 
-        // ✅ mangas
         const mangas = await mangadexService.getMangasByIds(ids);
 
         const mangaMap = new Map(mangas.map(m => [m.id, m]));
