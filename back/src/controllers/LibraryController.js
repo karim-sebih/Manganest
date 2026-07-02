@@ -124,7 +124,14 @@ async function getLibraryWithLatestChapter(req, res) {
                 try {
                     const chapters = await mangadexService.getMangaChapters(id, ["fr", "en"]);
 
-                    const latest = chapters?.[0];
+                    const sortedChapters = chapters?.sort((a, b) => {
+                        const dateA = new Date(a.attributes.readableAt || 0);
+                        const dateB = new Date(b.attributes.readableAt || 0);
+                        return dateB - dateA;
+                    });
+
+                    const latest = sortedChapters?.[0];
+
 
                     const manga = mangaMap.get(id);
 
@@ -143,7 +150,8 @@ async function getLibraryWithLatestChapter(req, res) {
                         title,
                         cover,
                         lastChapter: latest?.attributes?.chapter || "??",
-                        chapterId: latest?.id || null
+                        chapterId: latest?.id || null,
+                        readableAt: latest?.attributes?.readableAt || null
                     };
 
                 } catch (e) {
@@ -152,7 +160,15 @@ async function getLibraryWithLatestChapter(req, res) {
             })
         );
 
-        res.json(results.filter(Boolean));
+        const filtered = results.filter(Boolean);
+        filtered.sort((a, b) => {
+            const dateA = new Date(a.readableAt || 0);
+            const dateB = new Date(b.readableAt || 0);
+            return dateB - dateA;
+        });
+
+        res.json(filtered);
+
 
     } catch (error) {
         console.error("getLibraryWithLatestChapter:", error);
