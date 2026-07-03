@@ -112,26 +112,29 @@ async function getLibraryWithLatestChapter(req, res) {
             return res.json([]);
         }
 
-        const ids = library.map(item => item.mangadex_id);
-
-        const mangas = await mangadexService.getMangasByIds(ids);
+        const mangas = await mangadexService.getMangasByIds(
+            library.map(item => item.mangadex_id)
+        );
 
         const mangaMap = new Map(mangas.map(m => [m.id, m]));
 
-        //  récupére dernier chapitre POUR CHAQUE MANGA
         const results = await Promise.all(
-            ids.map(async (id) => {
+            library.map(async (item) => {
+                const id = item.mangadex_id;
+
                 try {
                     const chapters = await mangadexService.getMangaChapters(id, ["fr", "en"]);
 
-                    const sortedChapters = chapters?.sort((a, b) => {
-                        const dateA = new Date(a.attributes.readableAt || 0);
-                        const dateB = new Date(b.attributes.readableAt || 0);
-                        return dateB - dateA;
-                    });
+                    const latest = chapters
+                        ?.sort((a, b) => {
+                            const dateA = a.attributes.readableAt
+                            new Date(a.attributes.readableAt)
 
-                    const latest = sortedChapters?.[0];
+                            const dateB = b.attributes.readableAt
+                            new Date(b.attributes.readableAt)
 
+                            return dateB - dateA;
+                        })?.[0];
 
                     const manga = mangaMap.get(id);
 
@@ -155,26 +158,28 @@ async function getLibraryWithLatestChapter(req, res) {
                     };
 
                 } catch (e) {
+                    console.error("chapters error for", id, e.message);
                     return null;
                 }
             })
         );
 
-        const filtered = results.filter(Boolean);
-        filtered.sort((a, b) => {
-            const dateA = new Date(a.readableAt || 0);
-            const dateB = new Date(b.readableAt || 0);
-            return dateB - dateA;
-        });
+        const filtered = results
+            .filter(Boolean)
+            .sort((a, b) => {
+                const dateA = a.readableAt ? new Date(a.readableAt) : 0;
+                const dateB = b.readableAt ? new Date(b.readableAt) : 0;
+                return dateB - dateA;
+            });
 
         res.json(filtered);
-
 
     } catch (error) {
         console.error("getLibraryWithLatestChapter:", error);
         res.status(500).json({ error: "Error" });
     }
 }
+
 
 
 export { addOrUpdateEntry, deleteEntry, getUserLibrary, getLibraryWithLatestChapter };

@@ -35,8 +35,8 @@ const Manga = sequelize.define(
             defaultValue: DataTypes.NOW,
         },
         status: {
-            type: DataTypes.ENUM("draft", "pending", "approved", "rejected"),
-            defaultValue: "draft"
+            type: DataTypes.ENUM( "pending", "approved", "rejected"),
+            defaultValue: "pending"
         }
 
     },
