@@ -172,11 +172,11 @@ export default function MangaDetails() {
 
     // PROGRESS
 
-    const lastChapter = chapters.find(
+    const lastChapter = chapters?.find(
         (c) => c.id === progress?.mangadex_chapter_id
     );
 
-    const chapterIndex = chapters.findIndex(
+    const chapterIndex = chapters?.findIndex(
         (c) => c.id === progress?.mangadex_chapter_id
     );
 
@@ -322,7 +322,8 @@ export default function MangaDetails() {
                                             mangaId: id,
                                             chapters,
                                             currentIndex: chapterIndex !== -1 ? chapterIndex : 0,
-                                            page: progress.page
+                                            page: progress.page,
+                                            chapterNumber: lastChapter?.chapter
                                         }
                                     })
                                 }

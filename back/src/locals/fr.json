@@ -59,6 +59,8 @@
       "alreadyLoggedIn": "Vous êtes déjà connecté en tant que {{username}}",
       "logout": "Se déconnecter",
       "goToHomepage": "Aller à l'accueil",
+      "noAccount":"Pas de compte ? ",
+      "register":"Inscrivez-vous",
       "validation": {
         "emailInvalid": "Email invalide",
         "passwordRequired": "Mot de passe requis"

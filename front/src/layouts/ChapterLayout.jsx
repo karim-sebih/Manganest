@@ -101,9 +101,11 @@ export default function ChapterLayout() {
 
                 <span>
                     Chapitre {
-                        currentChapter?.attributes?.chapter ??
-                        location.state?.chapterNumber ??
+                        currentChapter?.chapter ??                  // ✅ depuis ton API
+                        currentChapter?.attributes?.chapter ??      // ✅ fallback mangadex
+                        location.state?.chapterNumber ??            // ✅ fallback navigation
                         "?"
+
                     }
 
 

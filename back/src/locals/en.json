@@ -59,6 +59,8 @@
       "alreadyLoggedIn": "You are already logged in as {{username}}",
       "logout": "Logout",
       "goToHomepage": "Go to homepage",
+      "noAccount":"No account",
+      "register":"Create your account",
       "validation": {
         "emailInvalid": "Invalid email",
         "passwordRequired": "Password is required"
@@ -101,4 +103,5 @@
       "logout": "Logout"
     }
   }
+  
 }

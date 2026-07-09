@@ -5,18 +5,18 @@ import jwt from "jsonwebtoken";
 
 async function login(req, res) {
   const { email, password } = req.body;
-  console.log("🔍 Login attempt for:", email); 
+  console.log(" Login attempt for:", email);
 
   try {
     const user = await User.findOne({ where: { email } });
-    console.log("User found:", !!user); // ← Ajoute ça
-    
+    console.log("User found:", !!user);
+
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const isMatch = await comparePassword(password, user.password);
-    console.log("Password match:", isMatch); 
+    console.log("Password match:", isMatch);
     if (!isMatch) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -58,7 +58,7 @@ function checkToken(req, res) {
   let decoded;
   try {
     decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+
     // Find user by email from decoded token
     User.findOne({ where: { email: decoded.email } })
       .then((user) => {
