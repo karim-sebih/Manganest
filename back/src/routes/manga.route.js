@@ -5,7 +5,7 @@ import {
     getMangaById,
     getAllManga,
     getLatestChapters,
-    getMangaCover,
+
     getChapterPages
 } from '../controllers/MangaController.js';
 
@@ -17,7 +17,7 @@ Mangarouter.get('/all-mangas', getAllManga);
 
 Mangarouter.get('/latest-chapters', getLatestChapters);
 
-Mangarouter.get('/:id/cover', getMangaCover);
+
 
 Mangarouter.get('/chapter/:id/pages', getChapterPages);
 

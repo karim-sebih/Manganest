@@ -271,35 +271,7 @@ async function getLatestChapters(req, res) {
 }
 
 
-async function getMangaCover(req, res) {
-  try {
 
-    const { id } = req.params;
-
-    const cover = await mangadexService.getMangaCover(id);
-
-    if (!cover) {
-      return res.status(404).json({
-        success: false,
-        error: "Cover non trouvé",
-      });
-    }
-
-    res.json({
-      success: true,
-      cover
-    });
-
-  } catch (error) {
-
-    console.error("Erreur getMangaCover:", error.message);
-
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-}
 
 async function getChapterPages(req, res) {
 
@@ -353,6 +325,5 @@ export {
   getMangaById,
   getAllManga,
   getLatestChapters,
-  getMangaCover,
   getChapterPages
 };

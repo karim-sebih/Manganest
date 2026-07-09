@@ -64,7 +64,7 @@ const mangadexService = {
         }
     },
 
-    /* Récupérer les chapitres d’un manga (sois en fr sois en eng pour l'instant*/
+    /* Récupérer les chapitres d’un manga (sois en eng sois en fr pour l'instant*/
     getMangaChapters: async (
         id,
         languages = ["fr"]
@@ -255,30 +255,7 @@ const mangadexService = {
 
 
     // Cover d’un manga
-    getMangaCover: async (id) => {
-        try {
 
-            const res = await fetch(
-                `${BASE_URL}/manga/${id}?includes[]=cover_art`
-            );
-
-            const data = await res.json();
-
-            const coverRel = data.data.relationships.find(
-                (rel) => rel.type === "cover_art"
-            );
-
-            if (!coverRel?.attributes?.fileName) {
-                return null;
-            }
-
-            return `https://uploads.mangadex.org/covers/${id}/${coverRel.attributes.fileName}`;
-
-        } catch (error) {
-            console.error("getMangaCover Error:", error.message);
-            return null;
-        }
-    }
 };
 
 export default mangadexService;
