@@ -181,7 +181,7 @@ DB_PORT=3306
 # AUTHENTIFICATION JWT
 # ============================================
 JWT_SECRET=votre_secret_jwt_long_et_securise_minimum_64_caracteres
-JWT_EXPIRES_IN=365d
+JWT_EXPIRES_IN=7d
 ```
 
 > **Important** : Le JWT_SECRET doit contenir au moins 64 caractères. Utilisez une valeur aléatoire complexe et ne la partagez jamais.

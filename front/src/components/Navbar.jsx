@@ -4,7 +4,7 @@ import { Search, Menu, Sun, Bell, User, Shield } from "lucide-react";
 import { searchManga } from "../api/manga";
 import ManganestLogo from "../assets/Manganest-removebg-preview.png";
 import { getLibraryWithLatest } from "../api/library";
-
+import handleLogout from "../utils/helpers";
 
 
 export default function Navbar() {
@@ -19,6 +19,8 @@ export default function Navbar() {
   const role = localStorage.getItem("role");
   const isAdmin = role === "ADMIN";
   const storedNotifs = JSON.parse(localStorage.getItem("notifications")) || [];
+  const token = localStorage.getItem("token");
+  const isLoggedIn = !!token;
 
 
 
@@ -319,37 +321,58 @@ export default function Navbar() {
 
               {showUserMenu && (
                 <div className="absolute right-0 top-full mt-2 w-52 bg-[#1E293B] border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
-
                   <div className="px-4 py-3 border-b border-gray-700 text-sm font-semibold">
                     Mon compte
                   </div>
 
                   <div className="flex flex-col text-sm">
+                    {isLoggedIn ? (
+                      <>
+                        <Link
+                          to="/profile/"
+                          className="px-4 py-2 hover:bg-[#334155] transition"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          Profil
+                        </Link>
 
-                    <Link
-                      to="/profile/:id"
-                      className="px-4 py-2 hover:bg-[#334155] transition"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      Profil
-                    </Link>
+                        <Link
+                          to="/library"
+                          className="px-4 py-2 hover:bg-[#334155] transition"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          Bibliothèque
+                        </Link>
 
-                    <Link
-                      to="/library"
-                      className="px-4 py-2 hover:bg-[#334155] transition"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      Bibliothèque
-                    </Link>
+                        <Link
+                          to="/settings"
+                          className="px-4 py-2 hover:bg-[#334155] transition"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          Paramètres
+                        </Link>
 
-                    <Link
-                      to="/settings"
-                      className="px-4 py-2 hover:bg-[#334155] transition"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      Paramètres
-                    </Link>
-
+                        <button
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            handleLogout();
+                          }}
+                          className="px-4 py-2 text-left hover:bg-red-500/20 transition text-red-400"
+                        >
+                          Déconnexion
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          navigate("/auth/login");
+                        }}
+                        className="px-4 py-2 text-left hover:bg-[#334155] transition"
+                      >
+                        Se connecter
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

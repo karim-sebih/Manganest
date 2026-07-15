@@ -59,7 +59,7 @@ export default function Reader() {
                     <img
                         key={page.id}
                         src={`http://localhost:3000${page.image_url}`}
-                        className="w-full max-w-4xl rounded"
+                        className="w-full max-w-2xl rounded"
                         loading="lazy"
                         alt="page"
                     />

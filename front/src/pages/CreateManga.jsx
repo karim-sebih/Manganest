@@ -38,7 +38,6 @@ export default function CreatorManga() {
                 title: chapterTitle,
             });
 
-            // UPLOAD PAGES
             if (pages.length > 0) {
                 const formData = new FormData();
 

@@ -60,10 +60,8 @@ export default function CreatorDashboard() {
         try {
             await deleteSelfManga(id);
 
-            // refresh liste
             setMangas(prev => prev.filter(m => m.id !== id));
 
-            // reset si supprimé sélectionné
             if (selectedManga?.id === id) {
                 setSelectedManga(null);
                 setChapters([]);

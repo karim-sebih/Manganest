@@ -51,7 +51,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/auth/login" element={<Login />} />
             <Route path="/manga/:id" element={<MangaDetails />} />
             <Route path="/search" element={<SearchPage />} />
-            <Route path="/profile/:id" element={<Profile />} />
+            <Route path="/profile/" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/library" element={<Library />} />
             <Route path="/access-denied" element={<AccessDeniedPage />} />
