@@ -18,7 +18,7 @@ const app = express(); // Créer une application Express
 // 2. CORS (très tôt)
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || origin.endsWith('.vercel.app') || origin === 'http://localhost:5173') {
+    if (!origin || origin.endsWith('.vercel.app') || origin === 'http://localhost:5173' || origin === 'http://localhost:3000' || origin === 'http://back:3000' || origin === "http://127.0.0.1:5173") {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));

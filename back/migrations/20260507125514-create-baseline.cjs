@@ -146,7 +146,7 @@ CREATE TABLE progress (
       await q(`DROP TABLE likes;`);
       await q(`DROP TABLE progress;`);
       await q(`DROP TABLE ratings;`);
-      await q(`DROP TABLE mangas`);
+      await q(`DROP TABLE manga`);
       await q(`DROP TABLE chapters`);
       await q(`DROP TABLE pages`);
 

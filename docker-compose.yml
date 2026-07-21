@@ -1,0 +1,72 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: manganest_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: manganest
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppassword
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u appuser -papppassword --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrate:
+    build:
+      context: ./back
+    container_name: manganest_migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_USER: appuser
+      DB_PASSWORD: apppassword
+      DB_NAME: manganest
+      JWT_SECRET: "change_me_change_me_change_me"
+      JWT_EXPIRES_IN: "365d"
+      NODE_ENV: production
+    command: >
+      sh -lc "until nc -z db 3306; do sleep 1; done &&
+      npx sequelize-cli db:migrate --env production"
+    restart: "no"
+
+  back:
+    build:
+      context: ./back
+    container_name: manganest_back
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DB_HOST: db
+      DB_USER: appuser
+      DB_PASSWORD: apppassword
+      DB_NAME: manganest
+      JWT_SECRET: "change_me_change_me_change_me"
+      JWT_EXPIRES_IN: "365d"
+      PORT: "3000"
+      NODE_ENV: production
+
+  front:
+    build:
+      context: ./front
+      args:
+        VITE_API_URL: "http://back:3000"
+    container_name: manganest_front
+    restart: unless-stopped
+    depends_on:
+      - back
+    ports:
+      - "5173:80"
+
+volumes:
+  db_data:
