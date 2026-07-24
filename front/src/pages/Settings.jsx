@@ -262,12 +262,7 @@ export default function Settings() {
                                     {t('settings.dangerZone.deleteAccount')}
                                 </button>
 
-                                <button
-                                    onClick={handleLogout}
-                                    className="bg-gray-800 hover:bg-gray-700 active:scale-95 transition px-5 py-2.5 rounded-xl text-sm font-medium w-full"
-                                >
-                                    {t('settings.dangerZone.logout')}
-                                </button>
+
 
                             </div>
                         </div>
